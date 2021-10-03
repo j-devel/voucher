@@ -1,0 +1,15 @@
+[package]
+name = "minerva-voucher"
+version = "0.1.0"
+edition = "2018"
+authors = ["ANIMA Minerva toolkit"]
+
+[lib]
+name = "minerva_voucher"
+
+[features]
+default = []
+std = []
+
+[dependencies]
+mcu-if = { git = "https://github.com/AnimaGUS-minerva/mcu-if", rev = "6543b39" }
