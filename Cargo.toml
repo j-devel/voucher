@@ -1,6 +1,6 @@
 [package]
 name = "minerva-voucher"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
 authors = ["ANIMA Minerva toolkit"]
 
@@ -8,8 +8,13 @@ authors = ["ANIMA Minerva toolkit"]
 name = "minerva_voucher"
 
 [features]
-default = []
+default = ["minerva-voucher-validate"]
+minerva-voucher-validate = ["minerva-mbedtls"]
 std = []
 
 [dependencies]
 mcu-if = { git = "https://github.com/AnimaGUS-minerva/mcu-if", rev = "6543b39" }
+cose = { git = "https://github.com/j-devel/cose-rust", rev = "9907d61", default-features = false }
+
+minerva-mbedtls = { git = "https://github.com/AnimaGUS-minerva/minerva-mbedtls", rev = "fc9e07a", optional = true }
+#minerva-mbedtls = { path = "../minerva-mbedtls", optional = true }
