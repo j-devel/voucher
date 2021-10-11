@@ -6,6 +6,9 @@ extern crate std;
 
 //
 
+#[cfg(test)]
+mod tests;
+
 mod cose_data;
 use cose_data::{CoseData, CoseSignature};
 pub use cose_data::SignatureAlgorithm;
@@ -16,10 +19,10 @@ pub trait Validate {
     fn validate(&self, masa_pem: Option<&[u8]>) -> bool;
 }
 
-#[cfg(feature = "minerva-voucher-validate")]
+#[cfg(feature = "validate")]
 mod validate;
 
-#[cfg(feature = "minerva-voucher-validate")]
+#[cfg(feature = "validate")]
 impl Validate for Voucher {
     fn validate(&self, masa_pem: Option<&[u8]>) -> bool {
         validate::validate(masa_pem, self.to_validate())
@@ -57,22 +60,4 @@ impl Voucher {
     pub fn dump(&self) {
         CoseData::dump(&self.0);
     }
-}
-
-//
-
-#[cfg(feature = "std")]
-use std::{println, vec, vec::Vec};
-#[cfg(not(feature = "std"))]
-use mcu_if::{println, alloc::{vec, vec::Vec}};
-
-pub fn foo() {
-    let v = vec![0, 1, 2];
-    println!("v: {:?}", v);
-    assert_eq!(v, Vec::from([0, 1, 2]));
-}
-
-#[test]
-fn test_foo() {
-    foo();
 }

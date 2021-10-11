@@ -1,6 +1,6 @@
 [package]
 name = "minerva-voucher"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2018"
 authors = ["ANIMA Minerva toolkit"]
 
@@ -8,8 +8,8 @@ authors = ["ANIMA Minerva toolkit"]
 name = "minerva_voucher"
 
 [features]
-default = ["minerva-voucher-validate"]
-minerva-voucher-validate = ["minerva-mbedtls"]
+default = ["validate"]
+validate = ["minerva-mbedtls"]
 std = []
 
 [dependencies]
