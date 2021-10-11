@@ -19,10 +19,10 @@ pub trait Validate {
     fn validate(&self, masa_pem: Option<&[u8]>) -> bool;
 }
 
-#[cfg(feature = "validate")]
+#[cfg(any(feature = "validate", feature = "validate-lts"))]
 mod validate;
 
-#[cfg(feature = "validate")]
+#[cfg(any(feature = "validate", feature = "validate-lts"))]
 impl Validate for Voucher {
     fn validate(&self, masa_pem: Option<&[u8]>) -> bool {
         validate::validate(masa_pem, self.to_validate())
