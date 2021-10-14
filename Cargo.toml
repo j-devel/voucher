@@ -17,5 +17,5 @@ std = []
 mcu-if = { git = "https://github.com/AnimaGUS-minerva/mcu-if", rev = "6543b39" }
 cose = { git = "https://github.com/j-devel/cose-rust", rev = "9907d61", default-features = false }
 
-minerva-mbedtls = { git = "https://github.com/AnimaGUS-minerva/minerva-mbedtls", rev = "fc9e07a", default-features = false, optional = true }
+minerva-mbedtls = { git = "https://github.com/AnimaGUS-minerva/minerva-mbedtls", rev = "9c0090a", default-features = false, optional = true }
 #minerva-mbedtls = { path = "../minerva-mbedtls", default-features = false, optional = true }
