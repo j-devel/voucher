@@ -13,10 +13,19 @@ pub fn validate(
     let (md_ty, ref hash) = compute_digest(msg, alg);
 
     if let Some(pem) = masa_pem {
-        x509_crt::new()
-            .parse(pem)
-            .pk_mut()
-            .verify(md_ty, hash, signature)
+        #[cfg(not(feature = "validate-lts-xtensa-kludge"))]
+        {
+            x509_crt::new()
+                .parse(pem)
+                .pk_mut()
+                .verify(md_ty, hash, signature)
+        }
+        #[cfg(feature = "validate-lts-xtensa-kludge")]
+        {
+            let _ = pem;
+            println!("⚠️ FIXME -- linker errors on `x509_crt` related symbols on `xtensa`; validation fails for now!!");
+            false
+        }
     } else if let Some(cert) = signer_cert {
         let grp = ecp_group::from_id(ecp_group_id::MBEDTLS_ECP_DP_SECP256R1);
         let mut pt = ecp_point::new();
