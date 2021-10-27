@@ -84,3 +84,20 @@ impl CoseData {
         })
     }
 }
+
+//==== begin WIP
+#[cfg(feature = "std")]
+use std::collections::BTreeMap;
+#[cfg(not(feature = "std"))]
+use mcu_if::alloc::collections::BTreeMap;
+
+pub fn wip_sig_one_struct_bytes(content: &[u8]) -> Vec<u8> {
+    sig_one_struct_bytes(BTreeMap::new(), content).unwrap()
+}
+fn sig_one_struct_bytes(protected_bucket: BTreeMap<CborType, CborType>, content: &[u8]) -> Result<Vec<u8>, CoseError> {
+    let protected_bucket = CborType::Map(protected_bucket).serialize();
+    assert_eq!(vec![0xa0], protected_bucket);
+
+    Ok(get_sig_one_struct_bytes(CborType::Bytes(protected_bucket), content))
+}
+//==== end WIP

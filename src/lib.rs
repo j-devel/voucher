@@ -13,6 +13,8 @@ mod cose_data;
 use cose_data::{CoseData, CoseSignature};
 pub use cose_data::SignatureAlgorithm;
 
+pub use cose_data::wip_sig_one_struct_bytes; // WIP
+
 pub struct Voucher(CoseSignature);
 
 pub trait Validate {
