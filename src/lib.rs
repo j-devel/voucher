@@ -17,19 +17,19 @@ pub use cose_data::wip_sig_one_struct_bytes; // WIP
 
 pub struct Voucher(CoseSignature);
 
-pub trait Validate {
-    fn validate(&self, masa_pem: Option<&[u8]>) -> bool;
+pub trait Sign {
+    fn sign(&self, privkey_pem: &[u8]);
 }
+
+pub trait Validate {
+    fn validate(&self, pubkey_pem: Option<&[u8]>) -> bool;
+}
+
+#[cfg(any(feature = "sign", feature = "validate-lts"))]
+mod sign;
 
 #[cfg(any(feature = "validate", feature = "validate-lts"))]
 mod validate;
-
-#[cfg(any(feature = "validate", feature = "validate-lts"))]
-impl Validate for Voucher {
-    fn validate(&self, masa_pem: Option<&[u8]>) -> bool {
-        validate::validate(masa_pem, self.to_validate())
-    }
-}
 
 impl Voucher {
     pub fn from(raw: &[u8]) -> Self {
