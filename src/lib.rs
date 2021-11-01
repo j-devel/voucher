@@ -18,7 +18,7 @@ pub use cose_data::wip_sig_one_struct_bytes; // WIP
 pub struct Voucher(CoseSignature);
 
 pub trait Sign {
-    fn sign(&mut self, privkey_pem: &[u8], alg: &SignatureAlgorithm);
+    fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm);
 }
 
 pub trait Validate {
