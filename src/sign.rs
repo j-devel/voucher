@@ -9,14 +9,15 @@ use crate::SignatureAlgorithm;
 use minerva_mbedtls::ifce::*;
 
 impl crate::Sign for crate::Voucher {
-    fn sign(&self, privkey_pem: &[u8]) {
-        sign(privkey_pem, /* WIP !! self.to_sign() */);
+    fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm) {
+        sign(privkey_pem, alg, self.to_sign());
     }
 }
 
 fn sign(
     privkey_pem: &[u8],
-    /* WIP ..., */
+    alg: SignatureAlgorithm,
+    to_sign: (&mut [u8], &mut SignatureAlgorithm, &[u8])
 ) {
     unimplemented!("WIP !!");
 }
