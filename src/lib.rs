@@ -18,7 +18,7 @@ pub use cose_data::wip_sig_one_struct_bytes; // WIP
 pub struct Voucher(CoseSignature);
 
 pub trait Sign {
-    fn sign(&self, privkey_pem: &[u8]);
+    fn sign(&mut self, privkey_pem: &[u8], alg: &SignatureAlgorithm);
 }
 
 pub trait Validate {
@@ -41,6 +41,10 @@ impl Voucher {
         } else {
             panic!("Failed to decode raw voucher");
         };
+    }
+
+    pub fn to_sign(&mut self) -> (&mut [u8], &mut SignatureAlgorithm, &[u8]) {
+        (&mut self.0.signature, &mut self.0.signature_type, &self.0.to_verify)
     }
 
     pub fn to_validate(&self) -> (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]) {
