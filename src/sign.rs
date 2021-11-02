@@ -17,7 +17,7 @@ impl crate::Sign for crate::Voucher {
 fn sign(
     privkey_pem: &[u8],
     alg: SignatureAlgorithm,
-    to_sign: (&mut [u8], &mut SignatureAlgorithm, &[u8])
+    to_sign: (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8])
 ) {
     unimplemented!("WIP !!");
 }
