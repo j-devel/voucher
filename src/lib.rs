@@ -10,10 +10,8 @@ extern crate std;
 mod tests;
 
 mod cose_data;
-use cose_data::{CoseData, CoseSignature};
-pub use cose_data::SignatureAlgorithm;
-
-pub use cose_data::wip_sig_one_struct_bytes; // WIP
+use cose_data::CoseSignature;
+pub use cose_data::{CoseData, SignatureAlgorithm};
 
 pub struct Voucher(CoseSignature);
 
@@ -61,7 +59,7 @@ impl Voucher {
     }
 
     pub fn set_content(&mut self, content: &[u8]) -> &mut Self {
-        self.0.to_verify = wip_sig_one_struct_bytes(content);
+        self.0.to_verify = CoseData::sig_one_struct_bytes_from(content);
 
         self
     }
