@@ -31,7 +31,20 @@ mod sign;
 #[cfg(any(feature = "validate", feature = "validate-lts"))]
 mod validate;
 
+//
+
+#[cfg(feature = "std")]
+use std::vec::Vec;
+#[cfg(not(feature = "std"))]
+use mcu_if::alloc::vec::Vec;
+
+//
+
 impl Voucher {
+    pub fn new() -> Self {
+        Self(CoseData::new_cose_signature())
+    }
+
     pub fn from(raw: &[u8]) -> Self {
         if let Ok(cose_data) = CoseData::decode(raw) {
             match cose_data {
@@ -43,8 +56,14 @@ impl Voucher {
         };
     }
 
-    pub fn to_sign(&mut self) -> (&mut [u8], &mut SignatureAlgorithm, &[u8]) {
+    pub fn to_sign(&mut self) -> (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8]) {
         (&mut self.0.signature, &mut self.0.signature_type, &self.0.to_verify)
+    }
+
+    pub fn set_content(&mut self, content: &[u8]) -> &mut Self {
+        self.0.to_verify = wip_sig_one_struct_bytes(content);
+
+        self
     }
 
     pub fn to_validate(&self) -> (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]) {
