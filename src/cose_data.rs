@@ -1,7 +1,7 @@
 #[cfg(feature = "std")]
-use std::{println, vec, vec::Vec, collections::BTreeMap};
+use std::{println, boxed::Box, vec, vec::Vec, collections::BTreeMap};
 #[cfg(not(feature = "std"))]
-use mcu_if::{println, alloc::{vec, vec::Vec, collections::BTreeMap}};
+use mcu_if::{println, alloc::{boxed::Box, vec, vec::Vec, collections::BTreeMap}};
 
 use cose::{decoder::*, unpack};
 pub use cose::decoder::{CoseSignature, SignatureAlgorithm};
@@ -101,5 +101,27 @@ impl CoseData {
         assert_eq!(vec![0xa0], protected_bucket);
 
         get_sig_one_struct_bytes(CborType::Bytes(protected_bucket), content)
+    }
+
+    pub fn serialize(cose_sig: &CoseSignature) -> Result<Vec<u8>, CoseError> {
+        // TODO generic !!!!
+        let protected_bucket: BTreeMap<CborType, CborType> = BTreeMap::new();
+
+        let array = vec![
+            CborType::Bytes(CborType::Map(protected_bucket).serialize()),
+            CborType::Map(BTreeMap::new()), // TODO generic !!!!
+            CborType::Bytes(Self::get_content(cose_sig).unwrap()),
+            CborType::Bytes(cose_sig.signature.clone())];
+
+        Ok(CborType::Tag(COSE_SIGN_ONE_TAG, Box::new(CborType::Array(array))).serialize())
+    }
+
+    pub fn get_content(cose_sig: &CoseSignature) -> Option<Vec<u8>> {
+        let _tv = &cose_sig.to_verify;
+
+        // WIP
+
+        // Some(vec![43u8])
+        Some(vec![161, 26, 0, 15, 70, 194, 164, 1, 105, 112, 114, 111, 120, 105, 109, 105, 116, 121, 2, 193, 26, 97, 119, 115, 164, 10, 81, 48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69, 7, 118, 114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103])
     }
 }

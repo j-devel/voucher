@@ -66,14 +66,12 @@ impl Voucher {
         (self.get_signer_cert(), signature, alg, &self.0.to_verify)
     }
 
-    pub fn serialize(&self) -> Vec<u8> {
-        vec![42u8/* ... */] // WIP
+    pub fn serialize(&self) -> Option<Vec<u8>> {
+        CoseData::serialize(&self.0).ok()
     }
 
     pub fn get_content(&self) -> Option<Vec<u8>> {
-
-        //Some(vec![42u8]) // WIP
-        None
+        CoseData::get_content(&self.0)
     }
 
     pub fn set_content(&mut self, content: &[u8]) -> &mut Self {
