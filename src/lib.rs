@@ -54,20 +54,32 @@ impl Voucher {
         };
     }
 
+    /// Interface with meta data to be used in ECDSA based signing
     pub fn to_sign(&mut self) -> (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8]) {
         (&mut self.0.signature, &mut self.0.signature_type, &self.0.to_verify)
+    }
+
+    /// Interface with meta data to be used in ECDSA based validation
+    pub fn to_validate(&self) -> (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]) {
+        let (signature, alg) = self.get_signature();
+
+        (self.get_signer_cert(), signature, alg, &self.0.to_verify)
+    }
+
+    pub fn serialize(&self) -> Vec<u8> {
+        vec![42u8/* ... */] // WIP
+    }
+
+    pub fn get_content(&self) -> Option<Vec<u8>> {
+
+        //Some(vec![42u8]) // WIP
+        None
     }
 
     pub fn set_content(&mut self, content: &[u8]) -> &mut Self {
         self.0.to_verify = CoseData::sig_one_struct_bytes_from(content);
 
         self
-    }
-
-    pub fn to_validate(&self) -> (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]) {
-        let (signature, alg) = self.get_signature();
-
-        (self.get_signer_cert(), signature, alg, &self.0.to_verify)
     }
 
     pub fn get_signature(&self) -> (&[u8], &SignatureAlgorithm) {
