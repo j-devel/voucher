@@ -49,14 +49,14 @@ impl CoseData {
     }
 
     fn decode_cose_sign(cose_sign_array: &[CborType]) -> Result<Vec<CoseSignature>, CoseError> {
-        decode_signature_multiple(cose_sign_array, &vec![0]) // dummy
+        decode_signature_multiple(cose_sign_array, &vec![0u8]) // dummy
     }
 
     fn decode_cose_sign_one(cose_sign_array: &[CborType]) -> Result<CoseSignature, CoseError> {
         let bytes_from = |cbor: &CborType| Ok(unpack!(Bytes, cbor).clone());
         let map_value_from =
             |cbor: &CborType, key| get_map_value(unpack!(Map, cbor), key);
-        let debug_permissive = true; // TODO kludge
+        let debug_permissive = true;
 
         //
 
@@ -66,7 +66,7 @@ impl CoseData {
                 resolve_alg(&alg)?
             } else if debug_permissive {
                 println!("⚠️ debug_permissive: missing `signature_type` patched with `SignatureAlgorithm::ES256`");
-                SignatureAlgorithm::ES256 // kludge
+                SignatureAlgorithm::ES256
             } else {
                 return Err(CoseError::MissingHeader);
             }
@@ -83,14 +83,14 @@ impl CoseData {
         //
 
         let signature = bytes_from(&cose_sign_array[3])?;
-        let payload = bytes_from(&cose_sign_array[2])?;
+        let content = bytes_from(&cose_sign_array[2])?;
 
         Ok(CoseSignature {
             signature_type,
             signature,
             signer_cert,
             certs: vec![],
-            to_verify: get_sig_one_struct_bytes(protected_bucket.clone(), &payload)
+            to_verify: get_sig_one_struct_bytes(protected_bucket.clone(), &content)
         })
     }
 
