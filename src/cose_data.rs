@@ -53,19 +53,14 @@ impl CoseData {
     }
 
     fn decode_cose_sign_one(cose_sign_array: &[CborType]) -> Result<CoseSignature, CoseError> {
-        let bytes_from = |cbor: &CborType| Ok(unpack!(Bytes, cbor).clone());
-        let map_value_from =
-            |cbor: &CborType, key| get_map_value(unpack!(Map, cbor), key);
-        let debug_permissive = true;
-
-        //
+        let is_permissive = true;
 
         let protected_bucket = &cose_sign_array[0];
-        let signature_type = if let Ok(pb) = &cose::decoder::decode(&bytes_from(protected_bucket)?) {
-            if let Ok(alg) = map_value_from(pb, &CborType::Integer(COSE_HEADER_ALG)) {
+        let signature_type = if let Ok(pb) = &cose::decoder::decode(&Self::bytes_from(protected_bucket)?) {
+            if let Ok(alg) = Self::map_value_from(pb, &CborType::Integer(COSE_HEADER_ALG)) {
                 resolve_alg(&alg)?
-            } else if debug_permissive {
-                println!("⚠️ debug_permissive: missing `signature_type` patched with `SignatureAlgorithm::ES256`");
+            } else if is_permissive {
+                println!("⚠️ missing `signature_type`; ES256 is assumed");
                 SignatureAlgorithm::ES256
             } else {
                 return Err(CoseError::MissingHeader);
@@ -77,13 +72,13 @@ impl CoseData {
         //
 
         let unprotected_bucket = &cose_sign_array[1];
-        let val = map_value_from(unprotected_bucket, &CborType::Integer(COSE_HEADER_VOUCHER_PUBKEY));
-        let signer_cert = if let Ok(val) = val { bytes_from(&val)? } else { Vec::new() };
+        let val = Self::map_value_from(unprotected_bucket, &CborType::Integer(COSE_HEADER_VOUCHER_PUBKEY));
+        let signer_cert = if let Ok(val) = val { Self::bytes_from(&val)? } else { Vec::new() };
 
         //
 
-        let signature = bytes_from(&cose_sign_array[3])?;
-        let content = bytes_from(&cose_sign_array[2])?;
+        let signature = Self::bytes_from(&cose_sign_array[3])?;
+        let content = Self::bytes_from(&cose_sign_array[2])?;
 
         Ok(CoseSignature {
             signature_type,
@@ -121,16 +116,22 @@ impl CoseData {
     }
 
     pub fn get_content(cose_sig: &CoseSignature) -> Option<Vec<u8>> {
-        /* !! */let bytes_from = |cbor: &CborType| Ok(unpack!(Bytes, cbor).clone());
-
         if let Ok(CborType::Array(values)) = decode(&cose_sig.to_verify) {
             if values.len() != 4 {
                 return None;
             }
 
-            bytes_from(&values[3]).ok()
+            Self::bytes_from(&values[3]).ok()
         } else {
             None
         }
+    }
+
+    fn bytes_from(cbor: &CborType) -> Result<Vec<u8>, CoseError> {
+        Ok(unpack!(Bytes, cbor).clone())
+    }
+
+    fn map_value_from(cbor: &CborType, key: &CborType) -> Result<CborType, CoseError> {
+        get_map_value(unpack!(Map, cbor), key)
     }
 }
