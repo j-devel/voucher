@@ -16,6 +16,7 @@ pub enum CoseData {
 impl CoseData {
     pub fn decode(bytes: &[u8]) -> Result<Self, CoseError> {
         let (tag, array) = get_cose_sign_array(bytes)?;
+        //Self::dump_cose_sign_array(&array);
 
         Ok(match tag {
             COSE_SIGN_TAG => Self::CoseSign(Self::decode_cose_sign(&array)?),
@@ -59,6 +60,13 @@ impl CoseData {
     fn decode_cose_sign_one(cose_sign_array: &[CborType]) -> Result<CoseSignature, CoseError> {
         let is_permissive = true;
         let protected_bucket = &cose_sign_array[0];
+
+        // TODO -- not only `alg`, keep all pairs found in map; like 'cose_sign1.rb'
+        //```
+        // CBOR::Unpacker.new(StringIO.new(@encoded_protected_bucket)).each { |thing|
+        //   @protected_bucket = thing
+        // }
+        //```
         let signature_type = if let Ok(pb) = &cose::decoder::decode(&Self::bytes_from(protected_bucket)?) {
             if let Ok(alg) = Self::map_value_from(pb, &CborType::Integer(COSE_HEADER_ALG)) {
                 resolve_alg(&alg)?
@@ -74,6 +82,12 @@ impl CoseData {
 
         //
 
+        // TODO -- not only `signer_cert`, keep all pairs found in map; like 'cose_sign1.rb'
+        //```
+        // if(@raw_cbor.value[1].class == Hash)
+        // @unprotected_bucket = @raw_cbor.value[1]
+        // end
+        //```
         let unprotected_bucket = &cose_sign_array[1];
         let val = Self::map_value_from(unprotected_bucket, &CborType::Integer(COSE_HEADER_VOUCHER_PUBKEY));
         let signer_cert = if let Ok(val) = val { Self::bytes_from(&val)? } else { Vec::new() };
@@ -93,7 +107,8 @@ impl CoseData {
     }
 
     pub fn sig_one_struct_bytes_from(content: &[u8]) -> Vec<u8> {
-        let protected_bucket: BTreeMap<CborType, CborType> = BTreeMap::new(); // Use empty Map
+        // TODO generic !!!!
+        let protected_bucket: BTreeMap<CborType, CborType> = BTreeMap::new();
 
         let protected_bucket = CborType::Map(protected_bucket).serialize();
         assert_eq!(vec![0xa0], protected_bucket);
@@ -107,11 +122,14 @@ impl CoseData {
 
     pub fn serialize(cose_sig: &CoseSignature) -> Result<Vec<u8>, CoseError> {
         // TODO generic !!!!
-        let protected_bucket: BTreeMap<CborType, CborType> = BTreeMap::new();
+        let protected_bucket = CborType::Map(BTreeMap::new());
+
+        // TODO generic !!!!
+        let unprotected_bucket = CborType::Map(BTreeMap::new());
 
         let array = vec![
-            CborType::Bytes(CborType::Map(protected_bucket).serialize()),
-            CborType::Map(BTreeMap::new()), // TODO generic !!!!
+            CborType::Bytes(protected_bucket.serialize()), // `@encoded_protected_bucket`
+            unprotected_bucket,                            // `@unprotected_bucket`
             CborType::Bytes(Self::get_content(cose_sig).unwrap()),
             CborType::Bytes(cose_sig.signature.clone())];
 
