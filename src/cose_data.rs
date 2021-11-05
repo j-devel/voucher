@@ -95,12 +95,16 @@ impl CoseData {
     }
 
     pub fn sig_one_struct_bytes_from(content: &[u8]) -> Vec<u8> {
-        let protected_bucket: BTreeMap<CborType, CborType> = BTreeMap::new(); // empty
+        let protected_bucket: BTreeMap<CborType, CborType> = BTreeMap::new(); // Use empty Map
 
         let protected_bucket = CborType::Map(protected_bucket).serialize();
         assert_eq!(vec![0xa0], protected_bucket);
 
         get_sig_one_struct_bytes(CborType::Bytes(protected_bucket), content)
+    }
+
+    pub fn set_content(cose_sig: &mut CoseSignature, content: &[u8]) {
+        cose_sig.to_verify = Self::sig_one_struct_bytes_from(content);
     }
 
     pub fn serialize(cose_sig: &CoseSignature) -> Result<Vec<u8>, CoseError> {
@@ -117,11 +121,16 @@ impl CoseData {
     }
 
     pub fn get_content(cose_sig: &CoseSignature) -> Option<Vec<u8>> {
-        let _tv = &cose_sig.to_verify;
+        /* !! */let bytes_from = |cbor: &CborType| Ok(unpack!(Bytes, cbor).clone());
 
-        // WIP
+        if let Ok(CborType::Array(values)) = decode(&cose_sig.to_verify) {
+            if values.len() != 4 {
+                return None;
+            }
 
-        // Some(vec![43u8])
-        Some(vec![161, 26, 0, 15, 70, 194, 164, 1, 105, 112, 114, 111, 120, 105, 109, 105, 116, 121, 2, 193, 26, 97, 119, 115, 164, 10, 81, 48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69, 7, 118, 114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103])
+            bytes_from(&values[3]).ok()
+        } else {
+            None
+        }
     }
 }

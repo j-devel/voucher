@@ -75,7 +75,7 @@ impl Voucher {
     }
 
     pub fn set_content(&mut self, content: &[u8]) -> &mut Self {
-        self.0.to_verify = CoseData::sig_one_struct_bytes_from(content);
+        CoseData::set_content(&mut self.0, content);
 
         self
     }
