@@ -17,16 +17,20 @@ impl CoseData {
     pub fn decode(bytes: &[u8]) -> Result<Self, CoseError> {
         let (tag, array) = get_cose_sign_array(bytes)?;
 
-        // println!("@@ decode():");
-        // array.iter().enumerate().for_each(|(i, cbor)| {
-        //     println!("  array[{}]: {:?}", i, cbor);
-        // });
-
         Ok(match tag {
             COSE_SIGN_TAG => Self::CoseSign(Self::decode_cose_sign(&array)?),
             COSE_SIGN_ONE_TAG => Self::CoseSignOne(Self::decode_cose_sign_one(&array)?),
-            _ => return Err(CoseError::UnexpectedTag),
+            _ => {
+                Self::dump_cose_sign_array(&array);
+                return Err(CoseError::UnexpectedTag)
+            },
         })
+    }
+
+    fn dump_cose_sign_array(array: &[CborType]) {
+        array.iter().enumerate().for_each(|(i, cbor)| {
+            println!("  array[{}]: {:?}", i, cbor);
+        });
     }
 
     pub fn new_cose_signature() -> CoseSignature {
@@ -54,7 +58,6 @@ impl CoseData {
 
     fn decode_cose_sign_one(cose_sign_array: &[CborType]) -> Result<CoseSignature, CoseError> {
         let is_permissive = true;
-
         let protected_bucket = &cose_sign_array[0];
         let signature_type = if let Ok(pb) = &cose::decoder::decode(&Self::bytes_from(protected_bucket)?) {
             if let Ok(alg) = Self::map_value_from(pb, &CborType::Integer(COSE_HEADER_ALG)) {
