@@ -10,8 +10,12 @@ extern crate std;
 mod tests;
 
 mod cose_data;
-use cose_data::CoseSignature;
-pub use cose_data::{CoseData, SignatureAlgorithm};
+use cose_data::{CoseData, CoseSignature};
+pub use cose_data::SignatureAlgorithm;
+
+pub mod debug {
+    pub use super::cose_data::CoseData;
+}
 
 pub struct Voucher(CoseSignature);
 
@@ -32,9 +36,9 @@ mod validate;
 //
 
 #[cfg(feature = "std")]
-use std::vec::Vec;
+use std::{println, vec::Vec};
 #[cfg(not(feature = "std"))]
-use mcu_if::alloc::vec::Vec;
+use mcu_if::{println, alloc::vec::Vec};
 
 //
 
@@ -43,15 +47,19 @@ impl Voucher {
         Self(CoseData::new_cose_signature())
     }
 
-    pub fn from(raw: &[u8]) -> Self {
+    pub fn from(raw: &[u8]) -> Option<Self> {
         if let Ok(cose_data) = CoseData::decode(raw) {
             match cose_data {
-                CoseData::CoseSignOne(cose_signature) => return Self(cose_signature),
-                CoseData::CoseSign(_) => unimplemented!("Only `CoseSign1` vouchers are supported"),
+                CoseData::CoseSignOne(cose_signature) => Some(Self(cose_signature)),
+                CoseData::CoseSign(_) => {
+                    println!("Only `CoseSign1` vouchers are supported");
+                    None
+                },
             }
         } else {
-            panic!("Failed to decode raw voucher");
-        };
+            println!("Failed to decode raw voucher");
+            None
+        }
     }
 
     /// Interface with meta data to be used in ECDSA based signing
