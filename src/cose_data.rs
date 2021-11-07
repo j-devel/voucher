@@ -120,7 +120,7 @@ impl CoseData {
         cose_sig.to_verify = Self::sig_one_struct_bytes_from(content);
     }
 
-    pub fn serialize(cose_sig: &CoseSignature) -> Result<Vec<u8>, CoseError> {
+    pub fn encode(cose_sig: &CoseSignature) -> Result<Vec<u8>, CoseError> {
         // TODO generic !!!!
         let protected_bucket = CborType::Map(BTreeMap::new());
 

@@ -62,6 +62,10 @@ impl Voucher {
         }
     }
 
+    pub fn serialize(&self) -> Option<Vec<u8>> {
+        CoseData::encode(&self.0).ok()
+    }
+
     /// Interface with meta data to be used in ECDSA based signing
     pub fn to_sign(&mut self) -> (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8]) {
         (&mut self.0.signature, &mut self.0.signature_type, &self.0.to_verify)
@@ -72,10 +76,6 @@ impl Voucher {
         let (signature, alg) = self.get_signature();
 
         (self.get_signer_cert(), signature, alg, &self.0.to_verify)
-    }
-
-    pub fn serialize(&self) -> Option<Vec<u8>> {
-        CoseData::serialize(&self.0).ok()
     }
 
     pub fn get_content(&self) -> Option<Vec<u8>> {
