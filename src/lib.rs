@@ -14,7 +14,7 @@ use cose_data::CoseData;
 pub use cose_data::SignatureAlgorithm;
 
 pub mod debug {
-    pub use super::cose_data::CoseData;
+    pub use super::cose_data::utils::sig_one_struct_bytes_from;
 }
 
 pub struct Voucher(CoseData);
@@ -87,19 +87,11 @@ impl Voucher {
     }
 
     pub fn get_content(&self) -> Option<Vec<u8>> {
-        if let CoseData::CoseSignOne(ref sig) = self.0 {
-            CoseData::get_content(sig)
-        } else {
-            unimplemented!();
-        }
+        self.0.get_content()
     }
 
     pub fn set_content(&mut self, content: &[u8]) -> &mut Self {
-        if let CoseData::CoseSignOne(ref mut sig) = self.0 {
-            CoseData::cs_set_content(sig, content);
-        } else {
-            unimplemented!();
-        }
+        self.0.set_content(content);
 
         self
     }
