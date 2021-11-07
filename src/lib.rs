@@ -10,7 +10,7 @@ extern crate std;
 mod tests;
 
 mod cose_data;
-use cose_data::CoseData;
+use cose_data::{CoseData, CoseSignature};
 pub use cose_data::SignatureAlgorithm;
 
 pub mod debug {
@@ -68,22 +68,16 @@ impl Voucher {
 
     /// Interface with meta data to be used in ECDSA based signing
     pub fn to_sign(&mut self) -> (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8]) {
-        if let CoseData::CoseSignOne(ref mut sig) = self.0 {
-            (&mut sig.signature, &mut sig.signature_type, &sig.to_verify)
-        } else {
-            unimplemented!();
-        }
+        let sig = self.cose_sig_mut();
+
+        (&mut sig.signature, &mut sig.signature_type, &sig.to_verify)
     }
 
     /// Interface with meta data to be used in ECDSA based validation
     pub fn to_validate(&self) -> (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]) {
-        if let CoseData::CoseSignOne(ref sig) = self.0 {
-            let (signature, alg) = self.get_signature();
+        let (signature, alg) = self.get_signature();
 
-            (self.get_signer_cert(), signature, alg, &sig.to_verify)
-        } else {
-            unimplemented!();
-        }
+        (self.get_signer_cert(), signature, alg, &self.cose_sig().to_verify)
     }
 
     pub fn get_content(&self) -> Option<Vec<u8>> {
@@ -97,24 +91,34 @@ impl Voucher {
     }
 
     pub fn get_signature(&self) -> (&[u8], &SignatureAlgorithm) {
-        if let CoseData::CoseSignOne(ref sig) = self.0 {
-            (&sig.signature, &sig.signature_type)
-        } else {
-            unimplemented!();
-        }
+        let sig = self.cose_sig();
+
+        (&sig.signature, &sig.signature_type)
     }
 
     pub fn get_signer_cert(&self) -> Option<&[u8]> {
-        if let CoseData::CoseSignOne(ref sig) = self.0 {
-            let signer_cert = &sig.signer_cert;
+        let signer_cert = &self.cose_sig().signer_cert;
 
-            if signer_cert.len() > 0 { Some(signer_cert) } else { None }
-        } else {
-            unimplemented!();
-        }
+        if signer_cert.len() > 0 { Some(signer_cert) } else { None }
     }
 
     pub fn dump(&self) {
         self.0.dump();
+    }
+
+    fn cose_sig(&self) -> &CoseSignature {
+        if let CoseData::CoseSignOne(ref sig) = self.0 {
+            sig
+        } else {
+            unimplemented!();
+        }
+    }
+
+    fn cose_sig_mut(&mut self) -> &mut CoseSignature {
+        if let CoseData::CoseSignOne(ref mut sig) = self.0 {
+            sig
+        } else {
+            unimplemented!();
+        }
     }
 }
