@@ -8,31 +8,68 @@ pub use cose::decoder::{CoseSignature, SignatureAlgorithm};
 
 pub const COSE_HEADER_VOUCHER_PUBKEY: u64 = 60299;
 
-pub enum CoseData {
+pub struct CoseData {
+    pub tag: u64,
+    protected_bucket: BTreeMap<CborType, CborType>,
+    unprotected_bucket: BTreeMap<CborType, CborType>,
+    inner: CoseDataInner,
+}
+
+enum CoseDataInner {
     CoseSignOne(CoseSignature),
     CoseSign(Vec<CoseSignature>),
 }
 
 impl CoseData {
+    pub fn sig(&self) -> &CoseSignature {
+        if let CoseDataInner::CoseSignOne(ref sig) = self.inner {
+            sig
+        } else {
+            unimplemented!();
+        }
+    }
+
+    pub fn sig_mut(&mut self) -> &mut CoseSignature {
+        if let CoseDataInner::CoseSignOne(ref mut sig) = self.inner {
+            sig
+        } else {
+            unimplemented!();
+        }
+    }
+
     pub fn new(is_sign1: bool) -> Self {
         if !is_sign1 { unimplemented!(); }
 
-        Self::CoseSignOne(CoseSignature {
-            signature_type: SignatureAlgorithm::ES256, // default
-            signature: vec![],
-            signer_cert: vec![],
-            certs: vec![],
-            to_verify: vec![]
-        })
+        Self {
+            tag: COSE_SIGN_ONE_TAG,
+            protected_bucket: BTreeMap::new(),
+            unprotected_bucket: BTreeMap::new(),
+            inner: CoseDataInner::CoseSignOne(CoseSignature {
+                signature_type: SignatureAlgorithm::ES256, // default
+                signature: vec![],
+                signer_cert: vec![],
+                certs: vec![],
+                to_verify: vec![]
+            }),
+        }
     }
 
     pub fn decode(bytes: &[u8]) -> Result<Self, CoseError> {
         let (tag, array) = get_cose_sign_array(bytes)?;
-        //Self::dump_cose_sign_array(&array);
 
         Ok(match tag {
-            COSE_SIGN_ONE_TAG => Self::CoseSignOne(Self::decode_cose_sign_one(&array)?),
-            COSE_SIGN_TAG => Self::CoseSign(Self::decode_cose_sign(&array)?),
+            COSE_SIGN_ONE_TAG => Self {
+                tag: COSE_SIGN_ONE_TAG,
+                protected_bucket: BTreeMap::new(), // !!
+                unprotected_bucket: BTreeMap::new(), // !!
+                inner: CoseDataInner::CoseSignOne(Self::decode_cose_sign_one(&array)?),
+            },
+            COSE_SIGN_TAG => Self {
+                tag: COSE_SIGN_TAG,
+                protected_bucket: BTreeMap::new(), // !!
+                unprotected_bucket: BTreeMap::new(), // !!
+                inner: CoseDataInner::CoseSign(Self::decode_cose_sign(&array)?),
+            },
             _ => {
                 Self::dump_cose_sign_array(&array);
                 return Err(CoseError::UnexpectedTag)
@@ -41,7 +78,7 @@ impl CoseData {
     }
 
     pub fn encode(&self) -> Result<Vec<u8>, CoseError> {
-        if let Self::CoseSignOne(sig) = self {
+        if let CoseDataInner::CoseSignOne(sig) = &self.inner {
             utils::encode(sig)
         } else {
             unimplemented!();
@@ -49,23 +86,23 @@ impl CoseData {
     }
 
     pub fn dump(&self) {
-        match self {
-            Self::CoseSignOne(sig) => utils::dump(sig),
-            Self::CoseSign(sigs) => sigs.iter().for_each(|sig| utils::dump(sig)),
+        match &self.inner {
+            CoseDataInner::CoseSignOne(sig) => utils::dump(sig),
+            CoseDataInner::CoseSign(sigs) => sigs.iter().for_each(|sig| utils::dump(sig)),
         }
     }
 
     pub fn get_content(&self) -> Option<Vec<u8>>{
-        match self {
-            Self::CoseSignOne(sig) => utils::get_content(sig),
-            Self::CoseSign(_) => unimplemented!(),
+        match &self.inner {
+            CoseDataInner::CoseSignOne(sig) => utils::get_content(sig),
+            CoseDataInner::CoseSign(_) => unimplemented!(),
         }
     }
 
     pub fn set_content(&mut self, content: &[u8]) {
-        match self {
-            Self::CoseSignOne(sig) => utils::set_content(sig, content),
-            Self::CoseSign(_) => unimplemented!(),
+        match &mut self.inner {
+            CoseDataInner::CoseSignOne(sig) => utils::set_content(sig, content),
+            CoseDataInner::CoseSign(_) => unimplemented!(),
         }
     }
 
@@ -129,7 +166,7 @@ impl CoseData {
     }
 }
 
-pub mod utils {
+pub mod utils { // TODO -- probably detached as 'signature.rs' (for `Signature(CoseSignature)`) eventually
     use super::*;
 
     pub fn bytes_from(cbor: &CborType) -> Result<Vec<u8>, CoseError> {
