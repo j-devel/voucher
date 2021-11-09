@@ -57,20 +57,20 @@ impl CoseData {
     pub fn decode(bytes: &[u8]) -> Result<(u64, Self), CoseError> {
         match get_cose_sign_array(bytes)? {
             (COSE_SIGN_ONE_TAG, ref array) => {
-                let (protected_bucket, unprotected_bucket, sig) = Self::decode_cose_sign_one(array)?;
+                let (pb, upb, sig) = Self::decode_cose_sign_one(array)?;
 
                 Ok((COSE_SIGN_ONE_TAG, Self {
-                    protected_bucket,
-                    unprotected_bucket,
+                    protected_bucket: pb,
+                    unprotected_bucket: upb,
                     inner: CoseDataInner::CoseSignOne(sig),
                 }))
             },
             (COSE_SIGN_TAG, ref array) => {
-                let (protected_bucket, unprotected_bucket, sigs) = Self::decode_cose_sign(array)?;
+                let (pb, upb, sigs) = Self::decode_cose_sign(array)?;
 
                 Ok((COSE_SIGN_TAG, Self {
-                    protected_bucket,
-                    unprotected_bucket,
+                    protected_bucket: pb,
+                    unprotected_bucket: upb,
                     inner: CoseDataInner::CoseSign(sigs),
                 }))
             },
