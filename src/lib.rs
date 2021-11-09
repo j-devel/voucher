@@ -10,7 +10,7 @@ extern crate std;
 mod tests;
 
 mod cose_data;
-use cose_data::{CoseData, CoseSignature};
+use cose_data::{CoseData, COSE_SIGN_ONE_TAG};
 pub use cose_data::SignatureAlgorithm;
 
 pub mod debug {
@@ -48,13 +48,12 @@ impl Voucher {
     }
 
     pub fn from(raw: &[u8]) -> Option<Self> {
-        if let Ok(data) = CoseData::decode(raw) {
-            match data.tag {
-                COSE_SIGN_ONE_TAG => Some(Self(data)),
-                COSE_SIGN_TAG => {
-                    println!("Only `CoseSign1` vouchers are supported");
-                    None
-                },
+        if let Ok((tag, data)) = CoseData::decode(raw) {
+            if tag == COSE_SIGN_ONE_TAG {
+                Some(Self(data))
+            } else {
+                println!("Only `CoseSign1` vouchers are supported");
+                None
             }
         } else {
             println!("Failed to decode raw voucher");

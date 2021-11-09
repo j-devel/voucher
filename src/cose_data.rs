@@ -4,12 +4,11 @@ use std::{println, boxed::Box, vec, vec::Vec, collections::BTreeMap};
 use mcu_if::{println, alloc::{boxed::Box, vec, vec::Vec, collections::BTreeMap}};
 
 use cose::{decoder::*, unpack};
-pub use cose::decoder::{CoseSignature, SignatureAlgorithm};
+pub use cose::decoder::{SignatureAlgorithm, COSE_SIGN_ONE_TAG};
 
 pub const COSE_HEADER_VOUCHER_PUBKEY: u64 = 60299;
 
 pub struct CoseData {
-    pub tag: u64,
     protected_bucket: BTreeMap<CborType, CborType>,
     unprotected_bucket: BTreeMap<CborType, CborType>,
     inner: CoseDataInner,
@@ -41,7 +40,6 @@ impl CoseData {
         if !is_sign1 { unimplemented!(); }
 
         Self {
-            tag: COSE_SIGN_ONE_TAG,
             protected_bucket: BTreeMap::new(),
             unprotected_bucket: BTreeMap::new(),
             inner: CoseDataInner::CoseSignOne(CoseSignature {
@@ -49,32 +47,28 @@ impl CoseData {
                 signature: vec![],
                 signer_cert: vec![],
                 certs: vec![],
-                to_verify: vec![]
+                to_verify: vec![],
             }),
         }
     }
 
-    pub fn decode(bytes: &[u8]) -> Result<Self, CoseError> {
-        let (tag, array) = get_cose_sign_array(bytes)?;
-
-        Ok(match tag {
-            COSE_SIGN_ONE_TAG => Self {
-                tag: COSE_SIGN_ONE_TAG,
+    pub fn decode(bytes: &[u8]) -> Result<(u64, Self), CoseError> {
+        match get_cose_sign_array(bytes)? {
+            (COSE_SIGN_ONE_TAG, ref array) => Ok((COSE_SIGN_ONE_TAG, Self {
                 protected_bucket: BTreeMap::new(), // !!
                 unprotected_bucket: BTreeMap::new(), // !!
-                inner: CoseDataInner::CoseSignOne(Self::decode_cose_sign_one(&array)?),
-            },
-            COSE_SIGN_TAG => Self {
-                tag: COSE_SIGN_TAG,
+                inner: CoseDataInner::CoseSignOne(Self::decode_cose_sign_one(array)?),
+            })),
+            (COSE_SIGN_TAG, ref array) => Ok((COSE_SIGN_TAG, Self {
                 protected_bucket: BTreeMap::new(), // !!
                 unprotected_bucket: BTreeMap::new(), // !!
-                inner: CoseDataInner::CoseSign(Self::decode_cose_sign(&array)?),
+                inner: CoseDataInner::CoseSign(Self::decode_cose_sign(array)?),
+            })),
+            (_, ref array) => {
+                Self::dump_cose_sign_array(array);
+                Err(CoseError::UnexpectedTag)
             },
-            _ => {
-                Self::dump_cose_sign_array(&array);
-                return Err(CoseError::UnexpectedTag)
-            },
-        })
+        }
     }
 
     pub fn encode(&self) -> Result<Vec<u8>, CoseError> {
