@@ -8,9 +8,11 @@ pub use cose::decoder::{SignatureAlgorithm, COSE_SIGN_ONE_TAG};
 
 pub const COSE_HEADER_VOUCHER_PUBKEY: u64 = 60299;
 
+type BTMCC = BTreeMap<CborType, CborType>;
+
 pub struct CoseData {
-    protected_bucket: BTreeMap<CborType, CborType>,
-    unprotected_bucket: BTreeMap<CborType, CborType>,
+    protected_bucket: BTMCC,
+    unprotected_bucket: BTMCC,
     inner: CoseDataInner,
 }
 
@@ -54,16 +56,24 @@ impl CoseData {
 
     pub fn decode(bytes: &[u8]) -> Result<(u64, Self), CoseError> {
         match get_cose_sign_array(bytes)? {
-            (COSE_SIGN_ONE_TAG, ref array) => Ok((COSE_SIGN_ONE_TAG, Self {
-                protected_bucket: BTreeMap::new(), // !!
-                unprotected_bucket: BTreeMap::new(), // !!
-                inner: CoseDataInner::CoseSignOne(Self::decode_cose_sign_one(array)?),
-            })),
-            (COSE_SIGN_TAG, ref array) => Ok((COSE_SIGN_TAG, Self {
-                protected_bucket: BTreeMap::new(), // !!
-                unprotected_bucket: BTreeMap::new(), // !!
-                inner: CoseDataInner::CoseSign(Self::decode_cose_sign(array)?),
-            })),
+            (COSE_SIGN_ONE_TAG, ref array) => {
+                let (protected_bucket, unprotected_bucket, sig) = Self::decode_cose_sign_one(array)?;
+
+                Ok((COSE_SIGN_ONE_TAG, Self {
+                    protected_bucket,
+                    unprotected_bucket,
+                    inner: CoseDataInner::CoseSignOne(sig),
+                }))
+            },
+            (COSE_SIGN_TAG, ref array) => {
+                let (protected_bucket, unprotected_bucket, sigs) = Self::decode_cose_sign(array)?;
+
+                Ok((COSE_SIGN_TAG, Self {
+                    protected_bucket,
+                    unprotected_bucket,
+                    inner: CoseDataInner::CoseSign(sigs),
+                }))
+            },
             (_, ref array) => {
                 Self::dump_cose_sign_array(array);
                 Err(CoseError::UnexpectedTag)
@@ -107,43 +117,47 @@ impl CoseData {
         });
     }
 
-    fn decode_cose_sign(cose_sign_array: &[CborType]) -> Result<Vec<CoseSignature>, CoseError> {
-        decode_signature_multiple(cose_sign_array, &vec![0u8]) // dummy
+    fn decode_cose_sign(cose_sign_array: &[CborType]) -> Result<(BTMCC, BTMCC, Vec<CoseSignature>), CoseError> {
+        Ok(( // dummy
+            BTreeMap::new(),
+            BTreeMap::new(),
+            decode_signature_multiple(cose_sign_array, &vec![0u8])?
+        ))
     }
 
-    fn decode_cose_sign_one(cose_sign_array: &[CborType]) -> Result<CoseSignature, CoseError> {
+    fn decode_cose_sign_one(cose_sign_array: &[CborType]) -> Result<(BTMCC, BTMCC, CoseSignature), CoseError> {
         let is_permissive = true;
-        let protected_bucket = &cose_sign_array[0];
+        let pb_cbor_serialized = &cose_sign_array[0];
 
-        // TODO -- not only `alg`, keep all pairs found in map; like 'cose_sign1.rb'
-        //```
-        // CBOR::Unpacker.new(StringIO.new(@encoded_protected_bucket)).each { |thing|
-        //   @protected_bucket = thing
-        // }
-        //```
-        let signature_type = if let Ok(pb) = &cose::decoder::decode(&utils::bytes_from(protected_bucket)?) {
-            if let Ok(alg) = utils::map_value_from(pb, &CborType::Integer(COSE_HEADER_ALG)) {
-                resolve_alg(&alg)?
+        //
+
+        let mut pb = None;
+        let mut ty = None;
+
+        if let Ok(ref pb_cbor) = cose::decoder::decode(&utils::bytes_from(pb_cbor_serialized)?) {
+            pb.replace(unpack!(Map, pb_cbor).clone());
+
+            if let Ok(alg) = utils::map_value_from(pb_cbor, &CborType::Integer(COSE_HEADER_ALG)) {
+                ty.replace(resolve_alg(&alg)?);
             } else if is_permissive {
                 println!("⚠️ missing `signature_type`; ES256 is assumed");
-                SignatureAlgorithm::ES256
+                ty.replace(SignatureAlgorithm::ES256);
             } else {
                 return Err(CoseError::MissingHeader);
             }
         } else {
             return Err(CoseError::DecodingFailure);
-        };
+        }
+
+        let pb = pb.unwrap();
+        let signature_type = ty.unwrap();
 
         //
 
-        // TODO -- not only `signer_cert`, keep all pairs found in map; like 'cose_sign1.rb'
-        //```
-        // if(@raw_cbor.value[1].class == Hash)
-        // @unprotected_bucket = @raw_cbor.value[1]
-        // end
-        //```
-        let unprotected_bucket = &cose_sign_array[1];
-        let val = utils::map_value_from(unprotected_bucket, &CborType::Integer(COSE_HEADER_VOUCHER_PUBKEY));
+        let upb_cbor = &cose_sign_array[1];
+        let upb = unpack!(Map, upb_cbor).clone();
+
+        let val = utils::map_value_from(upb_cbor, &CborType::Integer(COSE_HEADER_VOUCHER_PUBKEY));
         let signer_cert = if let Ok(val) = val { utils::bytes_from(&val)? } else { Vec::new() };
 
         //
@@ -151,13 +165,15 @@ impl CoseData {
         let signature = utils::bytes_from(&cose_sign_array[3])?;
         let content = utils::bytes_from(&cose_sign_array[2])?;
 
-        Ok(CoseSignature {
+        let sig = CoseSignature {
             signature_type,
             signature,
             signer_cert,
             certs: vec![],
-            to_verify: get_sig_one_struct_bytes(protected_bucket.clone(), &content)
-        })
+            to_verify: get_sig_one_struct_bytes(pb_cbor_serialized.clone(), &content)
+        };
+
+        Ok((pb, upb, sig))
     }
 }
 
@@ -173,7 +189,7 @@ pub mod utils { // TODO -- probably detached as 'signature.rs' (for `Signature(C
     }
 
     pub fn sig_one_struct_bytes_from(
-        protected_bucket: &BTreeMap<CborType, CborType>,
+        protected_bucket: &BTMCC,
         content: &[u8]
     ) -> Vec<u8> {
         let empty = protected_bucket.is_empty();
@@ -191,8 +207,8 @@ pub mod utils { // TODO -- probably detached as 'signature.rs' (for `Signature(C
 
     pub fn encode(
         sig: &CoseSignature,
-        protected_bucket: &BTreeMap<CborType, CborType>,
-        unprotected_bucket: &BTreeMap<CborType, CborType>
+        protected_bucket: &BTMCC,
+        unprotected_bucket: &BTMCC
     ) -> Result<Vec<u8>, CoseError> {
         let array = vec![
             CborType::Bytes(CborType::Map(protected_bucket.clone()).serialize()),
@@ -227,7 +243,7 @@ pub mod utils { // TODO -- probably detached as 'signature.rs' (for `Signature(C
     pub fn set_content(
         sig: &mut CoseSignature,
         content: &[u8],
-        protected_bucket: &BTreeMap<CborType, CborType>
+        protected_bucket: &BTMCC
     ) {
         sig.to_verify = sig_one_struct_bytes_from(protected_bucket, content);
     }
