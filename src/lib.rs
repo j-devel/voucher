@@ -69,7 +69,8 @@ impl Voucher {
 
     /// Interface with meta data to be used in ECDSA based signing
     pub fn to_sign(&mut self) -> (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8]) {
-        let sig = self.0.sig_mut();
+        use core::ops::DerefMut;
+        let sig = self.0.sig_mut().deref_mut();
 
         (&mut sig.signature, &mut sig.signature_type, &sig.to_verify)
     }

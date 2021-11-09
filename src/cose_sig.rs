@@ -30,39 +30,52 @@ pub fn sig_one_struct_bytes_from(
 
 //
 
-pub struct CoseSig;
+pub struct CoseSig(CoseSignature);
+
+impl core::ops::Deref for CoseSig {
+    type Target = CoseSignature;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl core::ops::DerefMut for CoseSig {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
 
 impl CoseSig {
-
-    //
-    // w.r.t. `CoseSignature`
-    //
+    pub fn new(inner: CoseSignature) -> Self {
+        CoseSig(inner)
+    }
 
     pub fn encode(
-        sig: &CoseSignature,
+        &self,
         protected_bucket: &BTreeMap<CborType, CborType>,
         unprotected_bucket: &BTreeMap<CborType, CborType>
     ) -> Result<Vec<u8>, CoseError> {
         let array = vec![
             CborType::Bytes(CborType::Map(protected_bucket.clone()).serialize()),
             CborType::Map(unprotected_bucket.clone()),
-            CborType::Bytes(Self::get_content(sig).unwrap()),
-            CborType::Bytes(sig.signature.clone())];
+            CborType::Bytes(self.get_content().unwrap()),
+            CborType::Bytes(self.signature.clone())];
 
         Ok(CborType::Tag(COSE_SIGN_ONE_TAG, Box::new(CborType::Array(array))).serialize())
     }
 
-    pub fn dump(sig: &CoseSignature) {
+    pub fn dump(&self) {
         println!("======== `CoseSignature` dump");
-        println!("  signature_type: {:?}", sig.signature_type);
-        println!("  signature: [len={}] {:?}", sig.signature.len(), sig.signature);
-        println!("  signer_cert: [len={}] {:?}", sig.signer_cert.len(), sig.signer_cert);
-        println!("  to_verify: [len={}] {:?}", sig.to_verify.len(), sig.to_verify);
+        println!("  signature_type: {:?}", self.signature_type);
+        println!("  signature: [len={}] {:?}", self.signature.len(), self.signature);
+        println!("  signer_cert: [len={}] {:?}", self.signer_cert.len(), self.signer_cert);
+        println!("  to_verify: [len={}] {:?}", self.to_verify.len(), self.to_verify);
         println!("  ====");
     }
 
-    pub fn get_content(sig: &CoseSignature) -> Option<Vec<u8>> {
-        if let Ok(CborType::Array(values)) = decode(&sig.to_verify) {
+    pub fn get_content(&self) -> Option<Vec<u8>> {
+        if let Ok(CborType::Array(values)) = decode(&self.to_verify) {
             if values.len() != 4 {
                 return None;
             }
@@ -73,11 +86,7 @@ impl CoseSig {
         }
     }
 
-    pub fn set_content(
-        sig: &mut CoseSignature,
-        content: &[u8],
-        protected_bucket: &BTreeMap<CborType, CborType>
-    ) {
-        sig.to_verify = sig_one_struct_bytes_from(protected_bucket, content);
+    pub fn set_content(&mut self, content: &[u8], protected_bucket: &BTreeMap<CborType, CborType>) {
+        self.to_verify = sig_one_struct_bytes_from(protected_bucket, content);
     }
 }

@@ -19,12 +19,12 @@ pub struct CoseData {
 }
 
 enum CoseDataInner {
-    CoseSignOne(CoseSignature),
-    CoseSign(Vec<CoseSignature>),
+    CoseSignOne(CoseSig),
+    CoseSign(Vec<CoseSig>),
 }
 
 impl CoseData {
-    pub fn sig(&self) -> &CoseSignature {
+    pub fn sig(&self) -> &CoseSig {
         if let CoseDataInner::CoseSignOne(ref sig) = self.inner {
             sig
         } else {
@@ -32,7 +32,7 @@ impl CoseData {
         }
     }
 
-    pub fn sig_mut(&mut self) -> &mut CoseSignature {
+    pub fn sig_mut(&mut self) -> &mut CoseSig {
         if let CoseDataInner::CoseSignOne(ref mut sig) = self.inner {
             sig
         } else {
@@ -46,13 +46,13 @@ impl CoseData {
         Self {
             protected_bucket: BTreeMap::new(),
             unprotected_bucket: BTreeMap::new(),
-            inner: CoseDataInner::CoseSignOne(CoseSignature {
+            inner: CoseDataInner::CoseSignOne(CoseSig::new(CoseSignature {
                 signature_type: SignatureAlgorithm::ES256, // default
                 signature: vec![],
                 signer_cert: vec![],
                 certs: vec![],
                 to_verify: vec![],
-            }),
+            })),
         }
     }
 
@@ -122,18 +122,21 @@ impl CoseData {
     fn decode_cose_sign(cose_sign_array: &[CborType]
     ) -> Result<(BTreeMap<CborType, CborType>,
                  BTreeMap<CborType, CborType>,
-                 Vec<CoseSignature>), CoseError> {
-        Ok(( // dummy
-            BTreeMap::new(),
-            BTreeMap::new(),
-            decode_signature_multiple(cose_sign_array, &vec![0u8])?
+                 Vec<CoseSig>), CoseError> {
+        Ok((
+            BTreeMap::new(), // dummy
+            BTreeMap::new(), // dummy
+            decode_signature_multiple(cose_sign_array, &vec![0u8])? // dummy
+                .into_iter()
+                .map(|inner| CoseSig::new(inner))
+                .collect()
         ))
     }
 
     fn decode_cose_sign_one(cose_sign_array: &[CborType]
     ) -> Result<(BTreeMap<CborType, CborType>,
                  BTreeMap<CborType, CborType>,
-                 CoseSignature), CoseError> {
+                 CoseSig), CoseError> {
         let is_permissive = true;
         let pb_cbor_serialized = &cose_sign_array[0];
 
@@ -173,13 +176,13 @@ impl CoseData {
         let signature = bytes_from(&cose_sign_array[3])?;
         let content = bytes_from(&cose_sign_array[2])?;
 
-        let sig = CoseSignature {
+        let sig = CoseSig::new(CoseSignature {
             signature_type,
             signature,
             signer_cert,
             certs: vec![],
             to_verify: get_sig_one_struct_bytes(pb_cbor_serialized.clone(), &content)
-        };
+        });
 
         Ok((pb, upb, sig))
     }
