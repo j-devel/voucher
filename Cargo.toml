@@ -9,7 +9,9 @@ authors = ["ANIMA Minerva toolkit"]
 name = "minerva_voucher"
 
 [features]
-default = ["validate"]
+default = ["sign", "validate"]
+sign = ["minerva-mbedtls/v3"]
+sign-lts = ["minerva-mbedtls"]
 validate = ["minerva-mbedtls/v3"]
 validate-lts = ["minerva-mbedtls"]
 std = []
