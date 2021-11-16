@@ -1,9 +1,9 @@
 #[cfg(feature = "std")]
-use std::{println, vec::Vec};
+use std::println;
 #[cfg(not(feature = "std"))]
-use mcu_if::{println, alloc::vec::Vec};
+use mcu_if::println;
 
-use crate::SignatureAlgorithm;
+use crate::{SignatureAlgorithm, utils::compute_digest};
 use minerva_mbedtls::ifce::*;
 
 impl crate::Validate for crate::Voucher {
@@ -37,15 +37,4 @@ fn validate(
         println!("validate(): Neither external masa cert nor signer cert is available.");
         false
     }
-}
-
-fn compute_digest(msg: &[u8], alg: &SignatureAlgorithm) -> (md_type, Vec<u8>) {
-    let ty = match *alg {
-        SignatureAlgorithm::ES256 => md_type::MBEDTLS_MD_SHA256,
-        SignatureAlgorithm::ES384 => md_type::MBEDTLS_MD_SHA384,
-        SignatureAlgorithm::ES512 => md_type::MBEDTLS_MD_SHA512,
-        SignatureAlgorithm::PS256 => unimplemented!("TODO: handle PS256"),
-    };
-
-    (ty, md_info::from_type(ty).md(msg))
 }

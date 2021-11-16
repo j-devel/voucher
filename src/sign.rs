@@ -1,11 +1,9 @@
-#![allow(unused_imports, unused_variables)] // TEMP !!
-
 #[cfg(feature = "std")]
-use std::{println, vec::Vec};
+use std::{vec, vec::Vec};
 #[cfg(not(feature = "std"))]
-use mcu_if::{println, alloc::vec::Vec};
+use mcu_if::alloc::{vec, vec::Vec};
 
-use crate::SignatureAlgorithm;
+use crate::{SignatureAlgorithm, utils::compute_digest};
 use minerva_mbedtls::ifce::*;
 
 impl crate::Sign for crate::Voucher {
@@ -17,7 +15,24 @@ impl crate::Sign for crate::Voucher {
 fn sign(
     privkey_pem: &[u8],
     alg: SignatureAlgorithm,
-    to_sign: (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8])
+    (sig_out, alg_out, sig_struct): (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8])
 ) {
-    unimplemented!("WIP !!");
+    let mut pk = pk_context::new();
+    let f_rng = pk_context::test_f_rng_ptr();
+
+    #[cfg(feature = "sign-lts")]
+    {
+        pk.parse_key_lts(privkey_pem, None);
+    }
+    #[cfg(not(feature = "sign-lts"))]
+    {
+        pk.parse_key(privkey_pem, None, f_rng, core::ptr::null());
+    }
+
+    let mut sig = vec![];
+    let (md_ty, ref hash) = compute_digest(sig_struct, &alg);
+    pk.sign(md_ty, hash, &mut sig, f_rng, core::ptr::null());
+
+    *alg_out = alg;
+    *sig_out = sig;
 }
