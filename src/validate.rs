@@ -3,7 +3,7 @@ use std::println;
 #[cfg(not(feature = "std"))]
 use mcu_if::println;
 
-use crate::{SignatureAlgorithm, utils::compute_digest};
+use crate::{SignatureAlgorithm, minerva_mbedtls_utils::compute_digest};
 use minerva_mbedtls::ifce::*;
 
 impl crate::Validate for crate::Voucher {

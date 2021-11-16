@@ -111,7 +111,8 @@ impl Voucher {
 
 //
 
-mod utils {
+#[cfg(any(feature = "sign", feature = "sign-lts", feature = "validate", feature = "validate-lts"))]
+mod minerva_mbedtls_utils {
     use super::*;
     use minerva_mbedtls::ifce::*;
 

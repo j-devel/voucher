@@ -3,7 +3,7 @@ use std::{vec, vec::Vec};
 #[cfg(not(feature = "std"))]
 use mcu_if::alloc::{vec, vec::Vec};
 
-use crate::{SignatureAlgorithm, utils::compute_digest};
+use crate::{SignatureAlgorithm, minerva_mbedtls_utils::compute_digest};
 use minerva_mbedtls::ifce::*;
 
 impl crate::Sign for crate::Voucher {
