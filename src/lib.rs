@@ -26,7 +26,7 @@ pub trait Sign {
 }
 
 pub trait Validate {
-    fn validate(&self, pubkey_pem: Option<&[u8]>) -> bool;
+    fn validate(&self, pem: Option<&[u8]>) -> bool;
 }
 
 #[cfg(any(feature = "sign", feature = "validate-lts"))]

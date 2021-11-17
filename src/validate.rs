@@ -7,18 +7,18 @@ use crate::{SignatureAlgorithm, minerva_mbedtls_utils::compute_digest};
 use minerva_mbedtls::ifce::*;
 
 impl crate::Validate for crate::Voucher {
-    fn validate(&self, pubkey_pem: Option<&[u8]>) -> bool {
-        validate(pubkey_pem, self.to_validate())
+    fn validate(&self, pem: Option<&[u8]>) -> bool {
+        validate(pem, self.to_validate())
     }
 }
 
 fn validate(
-    pubkey_pem: Option<&[u8]>,
+    pem: Option<&[u8]>,
     (signer_cert, signature, alg, msg): (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8])
 ) -> bool {
     let (md_ty, ref hash) = compute_digest(msg, alg);
 
-    if let Some(pem) = pubkey_pem {
+    if let Some(pem) = pem {
         x509_crt::new()
             .parse(pem)
             .pk_mut()
