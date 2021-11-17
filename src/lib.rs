@@ -115,6 +115,7 @@ impl Voucher {
 mod minerva_mbedtls_utils {
     use super::*;
     use minerva_mbedtls::ifce::*;
+    use core::ffi::c_void;
 
     pub fn compute_digest(msg: &[u8], alg: &SignatureAlgorithm) -> (md_type, Vec<u8>) {
         let ty = match *alg {
@@ -125,6 +126,22 @@ mod minerva_mbedtls_utils {
         };
 
         (ty, md_info::from_type(ty).md(msg))
+    }
+
+    pub fn pk_from_privkey_pem(privkey_pem: &[u8], f_rng: *const c_void) -> Result<pk_context, i32> {
+        let mut pk = pk_context::new();
+
+        #[cfg(any(feature = "validate-lts", feature = "sign-lts"))]
+        {
+            let _ = f_rng;
+            pk.parse_key_lts(privkey_pem, None)?;
+        }
+        #[cfg(not(any(feature = "validate-lts", feature = "sign-lts")))]
+        {
+            pk.parse_key(privkey_pem, None, f_rng, core::ptr::null())?;
+        }
+
+        Ok(pk)
     }
 }
 
