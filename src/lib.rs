@@ -128,7 +128,7 @@ mod minerva_mbedtls_utils {
         (ty, md_info::from_type(ty).md(msg))
     }
 
-    pub fn pk_from_privkey_pem(privkey_pem: &[u8], f_rng: *const c_void) -> Result<pk_context, i32> {
+    pub fn pk_from_privkey_pem(privkey_pem: &[u8], f_rng: *const c_void) -> Result<pk_context, mbedtls_error> {
         let mut pk = pk_context::new();
 
         #[cfg(any(feature = "validate-lts", feature = "sign-lts"))]
