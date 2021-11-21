@@ -1,5 +1,13 @@
 use crate::{Voucher, SignatureAlgorithm, Sign, Validate};
 
+#[cfg(feature = "v3")]
+pub fn init_psa_crypto() {
+    use minerva_mbedtls::psa_crypto;
+
+    psa_crypto::init().unwrap();
+    psa_crypto::initialized().unwrap();
+}
+
 static VOUCHER_JADA: &[u8] = core::include_bytes!(
     concat!(env!("CARGO_MANIFEST_DIR"), "/data/jada/voucher_jada123456789.vch"));
 
@@ -15,10 +23,51 @@ static KEY_PEM_02_00_2E: &[u8] = core::include_bytes!(
 static DEVICE_CRT_02_00_2E: &[u8] = core::include_bytes!(
     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-02-00-2E/device.crt"));
 
+//
+
+#[test]
+fn test_voucher_decode_jada() {
+    #[cfg(feature = "v3")]
+    init_psa_crypto();
+
+    let vch = Voucher::from(VOUCHER_JADA).unwrap();
+
+    let (sig, alg) = vch.get_signature();
+    assert_eq!(sig.len(), 64);
+    assert_eq!(*alg, SignatureAlgorithm::ES256);
+
+    assert_eq!(vch.get_signer_cert().unwrap().len(), 65);
+}
+
+#[test]
+fn test_voucher_validate_jada() {
+    #[cfg(feature = "v3")]
+    init_psa_crypto();
+
+    let vch = Voucher::from(VOUCHER_JADA).unwrap();
+
+    assert!(vch.validate(None)); // Use `signer_cert` embedded in COSE unprotected
+}
+
+#[test]
+fn test_voucher_serialize_jada() {
+    #[cfg(feature = "v3")]
+    init_psa_crypto();
+
+    assert_eq!(
+        Voucher::from(VOUCHER_JADA).unwrap().serialize().unwrap(),
+        VOUCHER_JADA);
+}
 
 //
 
-pub fn misc() {
+
+//
+
+
+//
+
+fn misc() {
     #[cfg(feature = "std")]
     use std::{println, vec, vec::Vec};
     #[cfg(not(feature = "std"))]
