@@ -29,7 +29,7 @@ pub trait Validate {
     fn validate(&self, pem: Option<&[u8]>) -> bool;
 }
 
-#[cfg(any(feature = "sign", feature = "validate-lts"))]
+#[cfg(any(feature = "sign", feature = "sign-lts"))]
 mod sign;
 
 #[cfg(any(feature = "validate", feature = "validate-lts"))]
