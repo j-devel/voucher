@@ -1,7 +1,7 @@
 use crate::{Voucher, SignatureAlgorithm, Sign, Validate};
 
 #[cfg(feature = "v3")]
-pub fn init_psa_crypto() {
+fn init_psa_crypto() {
     use minerva_mbedtls::psa_crypto;
 
     psa_crypto::init().unwrap();
@@ -153,7 +153,7 @@ fn test_pledge_vr_serialize_02_00_2e() {
 
 fn misc() {
     #[cfg(feature = "std")]
-    use std::{println, vec, vec::Vec};
+    use std::{vec, vec::Vec};
     #[cfg(not(feature = "std"))]
     use mcu_if::{println, alloc::{vec, vec::Vec}};
 
