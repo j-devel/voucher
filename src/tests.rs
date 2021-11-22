@@ -61,8 +61,45 @@ fn test_voucher_serialize_jada() {
 
 //
 
+#[test]
+fn test_voucher_decode_f2_00_02() {
+    #[cfg(feature = "v3")]
+    init_psa_crypto();
+
+    let vch = Voucher::from(VOUCHER_F2_00_02).unwrap();
+
+    let (sig, alg) = vch.get_signature();
+    assert_eq!(sig.len(), 64);
+    assert_eq!(*alg, SignatureAlgorithm::ES256);
+
+    assert_eq!(vch.get_signer_cert(), None);
+}
+
+#[test]
+fn test_voucher_validate_f2_00_02() {
+    #[cfg(feature = "v3")]
+    init_psa_crypto();
+
+    let vch = Voucher::from(VOUCHER_F2_00_02).unwrap();
+
+    let masa_pem = MASA_CRT_F2_00_02;
+    assert_eq!(masa_pem.len(), 684);
+
+    assert!(vch.validate(Some(masa_pem)));
+}
+
+#[test]
+fn test_voucher_serialize_f2_00_02() {
+    #[cfg(feature = "v3")]
+    init_psa_crypto();
+
+    assert_eq!(
+        Voucher::from(VOUCHER_F2_00_02).unwrap().serialize().unwrap(),
+        VOUCHER_F2_00_02);
+}
 
 //
+
 
 
 //
