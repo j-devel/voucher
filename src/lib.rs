@@ -146,3 +146,64 @@ mod minerva_mbedtls_utils {
 }
 
 //
+
+pub fn wip_vrhash_sidhash_content() -> Vec<u8> {
+    #[cfg(feature = "std")] #[allow(unused_imports)]
+    use std::{vec, collections::BTreeMap};
+    #[cfg(not(feature = "std"))] #[allow(unused_imports)]
+    use mcu_if::{alloc::{vec, collections::BTreeMap}};
+
+    // TODO !!!! forming voucher request; builder in 'cose_data.rs'
+
+    // [voucher.rb] cose_sign(): `@sidhash`: {1001154=>{1=>:proximity, 2=>2021-10-26 10:19:00 +0700, 10=>"00-D0-E5-02-00-2E", 7=>"rHgcBVNVaFmBWbTMmeOKug"}}
+
+    // ...
+
+    let content = vec![161, 26, 0, 15, 70, 194, 164, 1, 105, 112, 114, 111, 120, 105, 109, 105, 116, 121, 2, 193, 26, 97, 119, 115, 164, 10, 81, 48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69, 7, 118, 114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103];
+
+    content
+
+    /* NOTES
+
+    // refs --
+    //   voucher.rb
+    //   voucher_request.rb
+    //   voucher_sid.rb
+
+======== minerva-xstd/rb$ a hash2yangsid ../submodules/chariwt/
+
+../submodules/chariwt/lib--/chariwt/voucher.rb
+690:    def hash2yangsid(vrhash)
+691:      VoucherSID.hash2yangsid(vrhash)
+697:      @sidhash = hash2yangsid(vrhash)
+704:      @sidhash = hash2yangsid(vrhash)
+
+../submodules/chariwt/lib--/chariwt/voucher_request.rb
+38:    def hash2yangsid(vrhash)
+39:      VoucherRequestSID.hash2yangsid(vrhash)
+
+../submodules/chariwt/lib--/chariwt/voucher_sid.rb
+64:    def self.hash2yangsid(hash)
+
+======== minerva-xstd/rb$ a VoucherRequestSID ../submodules/
+
+../submodules/chariwt/lib--/chariwt/voucher_request.rb
+35:      VoucherRequestSID.yangsid2hash(contents)
+39:      VoucherRequestSID.hash2yangsid(vrhash)
+
+../submodules/chariwt/lib--/chariwt/voucher_sid.rb
+120:  class VoucherRequestSID < VoucherSIDClass
+
+======== minerva-xstd/rb$ a VoucherSID ../submodules/
+
+../submodules/chariwt/lib--/chariwt/voucher.rb
+386:      VoucherSID.yangsid2hash(contents)
+691:      VoucherSID.hash2yangsid(vrhash)
+
+../submodules/chariwt/lib--/chariwt/voucher_sid.rb
+2:  class VoucherSIDClass
+93:  class VoucherSID < VoucherSIDClass
+120:  class VoucherRequestSID < VoucherSIDClass
+
+     */
+}
