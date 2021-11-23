@@ -1,5 +1,7 @@
 all: build
 
+SHELL := /bin/bash
+
 # 'test' or 'ci'
 TARGET ?= test
 ci:
@@ -33,3 +35,4 @@ test:
 	make test-nostd-lts
 	make test-std
 	make test-std-lts
+	if [ "$$TARGET" = "ci" ]; then make test-i686; fi

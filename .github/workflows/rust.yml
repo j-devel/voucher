@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '**/README.md'
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        build: [linux]
+        include:
+          - build: linux
+            os: ubuntu-latest
+            rust: stable
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install rustup
+      run: |
+        curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
+        rustup toolchain install ${{ matrix.rust }}
+        rustup default ${{ matrix.rust }}
+    - name: make init-rust-i686-nightly
+      run: make init-rust-i686-nightly
+    - name: make init-rust-x86_64-nightly
+      run: make init-rust-x86_64-nightly && rustup default nightly
+    - name: Run test
+      run: |
+          sudo apt install gcc-multilib
+          make ci
