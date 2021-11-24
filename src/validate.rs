@@ -26,6 +26,10 @@ fn validate(
     (signer_cert, signature, alg, msg): (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]),
     f_rng: *const c_void
 ) -> Result<bool, mbedtls_error> {
+    if signature.is_empty() {
+        return Ok(false);
+    }
+
     let (md_ty, ref hash) = compute_digest(msg, alg);
 
     if let Some(pem) = pem {

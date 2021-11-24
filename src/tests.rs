@@ -109,6 +109,9 @@ fn test_pledge_vr_sign_02_00_2e() {
 
     let mut vch = Voucher::new();
     vch.set_content(content);
+
+    assert!(! vch.validate(Some(DEVICE_CRT_02_00_2E))); // "validating an unsigned voucher" should fail
+
     vch.sign(KEY_PEM_02_00_2E, SignatureAlgorithm::ES256);
 
     let (sig, ty) = vch.get_signature();
