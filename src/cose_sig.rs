@@ -5,6 +5,8 @@ use mcu_if::{println, alloc::{boxed::Box, vec, vec::Vec, collections::BTreeMap}}
 
 use cose::{decoder::*, unpack};
 
+pub use cose::decoder::{CborType, decode}; // debug
+
 //
 
 pub fn bytes_from(cbor: &CborType) -> Result<Vec<u8>, CoseError> {

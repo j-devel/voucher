@@ -14,7 +14,7 @@ use cose_data::{CoseData, COSE_SIGN_ONE_TAG};
 pub use cose_data::SignatureAlgorithm;
 
 pub mod debug {
-    pub use super::cose_sig::sig_one_struct_bytes_from;
+    pub use super::cose_sig::{sig_one_struct_bytes_from, CborType, decode};
 }
 
 mod cose_sig;
