@@ -1,7 +1,4 @@
-#[cfg(feature = "std")]
-use std::{println, vec, vec::Vec, collections::BTreeMap};
-#[cfg(not(feature = "std"))]
-use mcu_if::{println, alloc::{vec, vec::Vec, collections::BTreeMap}};
+use crate::{println, vec, Vec, BTreeMap};
 
 use cose::{decoder::*, unpack};
 pub use cose::decoder::{SignatureAlgorithm, COSE_SIGN_ONE_TAG};

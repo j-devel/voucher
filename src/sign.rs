@@ -1,7 +1,4 @@
-#[cfg(feature = "std")]
-use std::{println, vec, vec::Vec};
-#[cfg(not(feature = "std"))]
-use mcu_if::{println, alloc::{vec, vec::Vec}};
+use crate::{println, vec, Vec};
 
 use crate::{SignatureAlgorithm, minerva_mbedtls_utils::*};
 use minerva_mbedtls::ifce::*;

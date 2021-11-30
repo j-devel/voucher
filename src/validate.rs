@@ -1,7 +1,4 @@
-#[cfg(feature = "std")]
-use std::println;
-#[cfg(not(feature = "std"))]
-use mcu_if::println;
+use crate::println;
 
 use crate::{SignatureAlgorithm, minerva_mbedtls_utils::*};
 use minerva_mbedtls::ifce::*;

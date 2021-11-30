@@ -1,10 +1,6 @@
-#[cfg(feature = "std")]
-use std::{println, boxed::Box, vec, vec::Vec, collections::BTreeMap};
-#[cfg(not(feature = "std"))]
-use mcu_if::{println, alloc::{boxed::Box, vec, vec::Vec, collections::BTreeMap}};
+use crate::{println, Box, vec, Vec, BTreeMap};
 
 use cose::{decoder::*, unpack};
-
 pub use cose::decoder::{CborType, decode}; // debug
 
 //

@@ -4,6 +4,11 @@
 #[macro_use]
 extern crate std;
 
+#[cfg(feature = "std")]
+use std::{println, boxed::Box, vec, vec::Vec, collections::BTreeMap};
+#[cfg(not(feature = "std"))]
+use mcu_if::{println, alloc::{boxed::Box, vec, vec::Vec, collections::BTreeMap}};
+
 //
 
 #[cfg(test)]
@@ -34,13 +39,6 @@ mod sign;
 
 #[cfg(any(feature = "validate", feature = "validate-lts"))]
 mod validate;
-
-//
-
-#[cfg(feature = "std")]
-use std::{println, vec::Vec};
-#[cfg(not(feature = "std"))]
-use mcu_if::{println, alloc::vec::Vec};
 
 //
 

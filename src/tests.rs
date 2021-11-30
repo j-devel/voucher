@@ -154,12 +154,9 @@ fn test_pledge_vr_serialize_02_00_2e() {
 
 //
 
-fn misc() {
-    #[cfg(feature = "std")]
-    use std::{vec, vec::Vec};
-    #[cfg(not(feature = "std"))]
-    use mcu_if::{println, alloc::{vec, vec::Vec}};
+use crate::{println, vec, Vec};
 
+fn misc() {
     let v = vec![0, 1, 2];
     println!("v: {:?}", v);
     assert_eq!(v, Vec::from([0, 1, 2]));
