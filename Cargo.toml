@@ -26,6 +26,6 @@ mcu-if = { git = "https://github.com/AnimaGUS-minerva/mcu-if", rev = "6543b39" }
 cose = { git = "https://github.com/j-devel/cose-rust", rev = "839f576", default-features = false }
 #cose = { path = "../../j-devel/cose-rust", default-features = false }
 
-minerva-mbedtls = { git = "https://github.com/AnimaGUS-minerva/minerva-mbedtls", rev = "78fe797", default-features = false, optional = true }
+minerva-mbedtls = { git = "https://github.com/AnimaGUS-minerva/minerva-mbedtls", rev = "8a5c45c", default-features = false, optional = true }
 #minerva-mbedtls = { path = "../../AnimaGUS-minerva/minerva-mbedtls", default-features = false, optional = true }
 #minerva-mbedtls = { path = "../minerva-mbedtls", default-features = false, optional = true }
