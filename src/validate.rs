@@ -23,9 +23,13 @@ fn validate(
     (signer_cert, signature, alg, msg): (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]),
     f_rng: *const c_void
 ) -> Result<bool, mbedtls_error> {
-    if signature.is_empty() {
-        return Ok(false);
-    }
+    if signature.is_empty() { return Ok(false); }
+
+    // @@ ==== debug
+    // let _ = pk_context::new().verify_debug_esp32_a(42, &[2; 16], &[4; 16], &[8; 16]);
+    // let _ = pk_context::new().verify_debug_esp32_b(    &[2; 16], &[4; 16], &[8; 16]);
+    // if 1 == 1 { panic!("@@ broken sig len -- on xtensa; need adjusting the stack size? or..."); }
+    // @@ ====
 
     let (md_ty, ref hash) = compute_digest(msg, alg);
 
