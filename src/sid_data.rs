@@ -1,0 +1,19 @@
+use crate::{println, Box, vec, Vec, BTreeMap};
+
+use cose::decoder::CborType;
+
+pub struct SidData(BTreeMap<u8, u8>);
+
+impl SidData {
+    pub fn new() -> Self { Self(BTreeMap::new()) }
+
+    pub fn insert(&mut self, key: u8, val: u8) {
+        self.0.insert(key, val);
+    }
+
+    pub fn to_cbor(&self) -> Vec<u8> {
+        println!("sid data: {:?}", self.0);
+
+        crate::wip_vrhash_sidhash_content()
+    }
+}

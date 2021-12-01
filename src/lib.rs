@@ -14,17 +14,27 @@ use mcu_if::{println, alloc::{boxed::Box, vec, vec::Vec, collections::BTreeMap}}
 #[cfg(test)]
 mod tests;
 
+//
+
+mod sid_data;
+use sid_data::SidData;
+
 mod cose_data;
 use cose_data::{CoseData, COSE_SIGN_ONE_TAG};
 pub use cose_data::SignatureAlgorithm;
+
+mod cose_sig;
 
 pub mod debug {
     pub use super::cose_sig::{sig_one_struct_bytes_from, CborType, decode};
 }
 
-mod cose_sig;
+//
 
-pub struct Voucher(CoseData);
+pub struct Voucher {
+    sid: SidData,
+    cose: CoseData,
+}
 
 pub trait Sign {
     fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm);
@@ -44,13 +54,19 @@ mod validate;
 
 impl Voucher {
     pub fn new() -> Self {
-        Self(CoseData::new(true))
+        Self {
+            sid: SidData::new(),
+            cose: CoseData::new(true),
+        }
     }
 
     pub fn from(raw: &[u8]) -> Option<Self> {
-        if let Ok((tag, data)) = CoseData::decode(raw) {
+        if let Ok((tag, cose)) = CoseData::decode(raw) {
             if tag == COSE_SIGN_ONE_TAG {
-                Some(Self(data))
+                Some(Self {
+                    sid: SidData::new(),
+                    cose,
+                })
             } else {
                 println!("Only `CoseSign1` vouchers are supported");
                 None
@@ -62,13 +78,16 @@ impl Voucher {
     }
 
     pub fn serialize(&self) -> Option<Vec<u8>> {
-        CoseData::encode(&self.0).ok()
+        CoseData::encode(&self.cose).ok()
     }
 
     /// Interface with meta data to be used in ECDSA based signing
     pub fn to_sign(&mut self) -> (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8]) {
         use core::ops::DerefMut;
-        let sig = self.0.sig_mut().deref_mut();
+
+        let sig = self
+            .update_cose_content()
+            .cose.sig_mut().deref_mut();
 
         (&mut sig.signature, &mut sig.signature_type, &sig.to_verify)
     }
@@ -77,33 +96,39 @@ impl Voucher {
     pub fn to_validate(&self) -> (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]) {
         let (signature, alg) = self.get_signature();
 
-        (self.get_signer_cert(), signature, alg, &self.0.sig().to_verify)
+        (self.get_signer_cert(), signature, alg, &self.cose.sig().to_verify)
     }
 
-    pub fn get_content(&self) -> Option<Vec<u8>> {
-        self.0.get_content()
-    }
-
-    pub fn set_content(&mut self, content: &[u8]) -> &mut Self {
-        self.0.set_content(content);
+    pub fn sid_insert(&mut self, key: u8, val: u8) -> &mut Self {
+        self.sid.insert(key, val);
 
         self
     }
 
+    fn update_cose_content(&mut self) -> &mut Self {
+        self.cose.set_content(&self.sid.to_cbor());
+
+        self
+    }
+
+    pub fn get_content_debug(&self) -> Option<Vec<u8>> {
+        self.cose.get_content()
+    }
+
     pub fn get_signature(&self) -> (&[u8], &SignatureAlgorithm) {
-        let sig = self.0.sig();
+        let sig = self.cose.sig();
 
         (&sig.signature, &sig.signature_type)
     }
 
     pub fn get_signer_cert(&self) -> Option<&[u8]> {
-        let signer_cert = &self.0.sig().signer_cert;
+        let signer_cert = &self.cose.sig().signer_cert;
 
         if signer_cert.len() > 0 { Some(signer_cert) } else { None }
     }
 
     pub fn dump(&self) {
-        self.0.dump();
+        self.cose.dump();
     }
 }
 
