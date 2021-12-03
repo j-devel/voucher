@@ -111,6 +111,12 @@ impl Voucher {
         self
     }
 
+    pub fn set_content_debug(&mut self, content: &[u8]) -> &mut Self {
+        self.cose.set_content(content);
+
+        self
+    }
+
     pub fn get_content_debug(&self) -> Option<Vec<u8>> {
         self.cose.get_content()
     }
@@ -170,7 +176,7 @@ mod minerva_mbedtls_utils {
 
 //
 
-pub fn wip_vrhash_sidhash_content() -> Vec<u8> {
+pub fn debug_vrhash_sidhash_content_02_00_2e() -> Vec<u8> {
     let content = [161, 26, 0, 15, 70, 194, 164, 1, 105, 112, 114, 111, 120, 105, 109, 105, 116, 121, 2, 193, 26, 97, 119, 115, 164, 10, 81, 48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69, 7, 118, 114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]
         .to_vec();
 

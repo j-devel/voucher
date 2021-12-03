@@ -105,10 +105,10 @@ fn test_pledge_vr_sign_02_00_2e() {
     #[cfg(feature = "v3")]
     init_psa_crypto();
 
-    let content = &crate::wip_vrhash_sidhash_content(); // WIP !!
+    let content = &crate::debug_vrhash_sidhash_content_02_00_2e(); // WIP !!
 
     let mut vch = Voucher::new();
-    vch.set_content(content);
+    vch.set_content_debug(content);
 
     assert!(! vch.validate(Some(DEVICE_CRT_02_00_2E))); // "validating an unsigned voucher" should fail
 
@@ -146,7 +146,7 @@ fn test_pledge_vr_serialize_02_00_2e() {
     init_psa_crypto();
 
     let vch = Voucher::from(VR_COSE_BYTES).unwrap();
-    assert_eq!(vch.get_content().unwrap(), [161, 26, 0, 15, 70, 194, 164, 1, 105, 112, 114, 111, 120, 105, 109, 105, 116, 121, 2, 193, 26, 97, 119, 115, 164, 10, 81, 48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69, 7, 118, 114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]);
+    assert_eq!(vch.get_content_debug().unwrap(), [161, 26, 0, 15, 70, 194, 164, 1, 105, 112, 114, 111, 120, 105, 109, 105, 116, 121, 2, 193, 26, 97, 119, 115, 164, 10, 81, 48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69, 7, 118, 114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]);
     assert_eq!(vch.get_signature().0, [213, 235, 111, 50, 190, 110, 39, 125, 24, 10, 108, 112, 208, 115, 138, 149, 12, 183, 237, 34, 220, 209, 168, 239, 185, 5, 170, 145, 221, 42, 135, 70, 13, 231, 183, 48, 88, 32, 174, 78, 146, 46, 72, 206, 11, 103, 80, 17, 80, 62, 17, 101, 155, 78, 7, 1, 87, 177, 172, 192, 118, 31, 116, 214]);
 
     assert_eq!(vch.serialize().unwrap(), VR_COSE_BYTES);

@@ -1,8 +1,8 @@
-use crate::{println, Box, vec, Vec, BTreeMap};
+use crate::{println, /* Box, vec, */ Vec, BTreeMap};
 
-use cose::decoder::CborType;
+//use cose::decoder::CborType;
 
-pub struct SidData(BTreeMap<u8, u8>);
+pub struct SidData(BTreeMap<u8, u8>); // !!!! dummy
 
 impl SidData {
     pub fn new() -> Self { Self(BTreeMap::new()) }
@@ -14,6 +14,6 @@ impl SidData {
     pub fn to_cbor(&self) -> Vec<u8> {
         println!("sid data: {:?}", self.0);
 
-        crate::wip_vrhash_sidhash_content()
+        crate::debug_vrhash_sidhash_content_02_00_2e()
     }
 }
