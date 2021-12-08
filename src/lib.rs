@@ -31,6 +31,7 @@ pub mod debug {
 
 //
 
+#[derive(PartialEq)]
 pub struct Voucher {
     sid: SidData,
     cose: CoseData,
@@ -52,28 +53,49 @@ mod validate;
 
 //
 
+//---- TODO
+// ```
+// let vch = Voucher::new().set(Sid::xx0(yy0)).set(Sid::xx1(yy1)).unset(Sid::xx1(yy1)) ...
+// ```
+
+use core::convert::TryFrom;
+
+//---- TODO
+type Sid = (); // dummy
+impl TryFrom<&[Sid]> for Voucher {
+    type Error = &'static str;
+
+    fn try_from(_content: &[Sid]) -> Result<Self, Self::Error> {
+        Err("WIP")
+    }
+}
+//----
+impl TryFrom<&[u8]> for Voucher {
+    type Error = &'static str;
+
+    fn try_from(raw: &[u8]) -> Result<Self, Self::Error> {
+        if let Ok((tag, cose)) = CoseData::decode(raw) {
+            if tag == COSE_SIGN_ONE_TAG {
+                Ok(Self {
+                    sid: SidData::new(),
+                    cose,
+                })
+            } else {
+                Err("Only `CoseSign1` vouchers are supported")
+            }
+        } else {
+            Err("Failed to decode raw voucher")
+        }
+    }
+}
+
+//
+
 impl Voucher {
     pub fn new() -> Self {
         Self {
             sid: SidData::new(),
             cose: CoseData::new(true),
-        }
-    }
-
-    pub fn from(raw: &[u8]) -> Option<Self> {
-        if let Ok((tag, cose)) = CoseData::decode(raw) {
-            if tag == COSE_SIGN_ONE_TAG {
-                Some(Self {
-                    sid: SidData::new(),
-                    cose,
-                })
-            } else {
-                println!("Only `CoseSign1` vouchers are supported");
-                None
-            }
-        } else {
-            println!("Failed to decode raw voucher");
-            None
         }
     }
 

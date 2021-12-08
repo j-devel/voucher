@@ -2,6 +2,7 @@ use crate::{println, /* Box, vec, */ Vec, BTreeMap};
 
 //use cose::decoder::CborType;
 
+#[derive(PartialEq)]
 pub struct SidData(BTreeMap<u8, u8>); // !!!! dummy
 
 impl SidData {
