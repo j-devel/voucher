@@ -5,9 +5,9 @@
 extern crate std;
 
 #[cfg(feature = "std")]
-use std::{println, boxed::Box, vec, vec::Vec, collections::BTreeMap};
+use std::{println, boxed::Box, vec, vec::Vec, collections::{BTreeMap, BTreeSet}};
 #[cfg(not(feature = "std"))]
-use mcu_if::{println, alloc::{boxed::Box, vec, vec::Vec, collections::BTreeMap}};
+use mcu_if::{println, alloc::{boxed::Box, vec, vec::Vec, collections::{BTreeMap, BTreeSet}}};
 
 //
 
@@ -76,10 +76,8 @@ impl TryFrom<&[u8]> for Voucher {
     fn try_from(raw: &[u8]) -> Result<Self, Self::Error> {
         if let Ok((tag, cose)) = CoseData::decode(raw) {
             if tag == COSE_SIGN_ONE_TAG {
-                Ok(Self {
-                    sid: SidData::new(),
-                    cose,
-                })
+                let sid = SidData::new_vch(); // dummy; TODO reflect the ty decoded !!!!
+                Ok(Self { sid, cose })
             } else {
                 Err("Only `CoseSign1` vouchers are supported")
             }
@@ -100,7 +98,10 @@ pub enum VoucherType {
 impl Voucher {
     pub fn new(ty: VoucherType) -> Self {
         Self {
-            sid: SidData::new(),
+            sid: match ty {
+                VoucherType::Vch => SidData::new_vch(),
+                VoucherType::Vrq => SidData::new_vrq(),
+            },
             cose: CoseData::new(true),
         }
     }
@@ -129,12 +130,6 @@ impl Voucher {
         let (signature, alg) = self.get_signature();
 
         (self.get_signer_cert(), signature, alg, &self.cose.sig().to_verify)
-    }
-
-    pub fn sid_insert(&mut self, key: u8, val: u8) -> &mut Self {
-        self.sid.insert(key, val);
-
-        self
     }
 
     fn update_cose_content(&mut self) -> &mut Self {
