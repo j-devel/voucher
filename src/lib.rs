@@ -91,12 +91,22 @@ impl TryFrom<&[u8]> for Voucher {
 
 //
 
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum VoucherType {
+    Vch, // 'voucher'
+    Vrq, // 'voucher request'
+}
+
 impl Voucher {
-    pub fn new() -> Self {
+    pub fn new(ty: VoucherType) -> Self {
         Self {
             sid: SidData::new(),
             cose: CoseData::new(true),
         }
+    }
+
+    pub fn get_voucher_type(&self) -> VoucherType {
+        VoucherType::Vch // TODO // matches!(self.sid, ...)
     }
 
     pub fn serialize(&self) -> Option<Vec<u8>> {
