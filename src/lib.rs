@@ -146,8 +146,8 @@ impl Voucher {
             vec![]
         };
 
-        self.cose.set_content(&content);
-//        self.cose.set_content(&crate::debug_vrhash_sidhash_content_02_00_2e());
+//        self.cose.set_content(&content);
+        self.cose.set_content(&crate::debug::vrhash_sidhash_content_02_00_2e());
 
         self
     }
