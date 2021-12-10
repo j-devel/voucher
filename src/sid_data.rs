@@ -194,3 +194,55 @@ impl Cbor for SidData {
         }
     }
 }
+
+//
+
+pub fn content_comp(a: &[u8], b: &[u8]) -> bool {
+    let sum = |v: &[u8]| -> u32 { v.iter().map(|b| *b as u32).sum() };
+
+    a.len() == b.len() && sum(a) == sum(b)
+}
+
+pub fn vrhash_sidhash_content_02_00_2e() -> Vec<u8> {
+    vec![161, 26, 0, 15, 70, 194, 164, 1, 105, 112, 114, 111, 120, 105, 109, 105, 116, 121, 2, 193, 26, 97, 119, 115, 164, 10, 81, 48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69, 7, 118, 114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]
+}
+
+#[test]
+fn test_sid_02_00_2e() {
+    use core::intrinsics::discriminant_value as disc;
+    use YangEnum::*;
+
+    assert_eq!(disc(&Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher)), 1001154);
+    assert_eq!(disc(&Sid::VrqAssertion(Proximity)), 1001155);
+    assert_eq!(disc(&Sid::VrqCreatedOn(1635218340)), 1001156);
+    assert_eq!(disc(&Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103])),
+               1001161);
+
+    let serial_02_00_2e = String::from("00-D0-E5-02-00-2E");
+    assert_eq!(serial_02_00_2e.as_bytes(), [48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69]);
+    assert_eq!(disc(&Sid::VrqSerialNumber(serial_02_00_2e)), 1001164);
+}
+
+#[test]
+fn test_sid_data_vch_02_00_2e() {
+    let _sd_vch = SidData::Voucher(BTreeSet::from([
+        // ...
+    ]));
+
+    // TODO
+}
+
+#[test]
+fn test_sid_data_vrq_02_00_2e() {
+    let sd_vrq = SidData::vrq_from(BTreeSet::from([
+        Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher),
+        Sid::VrqAssertion(YangEnum::Proximity),
+        Sid::VrqCreatedOn(1635218340),
+        Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]),
+        Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")),
+    ]));
+
+    println!("sd_vrq: {:?}", sd_vrq);
+    assert!(content_comp(&sd_vrq.serialize().unwrap(),
+                         &vrhash_sidhash_content_02_00_2e()));
+}

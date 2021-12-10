@@ -30,6 +30,7 @@ mod cose_sig;
 
 pub mod debug {
     pub use super::cose_sig::{sig_one_struct_bytes_from, CborType, decode};
+    pub use super::sid_data::{content_comp, vrhash_sidhash_content_02_00_2e};
 }
 
 //
@@ -63,7 +64,7 @@ mod validate;
 
 use core::convert::TryFrom;
 
-//---- TODO
+//---- TODO ??
 type Sid = (); // dummy
 impl TryFrom<&[Sid]> for Voucher {
     type Error = &'static str;
@@ -145,8 +146,8 @@ impl Voucher {
             vec![]
         };
 
-//        self.cose.set_content(&content);
-        self.cose.set_content(&crate::debug_vrhash_sidhash_content_02_00_2e());
+        self.cose.set_content(&content);
+//        self.cose.set_content(&crate::debug_vrhash_sidhash_content_02_00_2e());
 
         self
     }
@@ -212,13 +213,4 @@ mod minerva_mbedtls_utils {
 
         Ok(pk)
     }
-}
-
-//
-
-pub fn debug_vrhash_sidhash_content_02_00_2e() -> Vec<u8> {
-    let content = [161, 26, 0, 15, 70, 194, 164, 1, 105, 112, 114, 111, 120, 105, 109, 105, 116, 121, 2, 193, 26, 97, 119, 115, 164, 10, 81, 48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69, 7, 118, 114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]
-        .to_vec();
-
-    content
 }
