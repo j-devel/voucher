@@ -1,13 +1,16 @@
 #![no_std]
 
+#![feature(arbitrary_enum_discriminant)]
+#![feature(core_intrinsics)]
+
 #[cfg(feature = "std")]
 #[macro_use]
 extern crate std;
 
 #[cfg(feature = "std")]
-use std::{println, boxed::Box, vec, vec::Vec, collections::{BTreeMap, BTreeSet}};
+use std::{println, boxed::Box, string, vec, vec::Vec, collections::{BTreeMap, BTreeSet}};
 #[cfg(not(feature = "std"))]
-use mcu_if::{println, alloc::{boxed::Box, vec, vec::Vec, collections::{BTreeMap, BTreeSet}}};
+use mcu_if::{println, alloc::{boxed::Box, string, vec, vec::Vec, collections::{BTreeMap, BTreeSet}}};
 
 //
 
@@ -133,7 +136,17 @@ impl Voucher {
     }
 
     fn update_cose_content(&mut self) -> &mut Self {
-        self.cose.set_content(&self.sid.to_cbor());
+        use sid_data::Cbor;
+        let content = if let Some(cbor) = self.sid.serialize() {
+            cbor
+        } else {
+            println!("update_cose_content(): Failed to generate `content`");
+
+            vec![]
+        };
+
+//        self.cose.set_content(&content);
+        self.cose.set_content(&crate::debug_vrhash_sidhash_content_02_00_2e());
 
         self
     }
