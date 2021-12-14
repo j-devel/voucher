@@ -117,7 +117,7 @@ fn test_voucher_serialize_f2_00_02() {
 //
 
 #[test]
-fn test_pledge_vr_sign_02_00_2e() {
+fn test_pledge_vr_unsigned_02_00_2e() {
     #[cfg(feature = "v3")]
     init_psa_crypto();
 
@@ -128,9 +128,26 @@ fn test_pledge_vr_sign_02_00_2e() {
         .set(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
         .set(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")));
 
-    assert!(! vrq.validate(Some(DEVICE_CRT_02_00_2E))); // "validating an unsigned voucher" should fail
+    // "validating an unsigned voucher" should fail
+    assert!(!vrq.validate(Some(DEVICE_CRT_02_00_2E)));
 
     vrq.sign(KEY_PEM_02_00_2E, SignatureAlgorithm::ES256);
+
+    assert!(vrq.validate(Some(DEVICE_CRT_02_00_2E)));
+}
+
+#[test]
+fn test_pledge_vr_sign_02_00_2e() {
+    #[cfg(feature = "v3")]
+    init_psa_crypto();
+
+    let mut vrq = Voucher::new(VoucherType::Vrq);
+    vrq.set(Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher))
+        .set(Sid::VrqAssertion(YangEnum::Proximity))
+        .set(Sid::VrqCreatedOn(1635218340))
+        .set(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
+        .set(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")))
+        .sign(KEY_PEM_02_00_2E, SignatureAlgorithm::ES256);
 
     assert!(debug::content_comp(&vrq.get_content_debug().unwrap(),
                                 &debug::vrhash_sidhash_content_02_00_2e()));
