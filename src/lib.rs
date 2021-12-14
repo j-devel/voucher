@@ -158,12 +158,6 @@ impl Voucher {
         self
     }
 
-    pub fn set_content_debug(&mut self, content: &[u8]) -> &mut Self {
-        self.cose.set_content(content);
-
-        self
-    }
-
     pub fn get_content_debug(&self) -> Option<Vec<u8>> {
         println!("get_content_debug(): self.sid: {:?}", self.sid);
 

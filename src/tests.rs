@@ -1,4 +1,4 @@
-use crate::{Voucher, VoucherType, SignatureAlgorithm, Sign, Validate};
+use crate::{*, string::String};
 
 #[cfg(feature = "v3")]
 fn init_psa_crypto() {
@@ -122,14 +122,21 @@ fn test_pledge_vr_sign_02_00_2e() {
     init_psa_crypto();
 
     let mut vrq = Voucher::new(VoucherType::Vrq);
-    vrq.set_content_debug(&crate::debug::vrhash_sidhash_content_02_00_2e());
+    vrq.set(Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher))
+        .set(Sid::VrqAssertion(YangEnum::Proximity))
+        .set(Sid::VrqCreatedOn(1635218340))
+        .set(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
+        .set(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")));
 
     assert!(! vrq.validate(Some(DEVICE_CRT_02_00_2E))); // "validating an unsigned voucher" should fail
 
     vrq.sign(KEY_PEM_02_00_2E, SignatureAlgorithm::ES256);
 
+    assert!(debug::content_comp(&vrq.get_content_debug().unwrap(),
+                                &debug::vrhash_sidhash_content_02_00_2e()));
+
     let (sig, ty) = vrq.get_signature();
-    assert_eq!(sig, /* asn1 */ [48, 70, 2, 33, 0, 226, 133, 204, 212, 146, 54, 173, 224, 191, 137, 104, 146, 5, 43, 216, 61, 167, 219, 192, 125, 138, 167, 160, 145, 26, 197, 52, 17, 94, 97, 210, 115, 2, 33, 0, 149, 230, 42, 127, 120, 31, 10, 28, 154, 2, 82, 16, 154, 165, 201, 129, 133, 192, 49, 15, 44, 159, 165, 129, 124, 210, 216, 67, 144, 174, 77, 107]);
+    assert!(sig.len() > 0);
     assert_eq!(ty, &SignatureAlgorithm::ES256);
 
     assert!(vrq.validate(Some(DEVICE_CRT_02_00_2E))); // via public key
@@ -156,7 +163,7 @@ fn test_pledge_vr_serialize_02_00_2e() {
 
     let vrq = Voucher::try_from(VR_COSE_BYTES).unwrap();
     assert_eq!(vrq.get_content_debug().unwrap(),
-               crate::debug::vrhash_sidhash_content_02_00_2e());
+               debug::vrhash_sidhash_content_02_00_2e());
     assert_eq!(vrq.get_signature().0, [213, 235, 111, 50, 190, 110, 39, 125, 24, 10, 108, 112, 208, 115, 138, 149, 12, 183, 237, 34, 220, 209, 168, 239, 185, 5, 170, 145, 221, 42, 135, 70, 13, 231, 183, 48, 88, 32, 174, 78, 146, 46, 72, 206, 11, 103, 80, 17, 80, 62, 17, 101, 155, 78, 7, 1, 87, 177, 172, 192, 118, 31, 116, 214]);
 
     assert_eq!(vrq.serialize().unwrap(), VR_COSE_BYTES);
