@@ -21,6 +21,7 @@ mod tests;
 
 mod sid_data;
 use sid_data::SidData;
+pub use sid_data::{Sid, TopLevel, YangEnum};
 
 mod cose_data;
 use cose_data::{CoseData, COSE_SIGN_ONE_TAG};
@@ -65,7 +66,6 @@ mod validate;
 use core::convert::TryFrom;
 
 //---- TODO ??
-type Sid = (); // dummy
 impl TryFrom<&[Sid]> for Voucher {
     type Error = &'static str;
 
@@ -118,6 +118,12 @@ impl Voucher {
         CoseData::encode(&self.cose).ok()
     }
 
+    pub fn set(&mut self, sid: Sid) -> &mut Self {
+        self.sid.replace(sid);
+
+        self
+    }
+
     /// Interface with meta data to be used in ECDSA based signing
     pub fn to_sign(&mut self) -> (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8]) {
         use core::ops::DerefMut;
@@ -138,6 +144,7 @@ impl Voucher {
 
     fn update_cose_content(&mut self) -> &mut Self {
         use sid_data::Cbor;
+
         let content = if let Some(cbor) = self.sid.serialize() {
             cbor
         } else {
@@ -146,8 +153,7 @@ impl Voucher {
             vec![]
         };
 
-//        self.cose.set_content(&content);
-        self.cose.set_content(&crate::debug::vrhash_sidhash_content_02_00_2e());
+        self.cose.set_content(&content);
 
         self
     }
@@ -159,7 +165,12 @@ impl Voucher {
     }
 
     pub fn get_content_debug(&self) -> Option<Vec<u8>> {
-        self.cose.get_content()
+        println!("get_content_debug(): self.sid: {:?}", self.sid);
+
+        let content = self.cose.get_content();
+        println!("get_content_debug(): content: {:?}", content);
+
+        content
     }
 
     pub fn get_signature(&self) -> (&[u8], &SignatureAlgorithm) {

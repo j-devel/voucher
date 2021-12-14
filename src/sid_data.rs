@@ -163,6 +163,24 @@ impl SidData {
     pub fn new_vrq() -> Self { Self::VoucherRequest(BTreeSet::new()) }
     pub fn vch_from(set: BTreeSet<Sid>) -> Self { Self::Voucher(set) }
     pub fn vrq_from(set: BTreeSet<Sid>) -> Self { Self::VoucherRequest(set) }
+
+    pub fn replace(&mut self, sid: Sid) {
+        self.inner_mut().replace(sid);
+    }
+
+    fn inner_mut(&mut self) -> &mut BTreeSet<Sid> {
+        match self {
+            Self::Voucher(set) => set,
+            Self::VoucherRequest(set) => set,
+        }
+    }
+
+    fn inner(&self) -> (&BTreeSet<Sid>, bool /* is_vrq */) {
+        match self {
+            Self::Voucher(set) => (set, false),
+            Self::VoucherRequest(set) => (set, true),
+        }
+    }
 }
 
 impl Cbor for SidData {
@@ -170,25 +188,27 @@ impl Cbor for SidData {
         use core::intrinsics::discriminant_value as disc;
         use CborType::*;
 
-        let (set, ref top_level) = match self {
-            Self::Voucher(set) => (set, Sid::VchTopLevel(TopLevel::VoucherVoucher)),
-            Self::VoucherRequest(set) => (set, Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher)),
+        let (set, is_vrq) = self.inner();
+        let top_level = if is_vrq {
+            &Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher)
+        } else {
+            &Sid::VchTopLevel(TopLevel::VoucherVoucher)
         };
 
         if set.contains(top_level) {
             Some(Map(BTreeMap::from([(Integer(disc(top_level)), {
-                let mut inner = BTreeMap::new();
+                let mut attrs = BTreeMap::new();
                 set.iter()
                     .filter(|sid| !matches!(*sid, Sid::VchTopLevel(_) | Sid::VrqTopLevel(_)))
                     .for_each(|sid| {
                         let delta = disc(sid) - disc(top_level);
-                        inner.insert(Integer(delta), sid.to_cbor().unwrap());
+                        attrs.insert(Integer(delta), sid.to_cbor().unwrap());
                     });
 
-                Map(inner)
+                Map(attrs)
             })])))
         } else {
-            println!("to_cbor(): not a CBOR instance");
+            println!("to_cbor(): not a CBOR vch/vrq instance");
 
             None
         }
