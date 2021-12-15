@@ -147,9 +147,9 @@ fn test_pledge_vr_sign_02_00_2e() {
         .set(Sid::VrqCreatedOn(1635218340))
         .set(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
         .set(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")))
-        .sign(KEY_PEM_02_00_2E, SignatureAlgorithm::ES256) // via public key
+        .sign(KEY_PEM_02_00_2E, SignatureAlgorithm::ES256)
         .unwrap()
-        .validate(Some(DEVICE_CRT_02_00_2E))
+        .validate(Some(DEVICE_CRT_02_00_2E)) // via public key
         .is_ok());
 
     //
@@ -202,7 +202,7 @@ fn test_highlevel_interface() {
         .set(Sid::VrqCreatedOn(1635218340))
         .set(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
         .set(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")))
-        .sign(KEY_PEM_02_00_2E, SignatureAlgorithm::ES256) // via public key
+        .sign(KEY_PEM_02_00_2E, SignatureAlgorithm::ES256)
         .unwrap()
         .validate(Some(DEVICE_CRT_02_00_2E))
         .is_ok());
