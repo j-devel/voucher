@@ -5,14 +5,15 @@ use minerva_mbedtls::ifce::*;
 use core::ffi::c_void;
 
 impl crate::Validate for crate::Voucher {
-    fn validate(&self, pem: Option<&[u8]>) -> bool {
+    fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, ()> {
         let f_rng = pk_context::test_f_rng_ptr(); // !! TODO refactor into `self` logic
 
         match validate(pem, self.to_validate(), f_rng) {
-            Ok(tf) => tf,
+            Ok(tf) => if tf { Ok(self) } else { Err(()) },
             Err(err) => {
                 println!("validate(): mbedtls_error: {}", err);
-                false
+
+                Err(())
             },
         }
     }

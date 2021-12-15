@@ -5,12 +5,15 @@ use minerva_mbedtls::ifce::*;
 use core::ffi::c_void;
 
 impl crate::Sign for crate::Voucher {
-    fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm) {
+    fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm) -> Result<&mut Self, ()> {
         let f_rng = pk_context::test_f_rng_ptr(); // !! TODO refactor into `self` logic
 
         if let Err(err) = sign(privkey_pem, alg, self.to_sign(), f_rng) {
             println!("sign(): mbedtls_error: {}", err);
+            return Err(());
         }
+
+        Ok(self)
     }
 }
 

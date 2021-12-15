@@ -43,11 +43,11 @@ pub struct Voucher {
 }
 
 pub trait Sign {
-    fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm);
+    fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm) -> Result<&mut Self, ()>;
 }
 
 pub trait Validate {
-    fn validate(&self, pem: Option<&[u8]>) -> bool;
+    fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, ()>;
 }
 
 #[cfg(any(feature = "sign", feature = "sign-lts"))]
