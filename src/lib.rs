@@ -21,7 +21,7 @@ mod tests;
 
 mod sid_data;
 use sid_data::SidData;
-pub use sid_data::{Sid, TopLevel, YangEnum};
+pub use sid_data::{Sid, YangEnum};
 
 mod cose_data;
 use cose_data::{CoseData, COSE_SIGN_ONE_TAG};
@@ -103,22 +103,22 @@ impl Voucher {
     pub fn new(ty: VoucherType) -> Self {
         Self {
             sid: match ty {
-                VoucherType::Vch => SidData::new_vch(),
-                VoucherType::Vrq => SidData::new_vrq(),
+                VoucherType::Vch => SidData::new_vch_cbor(),
+                VoucherType::Vrq => SidData::new_vrq_cbor(),
             },
             cose: CoseData::new(true),
         }
     }
 
     pub fn get_voucher_type(&self) -> VoucherType {
-        VoucherType::Vch // TODO // matches!(self.sid, ...)
+        if self.sid.is_vrq() { VoucherType::Vrq } else { VoucherType::Vch }
     }
 
     pub fn serialize(&self) -> Option<Vec<u8>> {
         CoseData::encode(&self.cose).ok()
     }
 
-    pub fn set(&mut self, sid: Sid) -> &mut Self {
+    fn set(&mut self, sid: Sid) -> &mut Self {
         self.sid.replace(sid);
 
         self

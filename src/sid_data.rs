@@ -164,6 +164,11 @@ impl SidData {
     pub fn vch_from(set: BTreeSet<Sid>) -> Self { Self::Voucher(set) }
     pub fn vrq_from(set: BTreeSet<Sid>) -> Self { Self::VoucherRequest(set) }
 
+    pub fn new_vch_cbor() -> Self { Self::Voucher(BTreeSet::from([
+        Sid::VchTopLevel(TopLevel::VoucherVoucher)])) }
+    pub fn new_vrq_cbor() -> Self { Self::VoucherRequest(BTreeSet::from([
+        Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher)])) }
+
     pub fn replace(&mut self, sid: Sid) {
         self.inner_mut().replace(sid);
     }
@@ -180,6 +185,10 @@ impl SidData {
             Self::Voucher(set) => (set, false),
             Self::VoucherRequest(set) => (set, true),
         }
+    }
+
+    pub fn is_vrq(&self) -> bool {
+        self.inner().1
     }
 }
 

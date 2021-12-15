@@ -123,8 +123,7 @@ fn test_pledge_vr_unsigned_02_00_2e() {
 
     let mut vrq = Voucher::new(VoucherType::Vrq);
 
-    vrq.set(Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher))
-        .set(Sid::VrqAssertion(YangEnum::Proximity))
+    vrq.set(Sid::VrqAssertion(YangEnum::Proximity))
         .set(Sid::VrqCreatedOn(1635218340))
         .set(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
         .set(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")));
@@ -144,8 +143,7 @@ fn test_pledge_vr_sign_02_00_2e() {
 
     let mut vrq = Voucher::new(VoucherType::Vrq);
 
-    assert!(vrq.set(Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher))
-        .set(Sid::VrqAssertion(YangEnum::Proximity))
+    assert!(vrq.set(Sid::VrqAssertion(YangEnum::Proximity))
         .set(Sid::VrqCreatedOn(1635218340))
         .set(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
         .set(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")))
@@ -190,4 +188,22 @@ fn test_pledge_vr_serialize_02_00_2e() {
     assert_eq!(vrq.get_signature().0, [213, 235, 111, 50, 190, 110, 39, 125, 24, 10, 108, 112, 208, 115, 138, 149, 12, 183, 237, 34, 220, 209, 168, 239, 185, 5, 170, 145, 221, 42, 135, 70, 13, 231, 183, 48, 88, 32, 174, 78, 146, 46, 72, 206, 11, 103, 80, 17, 80, 62, 17, 101, 155, 78, 7, 1, 87, 177, 172, 192, 118, 31, 116, 214]);
 
     assert_eq!(vrq.serialize().unwrap(), VR_COSE_BYTES);
+}
+
+//
+
+#[test]
+fn test_highlevel_interface() {
+    #[cfg(feature = "v3")]
+    init_psa_crypto();
+
+    assert!(Voucher::new(VoucherType::Vrq)
+        .set(Sid::VrqAssertion(YangEnum::Proximity))
+        .set(Sid::VrqCreatedOn(1635218340))
+        .set(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
+        .set(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")))
+        .sign(KEY_PEM_02_00_2E, SignatureAlgorithm::ES256) // via public key
+        .unwrap()
+        .validate(Some(DEVICE_CRT_02_00_2E))
+        .is_ok());
 }
