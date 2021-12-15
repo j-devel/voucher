@@ -123,10 +123,10 @@ fn test_pledge_vr_unsigned_02_00_2e() {
 
     let mut vrq = Voucher::new(VoucherType::Vrq);
 
-    vrq.set(Sid::VrqAssertion(YangEnum::Proximity))
-        .set(Sid::VrqCreatedOn(1635218340))
-        .set(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
-        .set(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")));
+    vrq.set_sid(Sid::VrqAssertion(YangEnum::Proximity))
+        .set_sid(Sid::VrqCreatedOn(1635218340))
+        .set_sid(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
+        .set_sid(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")));
 
     // "validating an unsigned voucher" should fail
     assert!(vrq.validate(Some(DEVICE_CRT_02_00_2E)).is_err());
@@ -143,10 +143,10 @@ fn test_pledge_vr_sign_02_00_2e() {
 
     let mut vrq = Voucher::new(VoucherType::Vrq);
 
-    assert!(vrq.set(Sid::VrqAssertion(YangEnum::Proximity))
-        .set(Sid::VrqCreatedOn(1635218340))
-        .set(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
-        .set(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")))
+    assert!(vrq.set_sid(Sid::VrqAssertion(YangEnum::Proximity))
+        .set_sid(Sid::VrqCreatedOn(1635218340))
+        .set_sid(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
+        .set_sid(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")))
         .sign(KEY_PEM_02_00_2E, SignatureAlgorithm::ES256)
         .unwrap()
         .validate(Some(DEVICE_CRT_02_00_2E)) // via public key
@@ -197,13 +197,37 @@ fn test_highlevel_interface() {
     #[cfg(feature = "v3")]
     init_psa_crypto();
 
-    assert!(Voucher::new(VoucherType::Vrq)
-        .set(Sid::VrqAssertion(YangEnum::Proximity))
-        .set(Sid::VrqCreatedOn(1635218340))
-        .set(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
-        .set(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")))
+    let mut vrq = Voucher::new(VoucherType::Vrq);
+
+    assert!(vrq
+        .set(Data::Assertion(Assertion::Proximity))
+        .set(Data::CreatedOn(1635218340))
+        .set(Data::Nonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
+        .set(Data::SerialNumber(String::from("00-D0-E5-02-00-2E")))
         .sign(KEY_PEM_02_00_2E, SignatureAlgorithm::ES256)
         .unwrap()
         .validate(Some(DEVICE_CRT_02_00_2E))
         .is_ok());
+
+    assert!(debug::content_comp(&vrq.get_content_debug().unwrap(),
+                                &debug::vrhash_sidhash_content_02_00_2e()));
+
+    #[cfg(feature = "std")]
+    {
+        assert!(std::panic::catch_unwind(|| {
+            Voucher::new(VoucherType::Vrq).set(Data::PinnedDomainSubjectPublicKeyInfo(vec![]));
+        }).is_err());
+
+        assert!(std::panic::catch_unwind(|| {
+            Voucher::new(VoucherType::Vch).set(Data::ProximityRegistrarSubjectPublicKeyInfo(vec![]));
+        }).is_err());
+
+        assert!(std::panic::catch_unwind(|| {
+            Voucher::new(VoucherType::Vch).set(Data::PriorSignedVoucherRequest(vec![]));
+        }).is_err());
+
+        assert!(std::panic::catch_unwind(|| {
+            Voucher::new(VoucherType::Vch).set(Data::ProximityRegistrarCert(vec![]));
+        }).is_err());
+    }
 }

@@ -8,9 +8,9 @@
 extern crate std;
 
 #[cfg(feature = "std")]
-use std::{println, boxed::Box, string, vec, vec::Vec, collections::{BTreeMap, BTreeSet}};
+use std::{println, boxed::Box, string::{self, String}, vec, vec::Vec, collections::{BTreeMap, BTreeSet}};
 #[cfg(not(feature = "std"))]
-use mcu_if::{println, alloc::{boxed::Box, string, vec, vec::Vec, collections::{BTreeMap, BTreeSet}}};
+use mcu_if::{println, alloc::{boxed::Box, string::{self, String}, vec, vec::Vec, collections::{BTreeMap, BTreeSet}}};
 
 //
 
@@ -58,22 +58,8 @@ mod validate;
 
 //
 
-//---- TODO
-// ```
-// let vch = Voucher::new().set(Sid::xx0(yy0)).set(Sid::xx1(yy1)).unset(Sid::xx1(yy1)) ...
-// ```
-
 use core::convert::TryFrom;
 
-//---- TODO ??
-impl TryFrom<&[Sid]> for Voucher {
-    type Error = &'static str;
-
-    fn try_from(_content: &[Sid]) -> Result<Self, Self::Error> {
-        Err("WIP")
-    }
-}
-//----
 impl TryFrom<&[u8]> for Voucher {
     type Error = &'static str;
 
@@ -99,6 +85,29 @@ pub enum VoucherType {
     Vrq, // 'voucher request'
 }
 
+#[derive(Copy, Clone, PartialEq)]
+pub enum Assertion {
+    Verified,
+    Logged,
+    Proximity,
+}
+
+pub enum Data {
+    Assertion(Assertion),
+    CreatedOn(u64),
+    DomainCertRevocationChecks(bool),
+    ExpiresOn(u64),
+    IdevidIssuer(Vec<u8>),
+    LastRenewalDate(u64),
+    Nonce(Vec<u8>),
+    PinnedDomainCert(Vec<u8>),
+    PinnedDomainSubjectPublicKeyInfo(Vec<u8>),        // vch only
+    ProximityRegistrarSubjectPublicKeyInfo(Vec<u8>),  // vrq only
+    PriorSignedVoucherRequest(Vec<u8>),               // vrq only
+    ProximityRegistrarCert(Vec<u8>),                  // vrq only
+    SerialNumber(String),
+}
+
 impl Voucher {
     pub fn new(ty: VoucherType) -> Self {
         Self {
@@ -110,15 +119,44 @@ impl Voucher {
         }
     }
 
-    pub fn get_voucher_type(&self) -> VoucherType {
-        if self.sid.is_vrq() { VoucherType::Vrq } else { VoucherType::Vch }
-    }
-
     pub fn serialize(&self) -> Option<Vec<u8>> {
         CoseData::encode(&self.cose).ok()
     }
 
-    fn set(&mut self, sid: Sid) -> &mut Self {
+    pub fn get_voucher_type(&self) -> VoucherType {
+        if self.sid.is_vrq() { VoucherType::Vrq } else { VoucherType::Vch }
+    }
+
+    pub fn set(&mut self, data: Data) -> &mut Self {
+        let is_vrq = self.sid.is_vrq();
+        let sid_assertion = |val| if is_vrq { Sid::VrqAssertion(val) } else { Sid::VchAssertion(val) };
+
+        let sid = match data {
+            Data::Assertion(inner) => match inner {
+                Assertion::Verified => sid_assertion(YangEnum::Verified),
+                Assertion::Logged => sid_assertion(YangEnum::Logged),
+                Assertion::Proximity => sid_assertion(YangEnum::Proximity),
+            },
+            Data::DomainCertRevocationChecks(val) => if is_vrq { Sid::VrqDomainCertRevocationChecks(val) } else { Sid::VchDomainCertRevocationChecks(val) },
+            Data::CreatedOn(val) => if is_vrq { Sid::VrqCreatedOn(val) } else { Sid::VchCreatedOn(val) },
+            Data::ExpiresOn(val) => if is_vrq { Sid::VrqExpiresOn(val) } else { Sid::VchExpiresOn(val) },
+            Data::LastRenewalDate(val) => if is_vrq { Sid::VrqLastRenewalDate(val) } else { Sid::VchLastRenewalDate(val) },
+            Data::IdevidIssuer(val) => if is_vrq { Sid::VrqIdevidIssuer(val) } else { Sid::VchIdevidIssuer(val) },
+            Data::Nonce(val) => if is_vrq { Sid::VrqNonce(val) } else { Sid::VchNonce(val) },
+            Data::PinnedDomainCert(val) => if is_vrq { Sid::VrqPinnedDomainCert(val) } else { Sid::VchPinnedDomainCert(val) },
+            Data::SerialNumber(val) => if is_vrq { Sid::VrqSerialNumber(val) } else { Sid::VchSerialNumber(val) },
+            Data::PinnedDomainSubjectPublicKeyInfo(val) => { assert!(!is_vrq); Sid::VchPinnedDomainSubjectPublicKeyInfo(val) },
+            Data::ProximityRegistrarSubjectPublicKeyInfo(val) => { assert!(is_vrq); Sid::VrqProximityRegistrarSubjectPublicKeyInfo(val) },
+            Data::PriorSignedVoucherRequest(val) => { assert!(is_vrq); Sid::VrqPriorSignedVoucherRequest(val) },
+            Data::ProximityRegistrarCert(val) => { assert!(is_vrq); Sid::VrqProximityRegistrarCert(val) },
+        };
+
+        self.set_sid(sid);
+
+        self
+    }
+
+    fn set_sid(&mut self, sid: Sid) -> &mut Self {
         self.sid.replace(sid);
 
         self
