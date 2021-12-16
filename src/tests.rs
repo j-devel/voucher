@@ -185,8 +185,7 @@ fn test_pledge_vr_serialize_02_00_2e() {
     let vrq = Voucher::try_from(VR_COSE_BYTES).unwrap();
     assert_eq!(vrq.get_content_debug().unwrap(),
                debug::vrhash_sidhash_content_02_00_2e());
-    assert_eq!(vrq.get_signature().0, [213, 235, 111, 50, 190, 110, 39, 125, 24, 10, 108, 112, 208, 115, 138, 149, 12, 183, 237, 34, 220, 209, 168, 239, 185, 5, 170, 145, 221, 42, 135, 70, 13, 231, 183, 48, 88, 32, 174, 78, 146, 46, 72, 206, 11, 103, 80, 17, 80, 62, 17, 101, 155, 78, 7, 1, 87, 177, 172, 192, 118, 31, 116, 214]);
-
+    assert_eq!(vrq.get_signature().0, /* bare */ [213, 235, 111, 50, 190, 110, 39, 125, 24, 10, 108, 112, 208, 115, 138, 149, 12, 183, 237, 34, 220, 209, 168, 239, 185, 5, 170, 145, 221, 42, 135, 70, 13, 231, 183, 48, 88, 32, 174, 78, 146, 46, 72, 206, 11, 103, 80, 17, 80, 62, 17, 101, 155, 78, 7, 1, 87, 177, 172, 192, 118, 31, 116, 214]);
     assert_eq!(vrq.serialize().unwrap(), VR_COSE_BYTES);
 }
 
@@ -211,23 +210,26 @@ fn test_highlevel_interface() {
 
     assert!(debug::content_comp(&vrq.get_content_debug().unwrap(),
                                 &debug::vrhash_sidhash_content_02_00_2e()));
+    assert_eq!(vrq.get_signature().0, /* asn1 */ [48, 69, 2, 32, 110, 143, 135, 7, 170, 12, 231, 167, 243, 130, 212, 214, 122, 23, 71, 106, 100, 76, 173, 196, 236, 73, 58, 126, 151, 8, 46, 127, 206, 190, 196, 66, 2, 33, 0, 217, 20, 0, 2, 48, 18, 151, 42, 133, 159, 125, 145, 86, 197, 138, 227, 30, 64, 230, 164, 214, 125, 78, 62, 183, 48, 179, 249, 79, 147, 36, 112]);
+    assert_eq!(vrq.serialize().unwrap().len(), 148);
+}
 
-    #[cfg(feature = "std")]
-    {
-        assert!(std::panic::catch_unwind(|| {
-            Voucher::new_vrq().set(Attr::PinnedDomainSubjectPublicKeyInfo(vec![]));
-        }).is_err());
+#[test]
+#[cfg(feature = "std")]
+fn test_highlevel_attr_integrity() {
+    assert!(std::panic::catch_unwind(|| {
+        Voucher::new_vrq().set(Attr::PinnedDomainSubjectPublicKeyInfo(vec![]));
+    }).is_err());
 
-        assert!(std::panic::catch_unwind(|| {
-            Voucher::new_vch().set(Attr::ProximityRegistrarSubjectPublicKeyInfo(vec![]));
-        }).is_err());
+    assert!(std::panic::catch_unwind(|| {
+        Voucher::new_vch().set(Attr::ProximityRegistrarSubjectPublicKeyInfo(vec![]));
+    }).is_err());
 
-        assert!(std::panic::catch_unwind(|| {
-            Voucher::new_vch().set(Attr::PriorSignedVoucherRequest(vec![]));
-        }).is_err());
+    assert!(std::panic::catch_unwind(|| {
+        Voucher::new_vch().set(Attr::PriorSignedVoucherRequest(vec![]));
+    }).is_err());
 
-        assert!(std::panic::catch_unwind(|| {
-            Voucher::new_vch().set(Attr::ProximityRegistrarCert(vec![]));
-        }).is_err());
-    }
+    assert!(std::panic::catch_unwind(|| {
+        Voucher::new_vch().set(Attr::ProximityRegistrarCert(vec![]));
+    }).is_err());
 }
