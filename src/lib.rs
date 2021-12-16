@@ -83,18 +83,38 @@ impl TryFrom<&[u8]> for Voucher {
                     return Err("Failed to decode `content`");
                 };
 
+                //
+
                 let is_permissive = true; // !!!!
                 let msg = "Neither `SID_VCH_TOP_LEVEL` nor `SID_VRQ_TOP_LEVEL` found";
-                if let Ok(vch_map) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VCH_TOP_LEVEL)) {
-                    //ty.replace(resolve_alg(&alg)?);
-                    if 1 == 1 { panic!("WIP -- vch_map: {:?}", vch_map); }
-                } else if let Ok(vrq_map) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VRQ_TOP_LEVEL)) {
-                    //
-                    if 1 == 1 { panic!("WIP -- vrq_map: {:?}", vrq_map); }
+                let mut sd = None;
+
+                if let Ok(CborType::Map(ref vch_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VCH_TOP_LEVEL)) {
+                    let mut set = BTreeSet::from([Sid::VchTopLevel(sid_data::TopLevel::VoucherVoucher)]);
+
+                    vch_map.iter() // TODO !! cbor -> sid
+                        .for_each(|(k, v)| println!("[vch] k: {:?} v: {:?}", k, v));
+                    // if let Integer(delta) = k {
+                    //     let disc = delta + SID_VCH_TOP_LEVEL;
+                    //     ........
+
+                    sd.replace(SidData::vch_from(set));
+                } else if let Ok(CborType::Map(ref vrq_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VRQ_TOP_LEVEL)) {
+                    let mut set = BTreeSet::from([Sid::VrqTopLevel(sid_data::TopLevel::VoucherRequestVoucher)]);
+
+                    vrq_map.iter() // TODO !! cbor -> sid
+                        .for_each(|(k, v)| println!("[vrq] k: {:?} v: {:?}", k, v));
+
+                    sd.replace(SidData::vrq_from(set));
                 } else if is_permissive {
                     println!("⚠️ warning: {}", msg);
                 } else {
                     return Err(msg);
+                }
+
+                if let Some(sd) = sd {
+                    use sid_data::Cbor;
+                    panic!("sd.to_cbor(): {:?}", sd.to_cbor()); // check!
                 }
 
                 // content bytes
