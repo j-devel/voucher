@@ -197,13 +197,13 @@ fn test_highlevel_interface() {
     #[cfg(feature = "v3")]
     init_psa_crypto();
 
-    let mut vrq = Voucher::new(VoucherType::Vrq);
+    let mut vrq = Voucher::new_vrq();
 
     assert!(vrq
-        .set(Data::Assertion(Assertion::Proximity))
-        .set(Data::CreatedOn(1635218340))
-        .set(Data::Nonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
-        .set(Data::SerialNumber(String::from("00-D0-E5-02-00-2E")))
+        .set(Attr::Assertion(Assertion::Proximity))
+        .set(Attr::CreatedOn(1635218340))
+        .set(Attr::Nonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
+        .set(Attr::SerialNumber(String::from("00-D0-E5-02-00-2E")))
         .sign(KEY_PEM_02_00_2E, SignatureAlgorithm::ES256)
         .unwrap()
         .validate(Some(DEVICE_CRT_02_00_2E))
@@ -215,19 +215,19 @@ fn test_highlevel_interface() {
     #[cfg(feature = "std")]
     {
         assert!(std::panic::catch_unwind(|| {
-            Voucher::new(VoucherType::Vrq).set(Data::PinnedDomainSubjectPublicKeyInfo(vec![]));
+            Voucher::new_vrq().set(Attr::PinnedDomainSubjectPublicKeyInfo(vec![]));
         }).is_err());
 
         assert!(std::panic::catch_unwind(|| {
-            Voucher::new(VoucherType::Vch).set(Data::ProximityRegistrarSubjectPublicKeyInfo(vec![]));
+            Voucher::new_vch().set(Attr::ProximityRegistrarSubjectPublicKeyInfo(vec![]));
         }).is_err());
 
         assert!(std::panic::catch_unwind(|| {
-            Voucher::new(VoucherType::Vch).set(Data::PriorSignedVoucherRequest(vec![]));
+            Voucher::new_vch().set(Attr::PriorSignedVoucherRequest(vec![]));
         }).is_err());
 
         assert!(std::panic::catch_unwind(|| {
-            Voucher::new(VoucherType::Vch).set(Data::ProximityRegistrarCert(vec![]));
+            Voucher::new_vch().set(Attr::ProximityRegistrarCert(vec![]));
         }).is_err());
     }
 }

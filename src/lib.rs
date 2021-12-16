@@ -92,7 +92,7 @@ pub enum Assertion {
     Proximity,
 }
 
-pub enum Data {
+pub enum Attr {
     Assertion(Assertion),
     CreatedOn(u64),
     DomainCertRevocationChecks(bool),
@@ -119,6 +119,9 @@ impl Voucher {
         }
     }
 
+    pub fn new_vch() -> Self { Self::new(VoucherType::Vch) }
+    pub fn new_vrq() -> Self { Self::new(VoucherType::Vrq) }
+
     pub fn serialize(&self) -> Option<Vec<u8>> {
         CoseData::encode(&self.cose).ok()
     }
@@ -127,28 +130,28 @@ impl Voucher {
         if self.sid.is_vrq() { VoucherType::Vrq } else { VoucherType::Vch }
     }
 
-    pub fn set(&mut self, data: Data) -> &mut Self {
+    pub fn set(&mut self, attr: Attr) -> &mut Self {
         let is_vrq = self.sid.is_vrq();
         let sid_assertion = |val| if is_vrq { Sid::VrqAssertion(val) } else { Sid::VchAssertion(val) };
 
-        let sid = match data {
-            Data::Assertion(inner) => match inner {
+        let sid = match attr {
+            Attr::Assertion(inner) => match inner {
                 Assertion::Verified => sid_assertion(YangEnum::Verified),
                 Assertion::Logged => sid_assertion(YangEnum::Logged),
                 Assertion::Proximity => sid_assertion(YangEnum::Proximity),
             },
-            Data::DomainCertRevocationChecks(val) => if is_vrq { Sid::VrqDomainCertRevocationChecks(val) } else { Sid::VchDomainCertRevocationChecks(val) },
-            Data::CreatedOn(val) => if is_vrq { Sid::VrqCreatedOn(val) } else { Sid::VchCreatedOn(val) },
-            Data::ExpiresOn(val) => if is_vrq { Sid::VrqExpiresOn(val) } else { Sid::VchExpiresOn(val) },
-            Data::LastRenewalDate(val) => if is_vrq { Sid::VrqLastRenewalDate(val) } else { Sid::VchLastRenewalDate(val) },
-            Data::IdevidIssuer(val) => if is_vrq { Sid::VrqIdevidIssuer(val) } else { Sid::VchIdevidIssuer(val) },
-            Data::Nonce(val) => if is_vrq { Sid::VrqNonce(val) } else { Sid::VchNonce(val) },
-            Data::PinnedDomainCert(val) => if is_vrq { Sid::VrqPinnedDomainCert(val) } else { Sid::VchPinnedDomainCert(val) },
-            Data::SerialNumber(val) => if is_vrq { Sid::VrqSerialNumber(val) } else { Sid::VchSerialNumber(val) },
-            Data::PinnedDomainSubjectPublicKeyInfo(val) => { assert!(!is_vrq); Sid::VchPinnedDomainSubjectPublicKeyInfo(val) },
-            Data::ProximityRegistrarSubjectPublicKeyInfo(val) => { assert!(is_vrq); Sid::VrqProximityRegistrarSubjectPublicKeyInfo(val) },
-            Data::PriorSignedVoucherRequest(val) => { assert!(is_vrq); Sid::VrqPriorSignedVoucherRequest(val) },
-            Data::ProximityRegistrarCert(val) => { assert!(is_vrq); Sid::VrqProximityRegistrarCert(val) },
+            Attr::DomainCertRevocationChecks(val) => if is_vrq { Sid::VrqDomainCertRevocationChecks(val) } else { Sid::VchDomainCertRevocationChecks(val) },
+            Attr::CreatedOn(val) => if is_vrq { Sid::VrqCreatedOn(val) } else { Sid::VchCreatedOn(val) },
+            Attr::ExpiresOn(val) => if is_vrq { Sid::VrqExpiresOn(val) } else { Sid::VchExpiresOn(val) },
+            Attr::LastRenewalDate(val) => if is_vrq { Sid::VrqLastRenewalDate(val) } else { Sid::VchLastRenewalDate(val) },
+            Attr::IdevidIssuer(val) => if is_vrq { Sid::VrqIdevidIssuer(val) } else { Sid::VchIdevidIssuer(val) },
+            Attr::Nonce(val) => if is_vrq { Sid::VrqNonce(val) } else { Sid::VchNonce(val) },
+            Attr::PinnedDomainCert(val) => if is_vrq { Sid::VrqPinnedDomainCert(val) } else { Sid::VchPinnedDomainCert(val) },
+            Attr::SerialNumber(val) => if is_vrq { Sid::VrqSerialNumber(val) } else { Sid::VchSerialNumber(val) },
+            Attr::PinnedDomainSubjectPublicKeyInfo(val) => { assert!(!is_vrq); Sid::VchPinnedDomainSubjectPublicKeyInfo(val) },
+            Attr::ProximityRegistrarSubjectPublicKeyInfo(val) => { assert!(is_vrq); Sid::VrqProximityRegistrarSubjectPublicKeyInfo(val) },
+            Attr::PriorSignedVoucherRequest(val) => { assert!(is_vrq); Sid::VrqPriorSignedVoucherRequest(val) },
+            Attr::ProximityRegistrarCert(val) => { assert!(is_vrq); Sid::VrqProximityRegistrarCert(val) },
         };
 
         self.set_sid(sid);

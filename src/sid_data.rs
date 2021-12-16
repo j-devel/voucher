@@ -142,10 +142,7 @@ pub enum SidData {
     VoucherRequest(BTreeSet<Sid>),
 }
 
-// WIP
-// - high-level getter/setter interface
-// - top level attr integrity checker
-// - misc attr checker
+// TODO - checker on serialize
 // #   +---- voucher
 // #      +---- created-on?                      yang:date-and-time
 // #      +---- expires-on?                      yang:date-and-time
