@@ -66,7 +66,44 @@ impl TryFrom<&[u8]> for Voucher {
     fn try_from(raw: &[u8]) -> Result<Self, Self::Error> {
         if let Ok((tag, cose)) = CoseData::decode(raw) {
             if tag == COSE_SIGN_ONE_TAG {
+                //======== begin WIP - to be refactored
+                use cose::decoder::CborType;
+                use cose_sig::{decode, map_value_from};
+
+                let content = {
+                    if let Some(content) = cose.get_content() {
+                        content
+                    } else {
+                        return Err("Invalid `content`");
+                    }
+                };
+                let sidhash = if let Ok(sidhash) = decode(&content) {
+                    sidhash
+                } else {
+                    return Err("Failed to decode `content`");
+                };
+
+                let is_permissive = true; // !!!!
+                let msg = "Neither `SID_VCH_TOP_LEVEL` nor `SID_VRQ_TOP_LEVEL` found";
+                if let Ok(vch_map) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VCH_TOP_LEVEL)) {
+                    //ty.replace(resolve_alg(&alg)?);
+                    if 1 == 1 { panic!("WIP -- vch_map: {:?}", vch_map); }
+                } else if let Ok(vrq_map) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VRQ_TOP_LEVEL)) {
+                    //
+                    if 1 == 1 { panic!("WIP -- vrq_map: {:?}", vrq_map); }
+                } else if is_permissive {
+                    println!("⚠️ warning: {}", msg);
+                } else {
+                    return Err(msg);
+                }
+
+                // content bytes
+                // -> sidhash (CborType Map) .... check TopLevel type (vch or vrq)
+                // -> attr set
+                // -> populate `self.sid` (sid_data) .... `.get_attrs()` API
+                //======== end WIP
                 let sid = SidData::new_vch(); // dummy; TODO reflect the ty decoded !!!!
+
                 Ok(Self { sid, cose })
             } else {
                 Err("Only `CoseSign1` vouchers are supported")

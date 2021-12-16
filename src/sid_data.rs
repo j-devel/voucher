@@ -58,10 +58,13 @@ pub trait Cbor {
 
 //
 
+pub const SID_VCH_TOP_LEVEL: u64 = 1001100;
+pub const SID_VRQ_TOP_LEVEL: u64 = 1001154;
+
 #[repr(u64)]
 #[derive(Clone, Eq, Debug)]
 pub enum Sid {
-    VchTopLevel(TopLevel) =                                 1001100, // 'voucher' <- ['ietf-cwt-voucher', 'ietf-voucher:voucher']
+    VchTopLevel(TopLevel) =                       SID_VCH_TOP_LEVEL, // 'voucher' <- ['ietf-cwt-voucher', 'ietf-voucher:voucher']
     VchAssertion(YangEnum) =                                1001105, // 'assertion'
     VchCreatedOn(YangDateAndTime) =                         1001106, // 'created-on'
     VchDomainCertRevocationChecks(YangBool) =               1001107, // 'domain-cert-revocation-checks'
@@ -72,7 +75,7 @@ pub enum Sid {
     VchPinnedDomainCert(YangBinary) =                       1001112, // 'pinned-domain-cert'
     VchPinnedDomainSubjectPublicKeyInfo(YangBinary) =       1001113, // 'pinned-domain-subject-public-key-info'
     VchSerialNumber(YangString) =                           1001114, // 'serial-number'
-    VrqTopLevel(TopLevel) =                                 1001154, // 'voucher' <- ['ietf-cwt-voucher-request', 'ietf-cwt-voucher-request:voucher', 'ietf-voucher-request:voucher']
+    VrqTopLevel(TopLevel) =                       SID_VRQ_TOP_LEVEL, // 'voucher' <- ['ietf-cwt-voucher-request', 'ietf-cwt-voucher-request:voucher', 'ietf-voucher-request:voucher']
     VrqAssertion(YangEnum) =                                1001155, // 'assertion'
     VrqCreatedOn(YangDateAndTime) =                         1001156, // 'created-on'
     VrqDomainCertRevocationChecks(YangBool) =               1001157, // 'domain-cert-revocation-checks'
@@ -142,7 +145,7 @@ pub enum SidData {
     VoucherRequest(BTreeSet<Sid>),
 }
 
-// TODO - checker on serialize/****
+// TODO - checker on serialize/sign/****
 // #   +---- voucher
 // #      +---- created-on?                      yang:date-and-time
 // #      +---- expires-on?                      yang:date-and-time
