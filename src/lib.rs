@@ -21,7 +21,7 @@ mod tests;
 
 mod sid_data;
 use sid_data::SidData;
-pub use sid_data::{Sid, YangEnum};
+pub use sid_data::{Sid, YangEnum, Yang::{self, *}};
 
 mod cose_data;
 use cose_data::{CoseData, COSE_SIGN_ONE_TAG};
@@ -98,14 +98,12 @@ impl TryFrom<&[u8]> for Voucher {
                         .for_each(|(k, v)| {
                             println!("[vch] k: {:?} v: {:?}", k, v);
 
-                            // proto -- resolve_yang_dat(): CborType -> Option<u64>
-                            if let CborType::Tag(val, bx) = v {
-                                assert_eq!(*val, Sid::CBOR_TAG_UNIX_TIME);
-                                if let CborType::Integer(time) = **bx {
-                                    //panic!("!!!! time: {}", time);
-                                }
+                            if let Yang::DateAndTime(val) = Yang::try_from(v).unwrap() {
+                                println!("!!!! Yang::DateAndTime: {}", val);
                             }
                         });
+                    //if 1 == 1 { panic!(); }
+
                     // if let Integer(delta) = k {
                     //     match (delta + SID_VCH_TOP_LEVEL) {
                     //         SID_VCH_ASSERTION => set_sid_assoc(&mut sd, Sid::VchCreatedOn(resolve_yang_dat(v)),
