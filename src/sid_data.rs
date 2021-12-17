@@ -1,5 +1,6 @@
 use crate::{println, Box, string::String, vec, Vec, BTreeMap, BTreeSet};
 use cose::decoder::CborType;
+use core::convert::TryFrom;
 
 //
 
@@ -48,25 +49,22 @@ impl TopLevel {
     }
 }
 
-pub trait Cbor {
-    fn to_cbor(&self) -> Option<CborType>;
-
-    fn serialize(&self) -> Option<Vec<u8>> {
-        self.to_cbor().and_then(|c| Some(c.serialize()))
-    }
-}
-
 //
 
 pub const SID_VCH_TOP_LEVEL: u64 = 1001100;
+// ...
+pub const SID_VCH_ASSERTION: u64 = 1001106;
+
+
 pub const SID_VRQ_TOP_LEVEL: u64 = 1001154;
+// ...
 
 #[repr(u64)]
 #[derive(Clone, Eq, Debug)]
 pub enum Sid {
     VchTopLevel(TopLevel) =                       SID_VCH_TOP_LEVEL, // 'voucher' <- ['ietf-cwt-voucher', 'ietf-voucher:voucher']
     VchAssertion(YangEnum) =                                1001105, // 'assertion'
-    VchCreatedOn(YangDateAndTime) =                         1001106, // 'created-on'
+    VchCreatedOn(YangDateAndTime) =               SID_VCH_ASSERTION, // 'created-on'
     VchDomainCertRevocationChecks(YangBool) =               1001107, // 'domain-cert-revocation-checks'
     VchExpiresOn(YangDateAndTime) =                         1001108, // 'expires-on'
     VchIdevidIssuer(YangBinary) =                           1001109, // 'idevid-issuer'
@@ -112,6 +110,16 @@ impl PartialEq for Sid {
     }
 }
 
+pub trait Cbor {
+    const CBOR_TAG_UNIX_TIME: u64 = 0x01;
+
+    fn to_cbor(&self) -> Option<CborType>;
+
+    fn serialize(&self) -> Option<Vec<u8>> {
+        self.to_cbor().and_then(|c| Some(c.serialize()))
+    }
+}
+
 impl Cbor for Sid {
     fn to_cbor(&self) -> Option<CborType> {
         use Sid::*;
@@ -121,19 +129,27 @@ impl Cbor for Sid {
             VchTopLevel(_) => None,
             VchAssertion(yg) => Some(StringAsBytes(yg.value().as_bytes().to_vec())),
             VchDomainCertRevocationChecks(yg) => None, // dummy; TODO !!
-            VchCreatedOn(yg) | VchExpiresOn(yg) | VchLastRenewalDate(yg) => Some(Tag(0x01, Box::new(Integer(*yg)))),
+            VchCreatedOn(yg) | VchExpiresOn(yg) | VchLastRenewalDate(yg) => Some(Tag(Self::CBOR_TAG_UNIX_TIME, Box::new(Integer(*yg)))),
             VchIdevidIssuer(yg) | VchNonce(yg) | VchPinnedDomainCert(yg) |
             VchPinnedDomainSubjectPublicKeyInfo(yg) => Some(StringAsBytes(yg.clone())),
             VchSerialNumber(yg) => Some(Bytes(yg.as_bytes().to_vec())),
             VrqTopLevel(_) => None,
             VrqAssertion(yg) => Some(StringAsBytes(yg.value().as_bytes().to_vec())),
             VrqDomainCertRevocationChecks(yg) => None, // dummy; TODO !!
-            VrqCreatedOn(yg) | VrqExpiresOn(yg) | VrqLastRenewalDate(yg) => Some(Tag(0x01, Box::new(Integer(*yg)))),
+            VrqCreatedOn(yg) | VrqExpiresOn(yg) | VrqLastRenewalDate(yg) => Some(Tag(Self::CBOR_TAG_UNIX_TIME, Box::new(Integer(*yg)))),
             VrqIdevidIssuer(yg) | VrqNonce(yg) | VrqPinnedDomainCert(yg) |
             VrqProximityRegistrarSubjectPublicKeyInfo(yg) |
             VrqPriorSignedVoucherRequest(yg) | VrqProximityRegistrarCert(yg) => Some(StringAsBytes(yg.clone())),
             VrqSerialNumber(yg) => Some(Bytes(yg.as_bytes().to_vec())),
         }
+    }
+}
+
+impl TryFrom<&CborType> for Sid {
+    type Error = &'static str;
+
+    fn try_from(cbor: &CborType) -> Result<Self, Self::Error> {
+        Ok(Sid::VchCreatedOn(1635218340)) // dummy !!
     }
 }
 

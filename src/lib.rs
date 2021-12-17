@@ -69,6 +69,7 @@ impl TryFrom<&[u8]> for Voucher {
                 //======== begin WIP - to be refactored
                 use cose::decoder::CborType;
                 use cose_sig::{decode, map_value_from};
+                use sid_data::Cbor;
 
                 let content = {
                     if let Some(content) = cose.get_content() {
@@ -87,34 +88,48 @@ impl TryFrom<&[u8]> for Voucher {
 
                 let is_permissive = true; // !!!!
                 let msg = "Neither `SID_VCH_TOP_LEVEL` nor `SID_VRQ_TOP_LEVEL` found";
-                let mut sd = None;
+                let mut sd_opt = None;
 
                 if let Ok(CborType::Map(ref vch_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VCH_TOP_LEVEL)) {
-                    let mut set = BTreeSet::from([Sid::VchTopLevel(sid_data::TopLevel::VoucherVoucher)]);
+                    let mut sd = SidData::vch_from(
+                        BTreeSet::from([Sid::VchTopLevel(sid_data::TopLevel::VoucherVoucher)]));
 
-                    vch_map.iter() // TODO !! cbor -> sid
-                        .for_each(|(k, v)| println!("[vch] k: {:?} v: {:?}", k, v));
+                    vch_map.iter() // TODO !! cbor -> sid convesion
+                        .for_each(|(k, v)| {
+                            println!("[vch] k: {:?} v: {:?}", k, v);
+
+                            // proto -- resolve_yang_dat(): CborType -> Option<u64>
+                            if let CborType::Tag(val, bx) = v {
+                                assert_eq!(*val, Sid::CBOR_TAG_UNIX_TIME);
+                                if let CborType::Integer(time) = **bx {
+                                    //panic!("!!!! time: {}", time);
+                                }
+                            }
+                        });
                     // if let Integer(delta) = k {
-                    //     let disc = delta + SID_VCH_TOP_LEVEL;
-                    //     ........
+                    //     match (delta + SID_VCH_TOP_LEVEL) {
+                    //         SID_VCH_ASSERTION => set_sid_assoc(&mut sd, Sid::VchCreatedOn(resolve_yang_dat(v)),
+                    //
 
-                    sd.replace(SidData::vch_from(set));
+                    //
+                    sd_opt.replace(sd);
                 } else if let Ok(CborType::Map(ref vrq_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VRQ_TOP_LEVEL)) {
-                    let mut set = BTreeSet::from([Sid::VrqTopLevel(sid_data::TopLevel::VoucherRequestVoucher)]);
+                    let mut sd = SidData::vrq_from(
+                        BTreeSet::from([Sid::VrqTopLevel(sid_data::TopLevel::VoucherRequestVoucher)]));
 
                     vrq_map.iter() // TODO !! cbor -> sid
                         .for_each(|(k, v)| println!("[vrq] k: {:?} v: {:?}", k, v));
 
-                    sd.replace(SidData::vrq_from(set));
+                    //
+                    sd_opt.replace(sd);
                 } else if is_permissive {
                     println!("⚠️ warning: {}", msg);
                 } else {
                     return Err(msg);
                 }
 
-                if let Some(sd) = sd {
-                    use sid_data::Cbor;
-                    panic!("sd.to_cbor(): {:?}", sd.to_cbor()); // check!
+                if let Some(sd) = sd_opt {
+//                    panic!("sd.to_cbor(): {:?}", sd.to_cbor()); // check!
                 }
 
                 // content bytes
@@ -122,9 +137,9 @@ impl TryFrom<&[u8]> for Voucher {
                 // -> attr set
                 // -> populate `self.sid` (sid_data) .... `.get_attrs()` API
                 //======== end WIP
-                let sid = SidData::new_vch(); // dummy; TODO reflect the ty decoded !!!!
+                let sd = SidData::new_vch(); // !!!! dummy !!!!
 
-                Ok(Self { sid, cose })
+                Ok(Self { sid: sd, cose })
             } else {
                 Err("Only `CoseSign1` vouchers are supported")
             }
