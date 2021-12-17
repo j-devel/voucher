@@ -6,6 +6,9 @@ const CBOR_TAG_UNIX_TIME: u64 = 0x01;
 
 //
 
+// TODO 'yang.rs'
+
+#[derive(PartialEq, Debug)]
 pub enum Yang {
     DateAndTime(u64),       // 'yang:date-and-time'
     String(String),         // 'string'
@@ -34,6 +37,19 @@ impl TryFrom<&CborType> for Yang {
             //_ => Err(),
         }
     }
+}
+
+#[test]
+fn test_yang_conversion() {
+    use core::convert::TryInto;
+
+    let ref cbor = CborType::Tag(CBOR_TAG_UNIX_TIME, Box::new(CborType::Integer(42)));
+    assert_eq!(Yang::try_from(cbor), Ok(Yang::DateAndTime(42)));
+
+    let result: Result<Yang, ()> = cbor.try_into();
+    assert_eq!(result, Ok(Yang::DateAndTime(42)));
+
+    // TODO tests for other Yang variants
 }
 
 //==== begin deprecating
