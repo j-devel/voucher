@@ -176,14 +176,14 @@ impl Cbor for Sid {
         match self {
             VchTopLevel(_) => None,
             VchAssertion(yg) => Some(StringAsBytes(yg.value().as_bytes().to_vec())),
-            VchDomainCertRevocationChecks(yg) => None, // dummy; TODO !!
+            VchDomainCertRevocationChecks(yg) => Some(if *yg { True } else { False }),
             VchCreatedOn(yg) | VchExpiresOn(yg) | VchLastRenewalDate(yg) => Some(Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*yg)))),
             VchIdevidIssuer(yg) | VchNonce(yg) | VchPinnedDomainCert(yg) |
             VchPinnedDomainSubjectPublicKeyInfo(yg) => Some(StringAsBytes(yg.clone())),
             VchSerialNumber(yg) => Some(Bytes(yg.as_bytes().to_vec())),
             VrqTopLevel(_) => None,
             VrqAssertion(yg) => Some(StringAsBytes(yg.value().as_bytes().to_vec())),
-            VrqDomainCertRevocationChecks(yg) => None, // dummy; TODO !!
+            VrqDomainCertRevocationChecks(yg) => Some(if *yg { True } else { False }),
             VrqCreatedOn(yg) | VrqExpiresOn(yg) | VrqLastRenewalDate(yg) => Some(Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*yg)))),
             VrqIdevidIssuer(yg) | VrqNonce(yg) | VrqPinnedDomainCert(yg) |
             VrqProximityRegistrarSubjectPublicKeyInfo(yg) |
@@ -310,7 +310,7 @@ fn test_sid_02_00_2e() {
 
 #[test]
 fn test_sid_data_vch_02_00_2e() {
-    let _sd_vch = SidData::Voucher(BTreeSet::from([
+    let _sd_vch = SidData::vch_from(BTreeSet::from([
         // ...
     ]));
 
@@ -330,4 +330,25 @@ fn test_sid_data_vrq_02_00_2e() {
     println!("sd_vrq: {:?}", sd_vrq);
     assert!(content_comp(&sd_vrq.serialize().unwrap(),
                          &vrhash_sidhash_content_02_00_2e()));
+}
+
+#[test]
+fn test_sid_cbor_boolean() {
+    let sid = Sid::VchDomainCertRevocationChecks(false);
+    assert_eq!(sid.to_cbor(), Some(CborType::False));
+    assert_eq!(sid.serialize(), Some(vec![244]));
+
+    let sid = Sid::VchDomainCertRevocationChecks(true);
+    assert_eq!(sid.to_cbor(), Some(CborType::True));
+    assert_eq!(sid.serialize(), Some(vec![245]));
+
+    let sid = Sid::VrqDomainCertRevocationChecks(false);
+    assert_eq!(sid.to_cbor(), Some(CborType::False));
+    assert_eq!(sid.serialize(), Some(vec![244]));
+
+    let sid = Sid::VrqDomainCertRevocationChecks(true);
+    assert_eq!(sid.to_cbor(), Some(CborType::True));
+    assert_eq!(sid.serialize(), Some(vec![245]));
+
+    assert_eq!(CborType::Null.serialize(), vec![246]); // FYI
 }

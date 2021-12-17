@@ -102,7 +102,7 @@ impl TryFrom<&[u8]> for Voucher {
                                 println!("!!!! Yang::DateAndTime: {}", val);
                             }
                         });
-                    //if 1 == 1 { panic!(); }
+                    //if 1 == 1 { panic!(); } // !!!! !!!! !!!! !!!!
 
                     // if let Integer(delta) = k {
                     //     match (delta + SID_VCH_TOP_LEVEL) {
@@ -116,7 +116,9 @@ impl TryFrom<&[u8]> for Voucher {
                         BTreeSet::from([Sid::VrqTopLevel(sid_data::TopLevel::VoucherRequestVoucher)]));
 
                     vrq_map.iter() // TODO !! cbor -> sid
-                        .for_each(|(k, v)| println!("[vrq] k: {:?} v: {:?}", k, v));
+                        .for_each(|(k, v)| {
+                            println!("[vrq] k: {:?} v: {:?}", k, v);
+                        });
 
                     //
                     sd_opt.replace(sd);
