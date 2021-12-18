@@ -60,99 +60,6 @@ mod validate;
 
 //
 
-use core::convert::TryFrom;
-
-impl TryFrom<&[u8]> for Voucher {
-    type Error = &'static str;
-
-    fn try_from(raw: &[u8]) -> Result<Self, Self::Error> {
-        if let Ok((tag, cose)) = CoseData::decode(raw) {
-            if tag == COSE_SIGN_ONE_TAG {
-                //======== begin WIP - to be refactored
-                use cose::decoder::CborType;
-                use cose_sig::{decode, map_value_from};
-                use sid_data::Cbor;
-
-                let content = {
-                    if let Some(content) = cose.get_content() {
-                        content
-                    } else {
-                        return Err("Invalid `content`");
-                    }
-                };
-                let sidhash = if let Ok(sidhash) = decode(&content) {
-                    sidhash
-                } else {
-                    return Err("Failed to decode `content`");
-                };
-
-                //
-
-                let is_permissive = true; // !!!!
-                let msg = "Neither `SID_VCH_TOP_LEVEL` nor `SID_VRQ_TOP_LEVEL` found";
-                let mut sd_opt = None;
-
-                if let Ok(CborType::Map(ref vch_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VCH_TOP_LEVEL)) {
-                    let mut sd = SidData::vch_from(
-                        BTreeSet::from([Sid::VchTopLevel(sid_data::TopLevel::VoucherVoucher)]));
-
-                    vch_map.iter() // TODO !! cbor -> sid convesion
-                        .for_each(|(k, v)| {
-                            println!("[vch] k: {:?} v: {:?}", k, v);
-
-                            if let Yang::DateAndTime(val) = Yang::try_from(v).unwrap() {
-                                println!("!!!! Yang::DateAndTime: {}", val);
-                            }
-                        });
-//                    if 1 == 1 { panic!(); } // !!!! !!!! !!!! !!!!
-
-                    // if let Integer(delta) = k {
-                    //     match (delta + SID_VCH_TOP_LEVEL) {
-                    //         SID_VCH_ASSERTION => set_sid_assoc(&mut sd, Sid::VchCreatedOn(resolve_yang_dat(v)),
-                    //
-
-                    //
-                    sd_opt.replace(sd);
-                } else if let Ok(CborType::Map(ref vrq_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VRQ_TOP_LEVEL)) {
-                    let mut sd = SidData::vrq_from(
-                        BTreeSet::from([Sid::VrqTopLevel(sid_data::TopLevel::VoucherRequestVoucher)]));
-
-                    vrq_map.iter() // TODO !! cbor -> sid
-                        .for_each(|(k, v)| {
-                            println!("[vrq] k: {:?} v: {:?}", k, v);
-                        });
-
-                    //
-                    sd_opt.replace(sd);
-                } else if is_permissive {
-                    println!("⚠️ warning: {}", msg);
-                } else {
-                    return Err(msg);
-                }
-
-                if let Some(sd) = sd_opt {
-//                    panic!("sd.to_cbor(): {:?}", sd.to_cbor()); // check!
-                }
-
-                // content bytes
-                // -> sidhash (CborType Map) .... check TopLevel type (vch or vrq)
-                // -> attr set
-                // -> populate `self.sid` (sid_data) .... `.get_attrs()` API
-                //======== end WIP
-                let sd = SidData::new_vch(); // !!!! dummy !!!!
-
-                Ok(Self { sid: sd, cose })
-            } else {
-                Err("Only `CoseSign1` vouchers are supported")
-            }
-        } else {
-            Err("Failed to decode raw voucher")
-        }
-    }
-}
-
-//
-
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum VoucherType {
     Vch, // 'voucher'
@@ -317,6 +224,99 @@ impl Voucher {
 
     pub fn dump(&self) {
         self.cose.dump();
+    }
+}
+
+//
+
+use core::convert::TryFrom;
+
+impl TryFrom<&[u8]> for Voucher {
+    type Error = &'static str;
+
+    fn try_from(raw: &[u8]) -> Result<Self, Self::Error> {
+        if let Ok((tag, cose)) = CoseData::decode(raw) {
+            if tag == COSE_SIGN_ONE_TAG {
+                //======== begin WIP - to be refactored
+                use cose::decoder::CborType;
+                use cose_sig::{decode, map_value_from};
+                use sid_data::Cbor;
+
+                let content = {
+                    if let Some(content) = cose.get_content() {
+                        content
+                    } else {
+                        return Err("Invalid `content`");
+                    }
+                };
+                let sidhash = if let Ok(sidhash) = decode(&content) {
+                    sidhash
+                } else {
+                    return Err("Failed to decode `content`");
+                };
+
+                //
+
+                let is_permissive = true; // !!!!
+                let msg = "Neither `SID_VCH_TOP_LEVEL` nor `SID_VRQ_TOP_LEVEL` found";
+                let mut sd_opt = None;
+
+                if let Ok(CborType::Map(ref vch_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VCH_TOP_LEVEL)) {
+                    let mut sd = SidData::vch_from(
+                        BTreeSet::from([Sid::VchTopLevel(sid_data::TopLevel::VoucherVoucher)]));
+
+                    vch_map.iter() // TODO !! cbor -> sid convesion
+                        .for_each(|(k, v)| {
+                            println!("[vch] k: {:?} v: {:?}", k, v);
+
+                            if let Yang::DateAndTime(val) = Yang::try_from(v).unwrap() {
+                                println!("!!!! Yang::DateAndTime: {}", val);
+                            }
+                        });
+//                    if 1 == 1 { panic!(); } // !!!! !!!! !!!! !!!!
+
+                    // if let Integer(delta) = k {
+                    //     match (delta + SID_VCH_TOP_LEVEL) {
+                    //         SID_VCH_ASSERTION => set_sid_assoc(&mut sd, Sid::VchCreatedOn(resolve_yang_dat(v)),
+                    //
+
+                    //
+                    sd_opt.replace(sd);
+                } else if let Ok(CborType::Map(ref vrq_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VRQ_TOP_LEVEL)) {
+                    let mut sd = SidData::vrq_from(
+                        BTreeSet::from([Sid::VrqTopLevel(sid_data::TopLevel::VoucherRequestVoucher)]));
+
+                    vrq_map.iter() // TODO !! cbor -> sid
+                        .for_each(|(k, v)| {
+                            println!("[vrq] k: {:?} v: {:?}", k, v);
+                        });
+
+                    //
+                    sd_opt.replace(sd);
+                } else if is_permissive {
+                    println!("⚠️ warning: {}", msg);
+                } else {
+                    return Err(msg);
+                }
+
+                if let Some(sd) = sd_opt {
+//                    panic!("sd.to_cbor(): {:?}", sd.to_cbor()); // check!
+                }
+
+                // content bytes
+                // -> sidhash (CborType Map) .... check TopLevel type (vch or vrq)
+                // -> attr set
+                // -> populate `self.sid` (sid_data) .... `.get_attrs()` API
+                //======== end WIP
+                let sd = SidData::new_vch(); // !!!! dummy !!!!
+
+                Ok(Self { sid: sd, cose })
+            } else {
+                Err("Only `CoseSign1` vouchers are supported")
+            }
+        } else {
+            Err("Failed to decode raw voucher")
+        }
     }
 }
 

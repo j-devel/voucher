@@ -212,6 +212,18 @@ fn test_highlevel_interface() {
                                 &debug::vrhash_sidhash_content_02_00_2e()));
     assert_eq!(vrq.get_signature().0, /* asn1 */ [48, 69, 2, 32, 110, 143, 135, 7, 170, 12, 231, 167, 243, 130, 212, 214, 122, 23, 71, 106, 100, 76, 173, 196, 236, 73, 58, 126, 151, 8, 46, 127, 206, 190, 196, 66, 2, 33, 0, 217, 20, 0, 2, 48, 18, 151, 42, 133, 159, 125, 145, 86, 197, 138, 227, 30, 64, 230, 164, 214, 125, 78, 62, 183, 48, 179, 249, 79, 147, 36, 112]);
     assert_eq!(vrq.serialize().unwrap().len(), 148);
+
+    //
+
+    let _ = Voucher::new_vch_with(vec![
+        Attr::Assertion(Assertion::Logged),
+        Attr::SerialNumber(String::from("00-11-22-33-44-55")),
+    ]);
+
+    let _ = Voucher::new_vrq_with(vec![
+        Attr::Assertion(Assertion::Proximity),
+        Attr::SerialNumber(String::from("00-D0-E5-02-00-2E")),
+    ]);
 }
 
 #[test]
@@ -232,17 +244,4 @@ fn test_highlevel_attr_integrity() {
     assert!(std::panic::catch_unwind(|| {
         Voucher::new_vch().set(Attr::ProximityRegistrarCert(vec![]));
     }).is_err());
-}
-
-#[test]
-fn test_highlevel_attrs() {
-    let _ = Voucher::new_vch_with(vec![
-        Attr::Assertion(Assertion::Logged),
-        Attr::SerialNumber(String::from("00-11-22-33-44-55")),
-    ]);
-
-    let _ = Voucher::new_vrq_with(vec![
-        Attr::Assertion(Assertion::Proximity),
-        Attr::SerialNumber(String::from("00-D0-E5-02-00-2E")),
-    ]);
 }
