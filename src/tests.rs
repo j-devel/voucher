@@ -233,3 +233,16 @@ fn test_highlevel_attr_integrity() {
         Voucher::new_vch().set(Attr::ProximityRegistrarCert(vec![]));
     }).is_err());
 }
+
+#[test]
+fn test_highlevel_attrs() {
+    let _ = Voucher::new_vch_with(vec![
+        Attr::Assertion(Assertion::Logged),
+        Attr::SerialNumber(String::from("00-11-22-33-44-55")),
+    ]);
+
+    let _ = Voucher::new_vrq_with(vec![
+        Attr::Assertion(Assertion::Proximity),
+        Attr::SerialNumber(String::from("00-D0-E5-02-00-2E")),
+    ]);
+}

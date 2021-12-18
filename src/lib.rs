@@ -8,9 +8,11 @@
 extern crate std;
 
 #[cfg(feature = "std")]
-use std::{println, boxed::Box, string::{self, String}, vec, vec::Vec, collections::{BTreeMap, BTreeSet}};
+use std::{println, self as alloc};
 #[cfg(not(feature = "std"))]
-use mcu_if::{println, alloc::{boxed::Box, string::{self, String}, vec, vec::Vec, collections::{BTreeMap, BTreeSet}}};
+use mcu_if::{println, alloc};
+
+use alloc::{boxed::Box, string::{self, String}, vec, vec::Vec, collections::{BTreeMap, BTreeSet}};
 
 //
 
@@ -102,7 +104,7 @@ impl TryFrom<&[u8]> for Voucher {
                                 println!("!!!! Yang::DateAndTime: {}", val);
                             }
                         });
-                    //if 1 == 1 { panic!(); } // !!!! !!!! !!!! !!!!
+//                    if 1 == 1 { panic!(); } // !!!! !!!! !!!! !!!!
 
                     // if let Integer(delta) = k {
                     //     match (delta + SID_VCH_TOP_LEVEL) {
@@ -191,8 +193,29 @@ impl Voucher {
         }
     }
 
-    pub fn new_vch() -> Self { Self::new(VoucherType::Vch) }
-    pub fn new_vrq() -> Self { Self::new(VoucherType::Vrq) }
+    pub fn new_vch() -> Self {
+        Self::new(VoucherType::Vch)
+    }
+
+    pub fn new_vrq() -> Self {
+        Self::new(VoucherType::Vrq)
+    }
+
+    pub fn new_vch_with(attrs: Vec<Attr>) -> Self {
+        let mut vch = Self::new_vch();
+        attrs.into_iter()
+            .for_each(|attr| { vch.set(attr); });
+
+        vch
+    }
+
+    pub fn new_vrq_with(attrs: Vec<Attr>) -> Self {
+        let mut vrq = Self::new_vrq();
+        attrs.into_iter()
+            .for_each(|attr| { vrq.set(attr); });
+
+        vrq
+    }
 
     pub fn serialize(&self) -> Option<Vec<u8>> {
         CoseData::encode(&self.cose).ok()
