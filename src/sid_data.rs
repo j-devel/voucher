@@ -161,48 +161,42 @@ pub trait Cbor {
     }
 }
 
+// TODO 'yang.rs'
+fn cbor_from_yang(yg: &Yang, ty: &str) -> Option<CborType> {
+    use CborType::*;
+
+    assert!(matches!(ty, "tag" | "bytes" | "string" | "bool"));
+    match (yg, ty) {
+        (Yang::DateAndTime(x), "tag") => Some(Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*x)))),
+        (Yang::String(x), "bytes") => Some(Bytes(x.as_bytes().to_vec())),
+        (Yang::Binary(x), "string") => Some(StringAsBytes(x.clone())),
+        (Yang::Boolean(x), "bool") => Some(if *x { True } else { False }),
+        _ => None,
+    }
+}
+
 impl Cbor for Sid {
+
     fn to_cbor(&self) -> Option<CborType> {
         use Sid::*;
         use CborType::*;
 
-        let cbor_tag_from = |yg: &Yang| if let Yang::DateAndTime(x) = yg {
-            Some(Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*x))))
-        } else {
-            None
-        };
-        let cbor_bytes_from = |yg: &Yang| if let Yang::String(x) = yg {
-            Some(Bytes(x.as_bytes().to_vec()))
-        } else {
-            None
-        };
-        let cbor_string_from = |yg: &Yang| if let Yang::Binary(x) = yg {
-            Some(StringAsBytes(x.clone()))
-        } else {
-            None
-        };
-        let cbor_bool_from = |yg: &Yang| if let Yang::Boolean(x) = yg {
-            Some(if *x { True } else { False })
-        } else {
-            None
-        };
-
         match self {
             VchTopLevel(_) => None,
             VchAssertion(yg) => Some(StringAsBytes(yg.value().as_bytes().to_vec())),
-            VchDomainCertRevocationChecks(yg) => cbor_bool_from(yg),
-            VchCreatedOn(yg) | VchExpiresOn(yg) | VchLastRenewalDate(yg) => cbor_tag_from(yg),
+            VchDomainCertRevocationChecks(yg) => cbor_from_yang(yg, "bool"),
+            VchCreatedOn(yg) | VchExpiresOn(yg) | VchLastRenewalDate(yg) => cbor_from_yang(yg, "tag"),
             VchIdevidIssuer(yg) | VchNonce(yg) | VchPinnedDomainCert(yg) |
-            VchPinnedDomainSubjectPublicKeyInfo(yg) => cbor_string_from(yg),
-            VchSerialNumber(yg) => cbor_bytes_from(yg),
+            VchPinnedDomainSubjectPublicKeyInfo(yg) => cbor_from_yang(yg, "string"),
+            VchSerialNumber(yg) => cbor_from_yang(yg, "bytes"),
             VrqTopLevel(_) => None,
             VrqAssertion(yg) => Some(StringAsBytes(yg.value().as_bytes().to_vec())),
-            VrqDomainCertRevocationChecks(yg) => cbor_bool_from(yg),
-            VrqCreatedOn(yg) | VrqExpiresOn(yg) | VrqLastRenewalDate(yg) => cbor_tag_from(yg),
+            VrqDomainCertRevocationChecks(yg) => cbor_from_yang(yg, "bool"),
+            VrqCreatedOn(yg) | VrqExpiresOn(yg) | VrqLastRenewalDate(yg) => cbor_from_yang(yg, "tag"),
             VrqIdevidIssuer(yg) | VrqNonce(yg) | VrqPinnedDomainCert(yg) |
             VrqProximityRegistrarSubjectPublicKeyInfo(yg) |
-            VrqPriorSignedVoucherRequest(yg) | VrqProximityRegistrarCert(yg) => cbor_string_from(yg),
-            VrqSerialNumber(yg) => cbor_bytes_from(yg),
+            VrqPriorSignedVoucherRequest(yg) | VrqProximityRegistrarCert(yg) => cbor_from_yang(yg, "string"),
+            VrqSerialNumber(yg) => cbor_from_yang(yg, "bytes"),
         }
     }
 }
