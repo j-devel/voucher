@@ -133,6 +133,8 @@ impl Voucher {
     }
 
     pub fn set(&mut self, attr: Attr) -> &mut Self {
+        use Yang::*;
+
         let is_vrq = self.sid.is_vrq();
         let sid_assertion = |val| if is_vrq { Sid::VrqAssertion(val) } else { Sid::VchAssertion(val) };
 
@@ -143,9 +145,9 @@ impl Voucher {
                 Assertion::Proximity => sid_assertion(YangEnum::Proximity),
             },
             Attr::DomainCertRevocationChecks(val) => if is_vrq { Sid::VrqDomainCertRevocationChecks(val) } else { Sid::VchDomainCertRevocationChecks(val) },
-            Attr::CreatedOn(val) => if is_vrq { Sid::VrqCreatedOn(val) } else { Sid::VchCreatedOn(val) },
-            Attr::ExpiresOn(val) => if is_vrq { Sid::VrqExpiresOn(val) } else { Sid::VchExpiresOn(val) },
-            Attr::LastRenewalDate(val) => if is_vrq { Sid::VrqLastRenewalDate(val) } else { Sid::VchLastRenewalDate(val) },
+            Attr::CreatedOn(x) => if is_vrq { Sid::VrqCreatedOn(DateAndTime(x)) } else { Sid::VchCreatedOn(DateAndTime(x)) },
+            Attr::ExpiresOn(x) => if is_vrq { Sid::VrqExpiresOn(DateAndTime(x)) } else { Sid::VchExpiresOn(DateAndTime(x)) },
+            Attr::LastRenewalDate(x) => if is_vrq { Sid::VrqLastRenewalDate(DateAndTime(x)) } else { Sid::VchLastRenewalDate(DateAndTime(x)) },
             Attr::IdevidIssuer(val) => if is_vrq { Sid::VrqIdevidIssuer(val) } else { Sid::VchIdevidIssuer(val) },
             Attr::Nonce(val) => if is_vrq { Sid::VrqNonce(val) } else { Sid::VchNonce(val) },
             Attr::PinnedDomainCert(val) => if is_vrq { Sid::VrqPinnedDomainCert(val) } else { Sid::VchPinnedDomainCert(val) },
@@ -269,8 +271,8 @@ impl TryFrom<&[u8]> for Voucher {
                         .for_each(|(k, v)| {
                             println!("[vch] k: {:?} v: {:?}", k, v);
 
-                            if let Yang::DateAndTime(val) = Yang::try_from(v).unwrap() {
-                                println!("!!!! Yang::DateAndTime: {}", val);
+                            if let Yang::DateAndTime(x) = Yang::try_from(v).unwrap() {
+                                println!("!!!! Yang::DateAndTime: {}", x);
                             }
                         });
 //                    if 1 == 1 { panic!(); } // !!!! !!!! !!!! !!!!
@@ -309,6 +311,7 @@ impl TryFrom<&[u8]> for Voucher {
                 // -> populate `self.sid` (sid_data) .... `.get_attrs()` API
                 //======== end WIP
                 let sd = SidData::new_vch(); // !!!! dummy !!!!
+                let _ = SidData::new_vrq(); // !!!! dummy !!!!
 
                 Ok(Self { sid: sd, cose })
             } else {

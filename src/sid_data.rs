@@ -8,7 +8,7 @@ const CBOR_TAG_UNIX_TIME: u64 = 0x01;
 
 // TODO 'yang.rs'
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Yang {
     DateAndTime(u64),       // 'yang:date-and-time'
     String(String),         // 'string'
@@ -53,7 +53,7 @@ fn test_yang_conversion() {
 }
 
 //==== begin deprecating
-pub type YangDateAndTime = u64;  // 'yang:date-and-time'
+//pub type YangDateAndTime = u64;  // 'yang:date-and-time'
 pub type YangString = String;    // 'string'
 pub type YangBinary = Vec<u8>;   // 'binary'
 pub type YangBool = bool;        // 'boolean'
@@ -114,22 +114,22 @@ pub const SID_VRQ_TOP_LEVEL: u64 = 1001154;
 pub enum Sid {
     VchTopLevel(TopLevel) =                       SID_VCH_TOP_LEVEL, // 'voucher' <- ['ietf-cwt-voucher', 'ietf-voucher:voucher']
     VchAssertion(YangEnum) =                                1001105, // 'assertion'
-    VchCreatedOn(YangDateAndTime) =               SID_VCH_ASSERTION, // 'created-on'
+    VchCreatedOn(Yang) =                          SID_VCH_ASSERTION, // 'created-on'
     VchDomainCertRevocationChecks(YangBool) =               1001107, // 'domain-cert-revocation-checks'
-    VchExpiresOn(YangDateAndTime) =                         1001108, // 'expires-on'
+    VchExpiresOn(Yang) =                         1001108, // 'expires-on'
     VchIdevidIssuer(YangBinary) =                           1001109, // 'idevid-issuer'
-    VchLastRenewalDate(YangDateAndTime) =                   1001110, // 'last-renewal-date'
+    VchLastRenewalDate(Yang) =                   1001110, // 'last-renewal-date'
     VchNonce(YangBinary) =                                  1001111, // 'nonce'
     VchPinnedDomainCert(YangBinary) =                       1001112, // 'pinned-domain-cert'
     VchPinnedDomainSubjectPublicKeyInfo(YangBinary) =       1001113, // 'pinned-domain-subject-public-key-info'
     VchSerialNumber(YangString) =                           1001114, // 'serial-number'
     VrqTopLevel(TopLevel) =                       SID_VRQ_TOP_LEVEL, // 'voucher' <- ['ietf-cwt-voucher-request', 'ietf-cwt-voucher-request:voucher', 'ietf-voucher-request:voucher']
     VrqAssertion(YangEnum) =                                1001155, // 'assertion'
-    VrqCreatedOn(YangDateAndTime) =                         1001156, // 'created-on'
+    VrqCreatedOn(Yang) =                         1001156, // 'created-on'
     VrqDomainCertRevocationChecks(YangBool) =               1001157, // 'domain-cert-revocation-checks'
-    VrqExpiresOn(YangDateAndTime) =                         1001158, // 'expires-on'
+    VrqExpiresOn(Yang) =                         1001158, // 'expires-on'
     VrqIdevidIssuer(YangBinary) =                           1001159, // 'idevid-issuer'
-    VrqLastRenewalDate(YangDateAndTime) =                   1001160, // 'last-renewal-date'
+    VrqLastRenewalDate(Yang) =                   1001160, // 'last-renewal-date'
     VrqNonce(YangBinary) =                                  1001161, // 'nonce'
     VrqPinnedDomainCert(YangBinary) =                       1001162, // 'pinned-domain-cert'
     VrqProximityRegistrarSubjectPublicKeyInfo(YangBinary) = 1001163, // 'proximity-registrar-subject-public-key-info'
@@ -173,18 +173,24 @@ impl Cbor for Sid {
         use Sid::*;
         use CborType::*;
 
+        let cbor_tag_from = |yg: &Yang| if let Yang::DateAndTime(x) = yg {
+            Some(Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*x))))
+        } else {
+            None
+        };
+
         match self {
             VchTopLevel(_) => None,
             VchAssertion(yg) => Some(StringAsBytes(yg.value().as_bytes().to_vec())),
             VchDomainCertRevocationChecks(yg) => Some(if *yg { True } else { False }),
-            VchCreatedOn(yg) | VchExpiresOn(yg) | VchLastRenewalDate(yg) => Some(Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*yg)))),
+            VchCreatedOn(yg) | VchExpiresOn(yg) | VchLastRenewalDate(yg) => cbor_tag_from(yg),
             VchIdevidIssuer(yg) | VchNonce(yg) | VchPinnedDomainCert(yg) |
             VchPinnedDomainSubjectPublicKeyInfo(yg) => Some(StringAsBytes(yg.clone())),
             VchSerialNumber(yg) => Some(Bytes(yg.as_bytes().to_vec())),
             VrqTopLevel(_) => None,
             VrqAssertion(yg) => Some(StringAsBytes(yg.value().as_bytes().to_vec())),
             VrqDomainCertRevocationChecks(yg) => Some(if *yg { True } else { False }),
-            VrqCreatedOn(yg) | VrqExpiresOn(yg) | VrqLastRenewalDate(yg) => Some(Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*yg)))),
+            VrqCreatedOn(yg) | VrqExpiresOn(yg) | VrqLastRenewalDate(yg) => cbor_tag_from(yg),
             VrqIdevidIssuer(yg) | VrqNonce(yg) | VrqPinnedDomainCert(yg) |
             VrqProximityRegistrarSubjectPublicKeyInfo(yg) |
             VrqPriorSignedVoucherRequest(yg) | VrqProximityRegistrarCert(yg) => Some(StringAsBytes(yg.clone())),
@@ -299,7 +305,7 @@ fn test_sid_02_00_2e() {
 
     assert_eq!(disc(&Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher)), 1001154);
     assert_eq!(disc(&Sid::VrqAssertion(Proximity)), 1001155);
-    assert_eq!(disc(&Sid::VrqCreatedOn(1635218340)), 1001156);
+    assert_eq!(disc(&Sid::VrqCreatedOn(Yang::DateAndTime(1635218340))), 1001156);
     assert_eq!(disc(&Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103])),
                1001161);
 
@@ -322,7 +328,7 @@ fn test_sid_data_vrq_02_00_2e() {
     let sd_vrq = SidData::vrq_from(BTreeSet::from([
         Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher),
         Sid::VrqAssertion(YangEnum::Proximity),
-        Sid::VrqCreatedOn(1635218340),
+        Sid::VrqCreatedOn(Yang::DateAndTime(1635218340)),
         Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]),
         Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")),
     ]));
