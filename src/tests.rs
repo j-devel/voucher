@@ -125,8 +125,8 @@ fn test_pledge_vr_unsigned_02_00_2e() {
 
     vrq.set_sid(Sid::VrqAssertion(YangEnum::Proximity))
         .set_sid(Sid::VrqCreatedOn(Yang::DateAndTime(1635218340)))
-        .set_sid(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
-        .set_sid(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")));
+        .set_sid(Sid::VrqNonce(Yang::Binary(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103])))
+        .set_sid(Sid::VrqSerialNumber(Yang::String(String::from("00-D0-E5-02-00-2E"))));
 
     // "validating an unsigned voucher" should fail
     assert!(vrq.validate(Some(DEVICE_CRT_02_00_2E)).is_err());
@@ -145,8 +145,8 @@ fn test_pledge_vr_sign_02_00_2e() {
 
     assert!(vrq.set_sid(Sid::VrqAssertion(YangEnum::Proximity))
         .set_sid(Sid::VrqCreatedOn(Yang::DateAndTime(1635218340)))
-        .set_sid(Sid::VrqNonce(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))
-        .set_sid(Sid::VrqSerialNumber(String::from("00-D0-E5-02-00-2E")))
+        .set_sid(Sid::VrqNonce(Yang::Binary(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103])))
+        .set_sid(Sid::VrqSerialNumber(Yang::String(String::from("00-D0-E5-02-00-2E"))))
         .sign(KEY_PEM_02_00_2E, SignatureAlgorithm::ES256)
         .unwrap()
         .validate(Some(DEVICE_CRT_02_00_2E)) // via public key
