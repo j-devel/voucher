@@ -22,8 +22,7 @@ mod tests;
 //
 
 mod sid_data;
-use sid_data::SidData;
-pub use sid_data::{Sid, YangEnum, Yang::{self, *}};
+use sid_data::{SidData, Sid, Yang, YangEnum};
 
 mod cose_data;
 use cose_data::{CoseData, COSE_SIGN_ONE_TAG};
@@ -136,13 +135,13 @@ impl Voucher {
         use Yang::*;
 
         let is_vrq = self.sid.is_vrq();
-        let sid_assertion = |val| if is_vrq { Sid::VrqAssertion(val) } else { Sid::VchAssertion(val) };
+        let sid_assertion = |x| if is_vrq { Sid::VrqAssertion(x) } else { Sid::VchAssertion(x) };
 
         let sid = match attr {
             Attr::Assertion(inner) => match inner {
-                Assertion::Verified => sid_assertion(YangEnum::Verified),
-                Assertion::Logged => sid_assertion(YangEnum::Logged),
-                Assertion::Proximity => sid_assertion(YangEnum::Proximity),
+                Assertion::Verified => sid_assertion(Yang::Enumeration(YangEnum::Verified)),
+                Assertion::Logged => sid_assertion(Yang::Enumeration(YangEnum::Logged)),
+                Assertion::Proximity => sid_assertion(Yang::Enumeration(YangEnum::Proximity)),
             },
             Attr::DomainCertRevocationChecks(x) => if is_vrq { Sid::VrqDomainCertRevocationChecks(Boolean(x)) } else { Sid::VchDomainCertRevocationChecks(Boolean(x)) },
             Attr::CreatedOn(x) => if is_vrq { Sid::VrqCreatedOn(DateAndTime(x)) } else { Sid::VchCreatedOn(DateAndTime(x)) },
