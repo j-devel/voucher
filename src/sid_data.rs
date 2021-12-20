@@ -1,110 +1,12 @@
-use crate::{println, Box, string::String, vec, Vec, BTreeMap, BTreeSet};
-use cose::decoder::CborType;
-use core::convert::TryFrom;
+use crate::{println, vec, Vec, BTreeMap, BTreeSet};
+pub use cose::decoder::CborType;
+pub use super::yang::{Yang, YangEnum};
 
-const CBOR_TAG_UNIX_TIME: u64 = 0x01;
+pub trait Cbor {
+    fn to_cbor(&self) -> Option<CborType>;
 
-//
-
-// TODO 'yang.rs'
-
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub enum Yang {
-    DateAndTime(u64),         // 'yang:date-and-time'
-    String(String),           // 'string'
-    Binary(Vec<u8>),          // 'binary'
-    Boolean(bool),            // 'boolean'
-    Enumeration(YangEnum),    // 'enumeration'
-}
-
-impl TryFrom<&CborType> for Yang {
-    type Error = ();
-
-    fn try_from(cbor: &CborType) -> Result<Self, Self::Error> {
-        println!("!!!! cbor: {:?}", cbor);
-
-        // WIP
-        match cbor {
-            CborType::Tag(val, bx) => {
-                assert_eq!(*val, CBOR_TAG_UNIX_TIME); // !!
-                if let CborType::Integer(time) = **bx {
-                    Ok(Yang::DateAndTime(time))
-                } else {
-                    Err(())
-                }
-            },
-            _ => Ok(Yang::DateAndTime(42)), // dummy
-            //_ => Err(),
-        }
-    }
-}
-
-impl Cbor for Yang {
-    fn to_cbor(&self) -> Option<CborType> {
-        use CborType::*;
-
-        let cbor = match self {
-            Yang::DateAndTime(x) => Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*x))),
-            Yang::String(x) => Bytes(x.as_bytes().to_vec()),
-            Yang::Binary(x) => StringAsBytes(x.clone()),
-            Yang::Boolean(x) => if *x { True } else { False },
-            Yang::Enumeration(x) => StringAsBytes(x.value().as_bytes().to_vec()),
-        };
-
-        Some(cbor)
-    }
-}
-
-#[test]
-fn test_yang_conversion() {
-    use core::convert::TryInto;
-
-    let ref cbor = CborType::Tag(CBOR_TAG_UNIX_TIME, Box::new(CborType::Integer(42)));
-    assert_eq!(Yang::try_from(cbor), Ok(Yang::DateAndTime(42)));
-
-    let result: Result<Yang, ()> = cbor.try_into();
-    assert_eq!(result, Ok(Yang::DateAndTime(42)));
-
-    // TODO tests for other Yang variants
-}
-
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
-pub enum YangEnum {              // 'enumeration'
-    Verified,
-    Logged,
-    Proximity,
-}
-
-impl YangEnum {
-    const fn value(self) -> &'static str {
-        match self {
-            Self::Verified => "verified",
-            Self::Logged => "logged",
-            Self::Proximity => "proximity",
-        }
-    }
-}
-
-//
-
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
-pub enum TopLevel {
-    CwtVoucher,
-    VoucherVoucher,
-    CwtVoucherRequest,
-    CwtVoucherRequestVoucher,
-    VoucherRequestVoucher,
-}
-
-impl TopLevel {
-    const fn value(self) -> &'static str {
-        match self {
-            Self::CwtVoucher => "ietf-cwt-voucher",
-            Self::VoucherVoucher => "ietf-voucher:voucher",
-            Self::CwtVoucherRequest => "ietf-cwt-voucher-request",
-            Self::CwtVoucherRequestVoucher => "ietf-cwt-voucher-request:voucher",
-            Self::VoucherRequestVoucher=> "ietf-voucher-request:voucher",
-        }
+    fn serialize(&self) -> Option<Vec<u8>> {
+        self.to_cbor().and_then(|c| Some(c.serialize()))
     }
 }
 
@@ -147,6 +49,27 @@ pub enum Sid {
     VrqProximityRegistrarCert(Yang) =                 1001166, // 'proximity-registrar-cert'
 }
 
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum TopLevel {
+    CwtVoucher,
+    VoucherVoucher,
+    CwtVoucherRequest,
+    CwtVoucherRequestVoucher,
+    VoucherRequestVoucher,
+}
+
+impl TopLevel {
+    const fn value(self) -> &'static str {
+        match self {
+            Self::CwtVoucher => "ietf-cwt-voucher",
+            Self::VoucherVoucher => "ietf-voucher:voucher",
+            Self::CwtVoucherRequest => "ietf-cwt-voucher-request",
+            Self::CwtVoucherRequestVoucher => "ietf-cwt-voucher-request:voucher",
+            Self::VoucherRequestVoucher=> "ietf-voucher-request:voucher",
+        }
+    }
+}
+
 impl Ord for Sid {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         use core::intrinsics::discriminant_value as disc;
@@ -166,14 +89,6 @@ impl PartialEq for Sid {
         use core::intrinsics::discriminant_value as disc;
 
         disc(self) == disc(other)
-    }
-}
-
-pub trait Cbor {
-    fn to_cbor(&self) -> Option<CborType>;
-
-    fn serialize(&self) -> Option<Vec<u8>> {
-        self.to_cbor().and_then(|c| Some(c.serialize()))
     }
 }
 
@@ -246,10 +161,13 @@ impl SidData {
     pub fn vch_from(set: BTreeSet<Sid>) -> Self { Self::Voucher(set) }
     pub fn vrq_from(set: BTreeSet<Sid>) -> Self { Self::VoucherRequest(set) }
 
-    pub fn new_vch_cbor() -> Self { Self::Voucher(BTreeSet::from([
-        Sid::VchTopLevel(TopLevel::VoucherVoucher)])) }
-    pub fn new_vrq_cbor() -> Self { Self::VoucherRequest(BTreeSet::from([
-        Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher)])) }
+    pub fn new_vch_cbor() -> Self {
+        Self::Voucher(BTreeSet::from([Sid::VchTopLevel(TopLevel::VoucherVoucher)]))
+    }
+
+    pub fn new_vrq_cbor() -> Self {
+        Self::VoucherRequest(BTreeSet::from([Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher)]))
+    }
 
     pub fn replace(&mut self, sid: Sid) {
         self.inner_mut().replace(sid);
@@ -328,7 +246,7 @@ fn test_sid_02_00_2e() {
     assert_eq!(disc(&Sid::VrqNonce(Yang::Binary(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))),
                1001161);
 
-    let serial_02_00_2e = String::from("00-D0-E5-02-00-2E");
+    let serial_02_00_2e = crate::string::String::from("00-D0-E5-02-00-2E");
     assert_eq!(serial_02_00_2e.as_bytes(), [48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69]);
     assert_eq!(disc(&Sid::VrqSerialNumber(Yang::String(serial_02_00_2e))), 1001164);
 }
@@ -349,7 +267,7 @@ fn test_sid_data_vrq_02_00_2e() {
         Sid::VrqAssertion(Yang::Enumeration(YangEnum::Proximity)),
         Sid::VrqCreatedOn(Yang::DateAndTime(1635218340)),
         Sid::VrqNonce(Yang::Binary(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103])),
-        Sid::VrqSerialNumber(Yang::String(String::from("00-D0-E5-02-00-2E"))),
+        Sid::VrqSerialNumber(Yang::String(crate::string::String::from("00-D0-E5-02-00-2E"))),
     ]));
 
     println!("sd_vrq: {:?}", sd_vrq);

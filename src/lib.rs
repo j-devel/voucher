@@ -21,14 +21,14 @@ mod tests;
 
 //
 
+mod yang;
 mod sid_data;
 use sid_data::{SidData, Sid, Yang, YangEnum};
 
+mod cose_sig;
 mod cose_data;
 use cose_data::{CoseData, COSE_SIGN_ONE_TAG};
 pub use cose_data::SignatureAlgorithm;
-
-mod cose_sig;
 
 pub mod debug {
     pub use super::cose_sig::{sig_one_struct_bytes_from, CborType, decode};
