@@ -139,9 +139,9 @@ impl Voucher {
 
         let sid = match attr {
             Attr::Assertion(inner) => match inner {
-                Assertion::Verified => sid_assertion(Yang::Enumeration(YangEnum::Verified)),
-                Assertion::Logged => sid_assertion(Yang::Enumeration(YangEnum::Logged)),
-                Assertion::Proximity => sid_assertion(Yang::Enumeration(YangEnum::Proximity)),
+                Assertion::Verified => sid_assertion(Enumeration(YangEnum::Verified)),
+                Assertion::Logged => sid_assertion(Enumeration(YangEnum::Logged)),
+                Assertion::Proximity => sid_assertion(Enumeration(YangEnum::Proximity)),
             },
             Attr::DomainCertRevocationChecks(x) => if is_vrq { Sid::VrqDomainCertRevocationChecks(Boolean(x)) } else { Sid::VchDomainCertRevocationChecks(Boolean(x)) },
             Attr::CreatedOn(x) => if is_vrq { Sid::VrqCreatedOn(DateAndTime(x)) } else { Sid::VchCreatedOn(DateAndTime(x)) },
@@ -270,9 +270,11 @@ impl TryFrom<&[u8]> for Voucher {
                         .for_each(|(k, v)| {
                             println!("[vch] k: {:?} v: {:?}", k, v);
 
-                            if let Yang::DateAndTime(x) = Yang::try_from(v).unwrap() {
-                                println!("!!!! Yang::DateAndTime: {}", x);
-                            }
+                            println!("!!!! yg for dat: {:?}", Yang::try_from((v, yang::YANG_DISC_DATE_AND_TIME)));
+                            println!("!!!! yg for string: {:?}", Yang::try_from((v, yang::YANG_DISC_STRING)));
+                            println!("!!!! yg for binary: {:?}", Yang::try_from((v, yang::YANG_DISC_BINARY)));
+                            println!("!!!! yg for boolean: {:?}", Yang::try_from((v, yang::YANG_DISC_BOOLEAN)));
+                            println!("!!!! yg for enumeration: {:?}", Yang::try_from((v, yang::YANG_DISC_ENUMERATION)));
                         });
 //                    if 1 == 1 { panic!(); } // !!!! !!!! !!!! !!!!
 
