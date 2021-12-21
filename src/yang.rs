@@ -49,17 +49,29 @@ impl TryFrom<(&CborType, YangDisc)> for Yang {
                 assert_eq!(*tag, CBOR_TAG_UNIX_TIME); // !!
                 if let Integer(dat) = **bx { Ok(Yang::DateAndTime(dat)) } else { Err(()) }
             },
-            (Bytes(qq), YANG_DISC_STRING) => {
-                Err(()) // wip
+            (Bytes(x), YANG_DISC_STRING) => {
+                // !!!! check; not observing this arm in voucher samples??!!
+
+                use crate::std::string::ToString; // !!!!
+                // !!!! fixme; adapt `no_std` cases
+                Ok(Yang::String(crate::String::from_utf8_lossy(x).to_string())) // !!!!
             },
             (StringAsBytes(x), YANG_DISC_BINARY) => {
                 Ok(Yang::Binary(x.to_vec()))
             },
-            (tf, YANG_DISC_BOOLEAN) => {
-                Err(()) // wip
+            (True, YANG_DISC_BOOLEAN) => {
+                Ok(Yang::Boolean(true))
             },
-            (StringAsBytes(qq), YANG_DISC_ENUMERATION) => {
-                Err(()) // wip
+            (False, YANG_DISC_BOOLEAN) => {
+                Ok(Yang::Boolean(false))
+            },
+            (StringAsBytes(x), YANG_DISC_ENUMERATION) => {
+                let cands = [YangEnum::Verified, YangEnum::Logged, YangEnum::Proximity];
+                let residue: Vec<_> = cands.iter()
+                    .enumerate()
+                    .filter_map(|(i, ye)| if ye.value().as_bytes() == x { Some(cands[i]) } else { None })
+                    .collect();
+                if residue.len() == 1 { Ok(Yang::Enumeration(residue[0])) } else { Err(()) }
             },
             _ => Err(()),
         }
