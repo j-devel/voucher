@@ -52,21 +52,25 @@ impl TryFrom<(&CborType, YangDisc)> for Yang {
             (Bytes(x), YANG_DISC_STRING) => {
                 // !!!! check; not observing this arm in voucher samples??!!
 
-                use crate::std::string::ToString; // !!!!
-                // !!!! fixme; adapt `no_std` cases
-                Ok(Yang::String(crate::String::from_utf8_lossy(x).to_string())) // !!!!
+                #[cfg(feature = "std")]
+                {
+                    use crate::std::string::ToString; // !!!!
+                    Ok(Yang::String(crate::String::from_utf8_lossy(x).to_string())) // !!!!
+                }
+                #[cfg(not(feature = "std"))]
+                { // !!!! fixme; adapt `no_std` cases
+                    Err(()) // !!!!
+                }
             },
-            (StringAsBytes(x), YANG_DISC_BINARY) => {
-                Ok(Yang::Binary(x.to_vec()))
-            },
-            (True, YANG_DISC_BOOLEAN) => {
-                Ok(Yang::Boolean(true))
-            },
-            (False, YANG_DISC_BOOLEAN) => {
-                Ok(Yang::Boolean(false))
-            },
+            (StringAsBytes(x), YANG_DISC_BINARY) => Ok(Yang::Binary(x.to_vec())),
+            (True, YANG_DISC_BOOLEAN) => Ok(Yang::Boolean(true)),
+            (False, YANG_DISC_BOOLEAN) => Ok(Yang::Boolean(false)),
             (StringAsBytes(x), YANG_DISC_ENUMERATION) => {
-                let cands = [YangEnum::Verified, YangEnum::Logged, YangEnum::Proximity];
+                let cands = [
+                    YangEnum::Verified,
+                    YangEnum::Logged,
+                    YangEnum::Proximity,
+                ];
                 let residue: Vec<_> = cands.iter()
                     .enumerate()
                     .filter_map(|(i, ye)| if ye.value().as_bytes() == x { Some(cands[i]) } else { None })

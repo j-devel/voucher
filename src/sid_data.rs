@@ -1,6 +1,10 @@
 use crate::{println, vec, Vec, BTreeMap, BTreeSet};
 pub use cose::decoder::CborType;
+
 pub use super::yang::{Yang, YangEnum};
+use super::yang;
+
+use core::intrinsics::discriminant_value as disc;
 
 pub trait Cbor {
     fn to_cbor(&self) -> Option<CborType>;
@@ -72,8 +76,6 @@ impl TopLevel {
 
 impl Ord for Sid {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
-        use core::intrinsics::discriminant_value as disc;
-
         disc(self).cmp(&disc(other))
     }
 }
@@ -86,50 +88,37 @@ impl PartialOrd for Sid {
 
 impl PartialEq for Sid {
     fn eq(&self, other: &Self) -> bool {
-        use core::intrinsics::discriminant_value as disc;
-
         disc(self) == disc(other)
-    }
-}
-
-impl Sid {
-    fn to_cbor_of_yang_enumeration(&self, yg: &Yang) -> Option<CborType> {
-        if let Yang::Enumeration(_) = yg { yg.to_cbor() } else { None }
-    }
-    fn to_cbor_of_yang_string(&self, yg: &Yang) -> Option<CborType> {
-        if let Yang::String(_) = yg { yg.to_cbor() } else { None }
-    }
-    fn to_cbor_of_yang_binary(&self, yg: &Yang) -> Option<CborType> {
-        if let Yang::Binary(_) = yg { yg.to_cbor() } else { None }
-    }
-    fn to_cbor_of_yang_boolean(&self, yg: &Yang) -> Option<CborType> {
-        if let Yang::Boolean(_) = yg { yg.to_cbor() } else { None }
-    }
-    fn to_cbor_of_yang_dat(&self, yg: &Yang) -> Option<CborType> {
-        if let Yang::DateAndTime(_) = yg { yg.to_cbor() } else { None }
     }
 }
 
 impl Cbor for Sid {
     fn to_cbor(&self) -> Option<CborType> {
         use Sid::*;
+        use yang::*;
+
+        let yang_to_cbor =
+            |yg: &Yang, ygd| if disc(yg) == ygd { yg.to_cbor() } else { None };
 
         match self {
             VchTopLevel(_) => None,
-            VchAssertion(yg) => self.to_cbor_of_yang_enumeration(yg),
-            VchDomainCertRevocationChecks(yg) => self.to_cbor_of_yang_boolean(yg),
-            VchCreatedOn(yg) | VchExpiresOn(yg) | VchLastRenewalDate(yg) => self.to_cbor_of_yang_dat(yg),
+            VchAssertion(yg) => yang_to_cbor(yg, YANG_DISC_ENUMERATION),
+            VchDomainCertRevocationChecks(yg) => yang_to_cbor(yg, YANG_DISC_BOOLEAN),
+            VchCreatedOn(yg) | VchExpiresOn(yg) | VchLastRenewalDate(yg) =>
+                yang_to_cbor(yg, YANG_DISC_DATE_AND_TIME),
             VchIdevidIssuer(yg) | VchNonce(yg) | VchPinnedDomainCert(yg) |
-            VchPinnedDomainSubjectPublicKeyInfo(yg) => self.to_cbor_of_yang_binary(yg),
-            VchSerialNumber(yg) => self.to_cbor_of_yang_string(yg),
+            VchPinnedDomainSubjectPublicKeyInfo(yg) => yang_to_cbor(yg, YANG_DISC_BINARY),
+            VchSerialNumber(yg) => yang_to_cbor(yg, YANG_DISC_STRING),
             VrqTopLevel(_) => None,
-            VrqAssertion(yg) => self.to_cbor_of_yang_enumeration(yg),
-            VrqDomainCertRevocationChecks(yg) => self.to_cbor_of_yang_boolean(yg),
-            VrqCreatedOn(yg) | VrqExpiresOn(yg) | VrqLastRenewalDate(yg) => self.to_cbor_of_yang_dat(yg),
+            VrqAssertion(yg) => yang_to_cbor(yg, YANG_DISC_ENUMERATION),
+            VrqDomainCertRevocationChecks(yg) => yang_to_cbor(yg, YANG_DISC_BOOLEAN),
+            VrqCreatedOn(yg) | VrqExpiresOn(yg) | VrqLastRenewalDate(yg) =>
+                yang_to_cbor(yg, YANG_DISC_DATE_AND_TIME),
             VrqIdevidIssuer(yg) | VrqNonce(yg) | VrqPinnedDomainCert(yg) |
             VrqProximityRegistrarSubjectPublicKeyInfo(yg) |
-            VrqPriorSignedVoucherRequest(yg) | VrqProximityRegistrarCert(yg) => self.to_cbor_of_yang_binary(yg),
-            VrqSerialNumber(yg) => self.to_cbor_of_yang_string(yg),
+            VrqPriorSignedVoucherRequest(yg) | VrqProximityRegistrarCert(yg) =>
+                yang_to_cbor(yg, YANG_DISC_BINARY),
+            VrqSerialNumber(yg) => yang_to_cbor(yg, YANG_DISC_STRING),
         }
     }
 }
@@ -194,7 +183,6 @@ impl SidData {
 
 impl Cbor for SidData {
     fn to_cbor(&self) -> Option<CborType> {
-        use core::intrinsics::discriminant_value as disc;
         use CborType::*;
 
         let (set, is_vrq) = self.inner();
@@ -238,8 +226,6 @@ pub fn vrhash_sidhash_content_02_00_2e() -> Vec<u8> {
 
 #[test]
 fn test_sid_02_00_2e() {
-    use core::intrinsics::discriminant_value as disc;
-
     assert_eq!(disc(&Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher)), 1001154);
     assert_eq!(disc(&Sid::VrqAssertion(Yang::Enumeration(YangEnum::Proximity))), 1001155);
     assert_eq!(disc(&Sid::VrqCreatedOn(Yang::DateAndTime(1635218340))), 1001156);
