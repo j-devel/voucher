@@ -160,7 +160,34 @@ impl TryFrom<(Yang, SidDisc)> for Sid {
     type Error = ();
 
     fn try_from(input: (Yang, SidDisc)) -> Result<Self, Self::Error> {
-        Ok(Sid::VchTopLevel(TopLevel::VoucherVoucher)) // dummy
+        let (yg, sid_disc) = input;
+        match sid_disc {
+            SID_VCH_TOP_LEVEL => Err(()),
+            SID_VCH_ASSERTION => Ok(Sid::VchAssertion(yg)),
+            SID_VCH_CREATED_ON => Ok(Sid::VchCreatedOn(yg)),
+            SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS => Ok(Sid::VchDomainCertRevocationChecks(yg)),
+            SID_VCH_EXPIRES_ON => Ok(Sid::VchExpiresOn(yg)),
+            SID_VCH_IDEVID_ISSUER => Ok(Sid::VchIdevidIssuer(yg)),
+            SID_VCH_LAST_RENEWAL_DATE => Ok(Sid::VchLastRenewalDate(yg)),
+            SID_VCH_NONCE => Ok(Sid::VchNonce(yg)),
+            SID_VCH_PINNED_DOMAIN_CERT => Ok(Sid::VchPinnedDomainCert(yg)),
+            SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO => Ok(Sid::VchPinnedDomainSubjectPublicKeyInfo(yg)),
+            SID_VCH_SERIAL_NUMBER => Ok(Sid::VchSerialNumber(yg)),
+            SID_VRQ_TOP_LEVEL => Err(()),
+            SID_VRQ_ASSERTION => Ok(Sid::VrqAssertion(yg)),
+            SID_VRQ_CREATED_ON => Ok(Sid::VrqCreatedOn(yg)),
+            SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS => Ok(Sid::VrqDomainCertRevocationChecks(yg)),
+            SID_VRQ_EXPIRES_ON => Ok(Sid::VrqExpiresOn(yg)),
+            SID_VRQ_IDEVID_ISSUER => Ok(Sid::VrqIdevidIssuer(yg)),
+            SID_VRQ_LAST_RENEWAL_DATE => Ok(Sid::VrqLastRenewalDate(yg)),
+            SID_VRQ_NONCE => Ok(Sid::VrqNonce(yg)),
+            SID_VRQ_PINNED_DOMAIN_CERT => Ok(Sid::VrqPinnedDomainCert(yg)),
+            SID_VRQ_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO => Ok(Sid::VrqProximityRegistrarSubjectPublicKeyInfo(yg)),
+            SID_VRQ_SERIAL_NUMBER => Ok(Sid::VrqSerialNumber(yg)),
+            SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST => Ok(Sid::VrqPriorSignedVoucherRequest(yg)),
+            SID_VRQ_PROXIMITY_REGISTRAR_CERT => Ok(Sid::VrqProximityRegistrarCert(yg)),
+            _ => Err(()),
+        }
     }
 }
 
