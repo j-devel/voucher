@@ -14,43 +14,58 @@ pub trait Cbor {
     }
 }
 
-//
-
-pub const SID_VCH_TOP_LEVEL: u64 = 1001100;
-// ...
-pub const SID_VCH_ASSERTION: u64 = 1001106;
-
-
-pub const SID_VRQ_TOP_LEVEL: u64 = 1001154;
-// ...
+pub const SID_VCH_TOP_LEVEL: u64 =                                   1001100; // 'voucher' <- ['ietf-cwt-voucher', 'ietf-voucher:voucher']
+pub const SID_VCH_ASSERTION: u64 =                                   1001105; // 'assertion'
+pub const SID_VCH_CREATED_ON: u64 =                                  1001106; // 'created-on'
+pub const SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS: u64 =               1001107; // 'domain-cert-revocation-checks'
+pub const SID_VCH_EXPIRES_ON: u64 =                                  1001108; // 'expires-on'
+pub const SID_VCH_IDEVID_ISSUER: u64 =                               1001109; // 'idevid-issuer'
+pub const SID_VCH_LAST_RENEWAL_DATE: u64 =                           1001110; // 'last-renewal-date'
+pub const SID_VCH_NONCE: u64 =                                       1001111; // 'nonce'
+pub const SID_VCH_PINNED_DOMAIN_CERT: u64 =                          1001112; // 'pinned-domain-cert'
+pub const SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO: u64 =       1001113; // 'pinned-domain-subject-public-key-info'
+pub const SID_VCH_SERIAL_NUMBER: u64 =                               1001114; // 'serial-number'
+pub const SID_VRQ_TOP_LEVEL: u64 =                                   1001154; // 'voucher' <- ['ietf-cwt-voucher-request', 'ietf-cwt-voucher-request:voucher', 'ietf-voucher-request:voucher']
+pub const SID_VRQ_ASSERTION: u64 =                                   1001155; // 'assertion'
+pub const SID_VRQ_CREATED_ON: u64 =                                  1001156; // 'created-on'
+pub const SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS: u64 =               1001157; // 'domain-cert-revocation-checks'
+pub const SID_VRQ_EXPIRES_ON: u64 =                                  1001158; // 'expires-on'
+pub const SID_VRQ_IDEVID_ISSUER: u64 =                               1001159; // 'idevid-issuer'
+pub const SID_VRQ_LAST_RENEWAL_DATE: u64 =                           1001160; // 'last-renewal-date'
+pub const SID_VRQ_NONCE: u64 =                                       1001161; // 'nonce'
+pub const SID_VRQ_PINNED_DOMAIN_CERT: u64 =                          1001162; // 'pinned-domain-cert'
+pub const SID_VRQ_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO: u64 = 1001163; // 'proximity-registrar-subject-public-key-info'
+pub const SID_VRQ_SERIAL_NUMBER: u64 =                               1001164; // 'serial-number'
+pub const SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST: u64 =                1001165; // 'prior-signed-voucher-request'
+pub const SID_VRQ_PROXIMITY_REGISTRAR_CERT: u64 =                    1001166; // 'proximity-registrar-cert'
 
 #[repr(u64)]
 #[derive(Clone, Eq, Debug)]
 pub enum Sid {
-    VchTopLevel(TopLevel) =                       SID_VCH_TOP_LEVEL, // 'voucher' <- ['ietf-cwt-voucher', 'ietf-voucher:voucher']
-    VchAssertion(Yang) =                                1001105, // 'assertion'
-    VchCreatedOn(Yang) =                          SID_VCH_ASSERTION, // 'created-on'
-    VchDomainCertRevocationChecks(Yang) =               1001107, // 'domain-cert-revocation-checks'
-    VchExpiresOn(Yang) =                         1001108, // 'expires-on'
-    VchIdevidIssuer(Yang) =                           1001109, // 'idevid-issuer'
-    VchLastRenewalDate(Yang) =                   1001110, // 'last-renewal-date'
-    VchNonce(Yang) =                                  1001111, // 'nonce'
-    VchPinnedDomainCert(Yang) =                       1001112, // 'pinned-domain-cert'
-    VchPinnedDomainSubjectPublicKeyInfo(Yang) =       1001113, // 'pinned-domain-subject-public-key-info'
-    VchSerialNumber(Yang) =                           1001114, // 'serial-number'
-    VrqTopLevel(TopLevel) =                       SID_VRQ_TOP_LEVEL, // 'voucher' <- ['ietf-cwt-voucher-request', 'ietf-cwt-voucher-request:voucher', 'ietf-voucher-request:voucher']
-    VrqAssertion(Yang) =                                1001155, // 'assertion'
-    VrqCreatedOn(Yang) =                         1001156, // 'created-on'
-    VrqDomainCertRevocationChecks(Yang) =               1001157, // 'domain-cert-revocation-checks'
-    VrqExpiresOn(Yang) =                         1001158, // 'expires-on'
-    VrqIdevidIssuer(Yang) =                           1001159, // 'idevid-issuer'
-    VrqLastRenewalDate(Yang) =                   1001160, // 'last-renewal-date'
-    VrqNonce(Yang) =                                  1001161, // 'nonce'
-    VrqPinnedDomainCert(Yang) =                       1001162, // 'pinned-domain-cert'
-    VrqProximityRegistrarSubjectPublicKeyInfo(Yang) = 1001163, // 'proximity-registrar-subject-public-key-info'
-    VrqSerialNumber(Yang) =                           1001164, // 'serial-number'
-    VrqPriorSignedVoucherRequest(Yang) =              1001165, // 'prior-signed-voucher-request'
-    VrqProximityRegistrarCert(Yang) =                 1001166, // 'proximity-registrar-cert'
+    VchTopLevel(TopLevel) =                           SID_VCH_TOP_LEVEL,
+    VchAssertion(Yang) =                              SID_VCH_ASSERTION,
+    VchCreatedOn(Yang) =                              SID_VCH_CREATED_ON,
+    VchDomainCertRevocationChecks(Yang) =             SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS,
+    VchExpiresOn(Yang) =                              SID_VCH_EXPIRES_ON,
+    VchIdevidIssuer(Yang) =                           SID_VCH_IDEVID_ISSUER,
+    VchLastRenewalDate(Yang) =                        SID_VCH_LAST_RENEWAL_DATE,
+    VchNonce(Yang) =                                  SID_VCH_NONCE,
+    VchPinnedDomainCert(Yang) =                       SID_VCH_PINNED_DOMAIN_CERT,
+    VchPinnedDomainSubjectPublicKeyInfo(Yang) =       SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO,
+    VchSerialNumber(Yang) =                           SID_VCH_SERIAL_NUMBER,
+    VrqTopLevel(TopLevel) =                           SID_VRQ_TOP_LEVEL,
+    VrqAssertion(Yang) =                              SID_VRQ_ASSERTION,
+    VrqCreatedOn(Yang) =                              SID_VRQ_CREATED_ON,
+    VrqDomainCertRevocationChecks(Yang) =             SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS,
+    VrqExpiresOn(Yang) =                              SID_VRQ_EXPIRES_ON,
+    VrqIdevidIssuer(Yang) =                           SID_VRQ_IDEVID_ISSUER,
+    VrqLastRenewalDate(Yang) =                        SID_VRQ_LAST_RENEWAL_DATE,
+    VrqNonce(Yang) =                                  SID_VRQ_NONCE,
+    VrqPinnedDomainCert(Yang) =                       SID_VRQ_PINNED_DOMAIN_CERT,
+    VrqProximityRegistrarSubjectPublicKeyInfo(Yang) = SID_VRQ_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO,
+    VrqSerialNumber(Yang) =                           SID_VRQ_SERIAL_NUMBER,
+    VrqPriorSignedVoucherRequest(Yang) =              SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST,
+    VrqProximityRegistrarCert(Yang) =                 SID_VRQ_PROXIMITY_REGISTRAR_CERT,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]

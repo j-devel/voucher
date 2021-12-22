@@ -241,7 +241,7 @@ impl TryFrom<&[u8]> for Voucher {
                 //======== begin WIP - to be refactored
                 use cose::decoder::CborType;
                 use cose_sig::{decode, map_value_from};
-                use sid_data::Cbor;
+                use sid_data::{Cbor, *};
 
                 let content = {
                     if let Some(content) = cose.get_content() {
@@ -262,7 +262,7 @@ impl TryFrom<&[u8]> for Voucher {
                 let msg = "Neither `SID_VCH_TOP_LEVEL` nor `SID_VRQ_TOP_LEVEL` found";
                 let mut sd_opt = None;
 
-                if let Ok(CborType::Map(ref vch_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VCH_TOP_LEVEL)) {
+                if let Ok(CborType::Map(ref vch_map)) = map_value_from(&sidhash, &CborType::Integer(SID_VCH_TOP_LEVEL)) {
                     let mut sd = SidData::vch_from(
                         BTreeSet::from([Sid::VchTopLevel(sid_data::TopLevel::VoucherVoucher)]));
 
@@ -270,20 +270,34 @@ impl TryFrom<&[u8]> for Voucher {
                         .for_each(|(k, v)| {
                             println!("[vch] k: {:?} v: {:?}", k, v);
 
-                            println!("!!!! yg for dat: {:?}", Yang::try_from((v, yang::YANG_DISC_DATE_AND_TIME)));
-                            println!("!!!! yg for string: {:?}", Yang::try_from((v, yang::YANG_DISC_STRING)));
-                            println!("!!!! yg for binary: {:?}", Yang::try_from((v, yang::YANG_DISC_BINARY)));
-                            println!("!!!! yg for boolean: {:?}", Yang::try_from((v, yang::YANG_DISC_BOOLEAN)));
-                            println!("!!!! yg for enumeration: {:?}", Yang::try_from((v, yang::YANG_DISC_ENUMERATION)));
+                            if let CborType::Integer(delta) = k {
+                                match SID_VCH_TOP_LEVEL + delta {
+                                    SID_VCH_ASSERTION => {
+                                        println!("!!!! yg for enumeration: {:?}", Yang::try_from((v, yang::YANG_DISC_ENUMERATION)));
+                                        // set_sid_assoc(&mut sd, Sid::VchAssertion(yang_enumeration(v)),
+                                    },
+                                    SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS => {
+                                        println!("!!!! yg for boolean: {:?}", Yang::try_from((v, yang::YANG_DISC_BOOLEAN)));
+                                    },
+                                    SID_VCH_CREATED_ON | SID_VCH_EXPIRES_ON | SID_VCH_LAST_RENEWAL_DATE => {
+                                        println!("!!!! yg for dat: {:?}", Yang::try_from((v, yang::YANG_DISC_DATE_AND_TIME)));
+                                        // one of
+                                        //   set_sid_assoc(&mut sd, Sid::VchCreatedOn(yang_dat(v)),
+                                        //   set_sid_assoc(&mut sd, Sid::VchExpiresOn(yang_dat(v)),
+                                        //   set_sid_assoc(&mut sd, Sid::VchLastRenewalDate(yang_dat(v)),
+                                    },
+                                    SID_VCH_IDEVID_ISSUER | SID_VCH_NONCE | SID_VCH_PINNED_DOMAIN_CERT | SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO => {
+                                        println!("!!!! yg for binary: {:?}", Yang::try_from((v, yang::YANG_DISC_BINARY)));
+                                    },
+                                    SID_VCH_SERIAL_NUMBER => {
+                                        println!("!!!! yg for string: {:?}", Yang::try_from((v, yang::YANG_DISC_STRING)));
+                                    },
+                                    _ => println!("!!!! _"),
+                                }
+                            }
                         });
-                    //if 1 == 1 { panic!(); } // !!!! !!!! !!!! !!!!
+                    if 1 == 1 { panic!(); } // !!!! !!!! !!!! !!!!
 
-                    // if let Integer(delta) = k {
-                    //     match (delta + SID_VCH_TOP_LEVEL) {
-                    //         SID_VCH_ASSERTION => set_sid_assoc(&mut sd, Sid::VchCreatedOn(resolve_yang_dat(v)),
-                    //
-
-                    //
                     sd_opt.replace(sd);
                 } else if let Ok(CborType::Map(ref vrq_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VRQ_TOP_LEVEL)) {
                     let mut sd = SidData::vrq_from(
@@ -337,7 +351,7 @@ mod minerva_mbedtls_utils {
             SignatureAlgorithm::ES256 => md_type::MBEDTLS_MD_SHA256,
             SignatureAlgorithm::ES384 => md_type::MBEDTLS_MD_SHA384,
             SignatureAlgorithm::ES512 => md_type::MBEDTLS_MD_SHA512,
-            SignatureAlgorithm::PS256 => unimplemented!("TODO: handle PS256"),
+            SignatureAlgorithm::PS256 => unimplemented!("handle PS256"),
         };
 
         (ty, md_info::from_type(ty).md(msg))
