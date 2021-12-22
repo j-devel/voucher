@@ -49,9 +49,7 @@ impl TryFrom<(&CborType, YangDisc)> for Yang {
                 assert_eq!(*tag, CBOR_TAG_UNIX_TIME); // !!
                 if let Integer(dat) = **bx { Ok(Yang::DateAndTime(dat)) } else { Err(()) }
             },
-            (Bytes(x), YANG_DISC_STRING) => {
-                // !!!! check; not observing this arm in voucher samples??!!
-
+            (StringAsBytes(x), YANG_DISC_STRING) => {
                 #[cfg(feature = "std")]
                 {
                     use crate::std::string::ToString; // !!!!

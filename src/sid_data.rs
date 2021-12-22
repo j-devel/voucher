@@ -5,6 +5,7 @@ pub use super::yang::{Yang, YangEnum};
 use super::yang;
 
 use core::intrinsics::discriminant_value as disc;
+use core::convert::TryFrom;
 
 pub trait Cbor {
     fn to_cbor(&self) -> Option<CborType>;
@@ -14,30 +15,31 @@ pub trait Cbor {
     }
 }
 
-pub const SID_VCH_TOP_LEVEL: u64 =                                   1001100; // 'voucher' <- ['ietf-cwt-voucher', 'ietf-voucher:voucher']
-pub const SID_VCH_ASSERTION: u64 =                                   1001105; // 'assertion'
-pub const SID_VCH_CREATED_ON: u64 =                                  1001106; // 'created-on'
-pub const SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS: u64 =               1001107; // 'domain-cert-revocation-checks'
-pub const SID_VCH_EXPIRES_ON: u64 =                                  1001108; // 'expires-on'
-pub const SID_VCH_IDEVID_ISSUER: u64 =                               1001109; // 'idevid-issuer'
-pub const SID_VCH_LAST_RENEWAL_DATE: u64 =                           1001110; // 'last-renewal-date'
-pub const SID_VCH_NONCE: u64 =                                       1001111; // 'nonce'
-pub const SID_VCH_PINNED_DOMAIN_CERT: u64 =                          1001112; // 'pinned-domain-cert'
-pub const SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO: u64 =       1001113; // 'pinned-domain-subject-public-key-info'
-pub const SID_VCH_SERIAL_NUMBER: u64 =                               1001114; // 'serial-number'
-pub const SID_VRQ_TOP_LEVEL: u64 =                                   1001154; // 'voucher' <- ['ietf-cwt-voucher-request', 'ietf-cwt-voucher-request:voucher', 'ietf-voucher-request:voucher']
-pub const SID_VRQ_ASSERTION: u64 =                                   1001155; // 'assertion'
-pub const SID_VRQ_CREATED_ON: u64 =                                  1001156; // 'created-on'
-pub const SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS: u64 =               1001157; // 'domain-cert-revocation-checks'
-pub const SID_VRQ_EXPIRES_ON: u64 =                                  1001158; // 'expires-on'
-pub const SID_VRQ_IDEVID_ISSUER: u64 =                               1001159; // 'idevid-issuer'
-pub const SID_VRQ_LAST_RENEWAL_DATE: u64 =                           1001160; // 'last-renewal-date'
-pub const SID_VRQ_NONCE: u64 =                                       1001161; // 'nonce'
-pub const SID_VRQ_PINNED_DOMAIN_CERT: u64 =                          1001162; // 'pinned-domain-cert'
-pub const SID_VRQ_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO: u64 = 1001163; // 'proximity-registrar-subject-public-key-info'
-pub const SID_VRQ_SERIAL_NUMBER: u64 =                               1001164; // 'serial-number'
-pub const SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST: u64 =                1001165; // 'prior-signed-voucher-request'
-pub const SID_VRQ_PROXIMITY_REGISTRAR_CERT: u64 =                    1001166; // 'proximity-registrar-cert'
+pub type SidDisc = u64;
+pub const SID_VCH_TOP_LEVEL: SidDisc =                                   1001100; // 'voucher' <- ['ietf-cwt-voucher', 'ietf-voucher:voucher']
+pub const SID_VCH_ASSERTION: SidDisc =                                   1001105; // 'assertion'
+pub const SID_VCH_CREATED_ON: SidDisc =                                  1001106; // 'created-on'
+pub const SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS: SidDisc =               1001107; // 'domain-cert-revocation-checks'
+pub const SID_VCH_EXPIRES_ON: SidDisc =                                  1001108; // 'expires-on'
+pub const SID_VCH_IDEVID_ISSUER: SidDisc =                               1001109; // 'idevid-issuer'
+pub const SID_VCH_LAST_RENEWAL_DATE: SidDisc =                           1001110; // 'last-renewal-date'
+pub const SID_VCH_NONCE: SidDisc =                                       1001111; // 'nonce'
+pub const SID_VCH_PINNED_DOMAIN_CERT: SidDisc =                          1001112; // 'pinned-domain-cert'
+pub const SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO: SidDisc =       1001113; // 'pinned-domain-subject-public-key-info'
+pub const SID_VCH_SERIAL_NUMBER: SidDisc =                               1001114; // 'serial-number'
+pub const SID_VRQ_TOP_LEVEL: SidDisc =                                   1001154; // 'voucher' <- ['ietf-cwt-voucher-request', 'ietf-cwt-voucher-request:voucher', 'ietf-voucher-request:voucher']
+pub const SID_VRQ_ASSERTION: SidDisc =                                   1001155; // 'assertion'
+pub const SID_VRQ_CREATED_ON: SidDisc =                                  1001156; // 'created-on'
+pub const SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS: SidDisc =               1001157; // 'domain-cert-revocation-checks'
+pub const SID_VRQ_EXPIRES_ON: SidDisc =                                  1001158; // 'expires-on'
+pub const SID_VRQ_IDEVID_ISSUER: SidDisc =                               1001159; // 'idevid-issuer'
+pub const SID_VRQ_LAST_RENEWAL_DATE: SidDisc =                           1001160; // 'last-renewal-date'
+pub const SID_VRQ_NONCE: SidDisc =                                       1001161; // 'nonce'
+pub const SID_VRQ_PINNED_DOMAIN_CERT: SidDisc =                          1001162; // 'pinned-domain-cert'
+pub const SID_VRQ_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO: SidDisc = 1001163; // 'proximity-registrar-subject-public-key-info'
+pub const SID_VRQ_SERIAL_NUMBER: SidDisc =                               1001164; // 'serial-number'
+pub const SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST: SidDisc =                1001165; // 'prior-signed-voucher-request'
+pub const SID_VRQ_PROXIMITY_REGISTRAR_CERT: SidDisc =                    1001166; // 'proximity-registrar-cert'
 
 #[repr(u64)]
 #[derive(Clone, Eq, Debug)]
@@ -117,24 +119,48 @@ impl Cbor for Sid {
 
         match self {
             VchTopLevel(_) => None,
-            VchAssertion(yg) => yang_to_cbor(yg, YANG_DISC_ENUMERATION),
-            VchDomainCertRevocationChecks(yg) => yang_to_cbor(yg, YANG_DISC_BOOLEAN),
-            VchCreatedOn(yg) | VchExpiresOn(yg) | VchLastRenewalDate(yg) =>
+            VchAssertion(yg) =>
+                yang_to_cbor(yg, YANG_DISC_ENUMERATION),
+            VchDomainCertRevocationChecks(yg) =>
+                yang_to_cbor(yg, YANG_DISC_BOOLEAN),
+            VchCreatedOn(yg) |
+            VchExpiresOn(yg) |
+            VchLastRenewalDate(yg) =>
                 yang_to_cbor(yg, YANG_DISC_DATE_AND_TIME),
-            VchIdevidIssuer(yg) | VchNonce(yg) | VchPinnedDomainCert(yg) |
-            VchPinnedDomainSubjectPublicKeyInfo(yg) => yang_to_cbor(yg, YANG_DISC_BINARY),
-            VchSerialNumber(yg) => yang_to_cbor(yg, YANG_DISC_STRING),
-            VrqTopLevel(_) => None,
-            VrqAssertion(yg) => yang_to_cbor(yg, YANG_DISC_ENUMERATION),
-            VrqDomainCertRevocationChecks(yg) => yang_to_cbor(yg, YANG_DISC_BOOLEAN),
-            VrqCreatedOn(yg) | VrqExpiresOn(yg) | VrqLastRenewalDate(yg) =>
-                yang_to_cbor(yg, YANG_DISC_DATE_AND_TIME),
-            VrqIdevidIssuer(yg) | VrqNonce(yg) | VrqPinnedDomainCert(yg) |
-            VrqProximityRegistrarSubjectPublicKeyInfo(yg) |
-            VrqPriorSignedVoucherRequest(yg) | VrqProximityRegistrarCert(yg) =>
+            VchIdevidIssuer(yg) |
+            VchNonce(yg) |
+            VchPinnedDomainCert(yg) |
+            VchPinnedDomainSubjectPublicKeyInfo(yg) =>
                 yang_to_cbor(yg, YANG_DISC_BINARY),
-            VrqSerialNumber(yg) => yang_to_cbor(yg, YANG_DISC_STRING),
+            VchSerialNumber(yg) =>
+                yang_to_cbor(yg, YANG_DISC_STRING),
+            VrqTopLevel(_) => None,
+            VrqAssertion(yg) =>
+                yang_to_cbor(yg, YANG_DISC_ENUMERATION),
+            VrqDomainCertRevocationChecks(yg) =>
+                yang_to_cbor(yg, YANG_DISC_BOOLEAN),
+            VrqCreatedOn(yg) |
+            VrqExpiresOn(yg) |
+            VrqLastRenewalDate(yg) =>
+                yang_to_cbor(yg, YANG_DISC_DATE_AND_TIME),
+            VrqIdevidIssuer(yg) |
+            VrqNonce(yg) |
+            VrqPinnedDomainCert(yg) |
+            VrqProximityRegistrarSubjectPublicKeyInfo(yg) |
+            VrqPriorSignedVoucherRequest(yg) |
+            VrqProximityRegistrarCert(yg) =>
+                yang_to_cbor(yg, YANG_DISC_BINARY),
+            VrqSerialNumber(yg) =>
+                yang_to_cbor(yg, YANG_DISC_STRING),
         }
+    }
+}
+
+impl TryFrom<(Yang, SidDisc)> for Sid {
+    type Error = ();
+
+    fn try_from(input: (Yang, SidDisc)) -> Result<Self, Self::Error> {
+        Ok(Sid::VchTopLevel(TopLevel::VoucherVoucher)) // dummy
     }
 }
 

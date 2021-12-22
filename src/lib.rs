@@ -271,29 +271,29 @@ impl TryFrom<&[u8]> for Voucher {
                             println!("[vch] k: {:?} v: {:?}", k, v);
 
                             if let CborType::Integer(delta) = k {
-                                match SID_VCH_TOP_LEVEL + delta {
-                                    SID_VCH_ASSERTION => {
-                                        println!("!!!! yg for enumeration: {:?}", Yang::try_from((v, yang::YANG_DISC_ENUMERATION)));
-                                        // set_sid_assoc(&mut sd, Sid::VchAssertion(yang_enumeration(v)),
-                                    },
-                                    SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS => {
-                                        println!("!!!! yg for boolean: {:?}", Yang::try_from((v, yang::YANG_DISC_BOOLEAN)));
-                                    },
-                                    SID_VCH_CREATED_ON | SID_VCH_EXPIRES_ON | SID_VCH_LAST_RENEWAL_DATE => {
-                                        println!("!!!! yg for dat: {:?}", Yang::try_from((v, yang::YANG_DISC_DATE_AND_TIME)));
-                                        // one of
-                                        //   set_sid_assoc(&mut sd, Sid::VchCreatedOn(yang_dat(v)),
-                                        //   set_sid_assoc(&mut sd, Sid::VchExpiresOn(yang_dat(v)),
-                                        //   set_sid_assoc(&mut sd, Sid::VchLastRenewalDate(yang_dat(v)),
-                                    },
-                                    SID_VCH_IDEVID_ISSUER | SID_VCH_NONCE | SID_VCH_PINNED_DOMAIN_CERT | SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO => {
-                                        println!("!!!! yg for binary: {:?}", Yang::try_from((v, yang::YANG_DISC_BINARY)));
-                                    },
-                                    SID_VCH_SERIAL_NUMBER => {
-                                        println!("!!!! yg for string: {:?}", Yang::try_from((v, yang::YANG_DISC_STRING)));
-                                    },
-                                    _ => println!("!!!! _"),
-                                }
+                                let sid_disc = SID_VCH_TOP_LEVEL + delta;
+                                let yg = match sid_disc {
+                                    SID_VCH_ASSERTION =>
+                                        Yang::try_from((v, yang::YANG_DISC_ENUMERATION)),
+                                    SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS =>
+                                        Yang::try_from((v, yang::YANG_DISC_BOOLEAN)),
+                                    SID_VCH_CREATED_ON |
+                                    SID_VCH_EXPIRES_ON |
+                                    SID_VCH_LAST_RENEWAL_DATE =>
+                                        Yang::try_from((v, yang::YANG_DISC_DATE_AND_TIME)),
+                                    SID_VCH_IDEVID_ISSUER |
+                                    SID_VCH_NONCE |
+                                    SID_VCH_PINNED_DOMAIN_CERT |
+                                    SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO =>
+                                        Yang::try_from((v, yang::YANG_DISC_BINARY)),
+                                    SID_VCH_SERIAL_NUMBER =>
+                                        Yang::try_from((v, yang::YANG_DISC_STRING)),
+                                    _ => Err(()),
+                                };
+                                println!("!!!! yg: {:?}", yg);
+                                let sid = Sid::try_from((yg.unwrap(), sid_disc)).unwrap();
+                                println!("!!!! sid: {:?}", sid);
+                                // set_sid_assoc(&mut sd, sid); // !!!!
                             }
                         });
                     if 1 == 1 { panic!(); } // !!!! !!!! !!!! !!!!
