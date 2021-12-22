@@ -267,26 +267,30 @@ impl TryFrom<&[u8]> for Voucher {
                     let mut sd = SidData::new_vch();
                     sd.replace(Sid::VchTopLevel(sid_data::TopLevel::VoucherVoucher));
 
-                    vch_map.iter()
+                    vch_map.iter() // 11 refactor
                         .filter_map(|(k, v)| if let CborType::Integer(delta) = k {
-                            Some((SID_VCH_TOP_LEVEL + delta, v)) } else { None })
+                            Some((SID_VCH_TOP_LEVEL + delta, v)) } else { None }) // 11 refactor
                         .map(|(sid_disc, v)| Sid::try_from(
                             (Yang::try_from((v, sid_disc)).unwrap(), sid_disc)).unwrap())
                         .for_each(|sid| sd.replace(sid));
 
-                    if 1 == 1 { panic!("sd: {:?}", sd); } // !!!! !!!! !!!! !!!!
+                    //if 1 == 1 { panic!("[vch] sd: {:?}", sd); } // !!!! !!!! !!!! !!!!
 
                     sd_opt.replace(sd);
                 } else if let Ok(CborType::Map(ref vrq_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VRQ_TOP_LEVEL)) {
-                    let mut sd = SidData::vrq_from(
-                        BTreeSet::from([Sid::VrqTopLevel(sid_data::TopLevel::VoucherRequestVoucher)]));
 
-                    vrq_map.iter() // TODO !! cbor -> sid
-                        .for_each(|(k, v)| {
-                            println!("[vrq] k: {:?} v: {:?}", k, v);
-                        });
+                    let mut sd = SidData::new_vrq();
+                    sd.replace(Sid::VrqTopLevel(sid_data::TopLevel::VoucherRequestVoucher));
 
-                    //
+                    vrq_map.iter() // 22 refactor
+                        .filter_map(|(k, v)| if let CborType::Integer(delta) = k {
+                            Some((SID_VRQ_TOP_LEVEL + delta, v)) } else { None }) // 22 refactor
+                        .map(|(sid_disc, v)| Sid::try_from(
+                            (Yang::try_from((v, sid_disc)).unwrap(), sid_disc)).unwrap())
+                        .for_each(|sid| sd.replace(sid));
+
+                    if 1 == 1 { panic!("[vrq] sd: {:?}", sd); } // !!!! !!!! !!!! !!!!
+
                     sd_opt.replace(sd);
                 } else if is_permissive {
                     println!("⚠️ warning: {}", msg);
@@ -298,9 +302,6 @@ impl TryFrom<&[u8]> for Voucher {
 //                    panic!("sd.to_cbor(): {:?}", sd.to_cbor()); // check!
                 }
 
-                // content bytes
-                // -> sidhash (CborType Map) .... check TopLevel type (vch or vrq)
-                // -> attr set
                 // -> populate `self.sid` (sid_data) .... `.get_attrs()` API
                 //======== end WIP
                 let sd = SidData::new_vch(); // !!!! dummy !!!!

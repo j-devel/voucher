@@ -87,23 +87,40 @@ impl TryFrom<(&CborType, SidDisc)> for Yang {
         use super::sid_data::*;
 
         let (cbor, sid_disc) = input;
+        println!("0000 sid_disc: {}", sid_disc);
         match sid_disc {
-            SID_VCH_ASSERTION =>
+            SID_VCH_ASSERTION |
+            SID_VRQ_ASSERTION =>
                 Yang::try_from((cbor, YANG_DISC_ENUMERATION)),
-            SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS =>
+            SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS |
+            SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS =>
                 Yang::try_from((cbor, YANG_DISC_BOOLEAN)),
             SID_VCH_CREATED_ON |
             SID_VCH_EXPIRES_ON |
-            SID_VCH_LAST_RENEWAL_DATE =>
+            SID_VCH_LAST_RENEWAL_DATE |
+            SID_VRQ_CREATED_ON |
+            SID_VRQ_EXPIRES_ON |
+            SID_VRQ_LAST_RENEWAL_DATE =>
                 Yang::try_from((cbor, YANG_DISC_DATE_AND_TIME)),
             SID_VCH_IDEVID_ISSUER |
             SID_VCH_NONCE |
             SID_VCH_PINNED_DOMAIN_CERT |
-            SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO =>
+            SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO |
+            SID_VRQ_IDEVID_ISSUER |
+            SID_VRQ_NONCE |
+            SID_VRQ_PINNED_DOMAIN_CERT |
+            SID_VRQ_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO |
+            SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST |
+            SID_VRQ_PROXIMITY_REGISTRAR_CERT =>
                 Yang::try_from((cbor, YANG_DISC_BINARY)),
-            SID_VCH_SERIAL_NUMBER =>
+            SID_VCH_SERIAL_NUMBER |
+            SID_VRQ_SERIAL_NUMBER /* check !!!! */ =>
                 Yang::try_from((cbor, YANG_DISC_STRING)),
-            _ => Err(()),
+            _ => {
+                println!("111111 sid_disc: {}", sid_disc);
+                Err(())
+            },
+//            _ => Err(()),
         }
     }
 }
