@@ -199,6 +199,7 @@ pub enum SidData {
     VoucherRequest(BTreeSet<Sid>),
 }
 
+// TODO - update according to 'draft-ietf-anima-constrained-voucher-15'
 // TODO - checker on serialize/sign/****
 // #   +---- voucher
 // #      +---- created-on?                      yang:date-and-time

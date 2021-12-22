@@ -263,40 +263,18 @@ impl TryFrom<&[u8]> for Voucher {
                 let mut sd_opt = None;
 
                 if let Ok(CborType::Map(ref vch_map)) = map_value_from(&sidhash, &CborType::Integer(SID_VCH_TOP_LEVEL)) {
-                    let mut sd = SidData::vch_from(
-                        BTreeSet::from([Sid::VchTopLevel(sid_data::TopLevel::VoucherVoucher)]));
 
-                    vch_map.iter() // TODO !! cbor -> sid convesion
-                        .for_each(|(k, v)| {
-                            println!("[vch] k: {:?} v: {:?}", k, v);
+                    let mut sd = SidData::new_vch();
+                    sd.replace(Sid::VchTopLevel(sid_data::TopLevel::VoucherVoucher));
 
-                            if let CborType::Integer(delta) = k {
-                                let sid_disc = SID_VCH_TOP_LEVEL + delta;
-                                let yg = match sid_disc {
-                                    SID_VCH_ASSERTION =>
-                                        Yang::try_from((v, yang::YANG_DISC_ENUMERATION)),
-                                    SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS =>
-                                        Yang::try_from((v, yang::YANG_DISC_BOOLEAN)),
-                                    SID_VCH_CREATED_ON |
-                                    SID_VCH_EXPIRES_ON |
-                                    SID_VCH_LAST_RENEWAL_DATE =>
-                                        Yang::try_from((v, yang::YANG_DISC_DATE_AND_TIME)),
-                                    SID_VCH_IDEVID_ISSUER |
-                                    SID_VCH_NONCE |
-                                    SID_VCH_PINNED_DOMAIN_CERT |
-                                    SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO =>
-                                        Yang::try_from((v, yang::YANG_DISC_BINARY)),
-                                    SID_VCH_SERIAL_NUMBER =>
-                                        Yang::try_from((v, yang::YANG_DISC_STRING)),
-                                    _ => Err(()),
-                                };
-                                println!("!!!! yg: {:?}", yg);
-                                let sid = Sid::try_from((yg.unwrap(), sid_disc)).unwrap();
-                                println!("!!!! sid: {:?}", sid);
-                                // set_sid_assoc(&mut sd, sid); // !!!!
-                            }
-                        });
-                    if 1 == 1 { panic!(); } // !!!! !!!! !!!! !!!!
+                    vch_map.iter()
+                        .filter_map(|(k, v)| if let CborType::Integer(delta) = k {
+                            Some((SID_VCH_TOP_LEVEL + delta, v)) } else { None })
+                        .map(|(sid_disc, v)| Sid::try_from(
+                            (Yang::try_from((v, sid_disc)).unwrap(), sid_disc)).unwrap())
+                        .for_each(|sid| sd.replace(sid));
+
+                    if 1 == 1 { panic!("sd: {:?}", sd); } // !!!! !!!! !!!! !!!!
 
                     sd_opt.replace(sd);
                 } else if let Ok(CborType::Map(ref vrq_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VRQ_TOP_LEVEL)) {

@@ -1,5 +1,5 @@
 use crate::{println, Box, string::String, Vec};
-use super::sid_data::{CborType, Cbor};
+use super::sid_data::{CborType, Cbor, SidDisc};
 use core::convert::TryFrom;
 
 pub type YangDisc = u8;
@@ -75,6 +75,34 @@ impl TryFrom<(&CborType, YangDisc)> for Yang {
                     .collect();
                 if residue.len() == 1 { Ok(Yang::Enumeration(residue[0])) } else { Err(()) }
             },
+            _ => Err(()),
+        }
+    }
+}
+
+impl TryFrom<(&CborType, SidDisc)> for Yang {
+    type Error = ();
+
+    fn try_from(input: (&CborType, SidDisc)) -> Result<Self, Self::Error> {
+        use super::sid_data::*;
+
+        let (cbor, sid_disc) = input;
+        match sid_disc {
+            SID_VCH_ASSERTION =>
+                Yang::try_from((cbor, YANG_DISC_ENUMERATION)),
+            SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS =>
+                Yang::try_from((cbor, YANG_DISC_BOOLEAN)),
+            SID_VCH_CREATED_ON |
+            SID_VCH_EXPIRES_ON |
+            SID_VCH_LAST_RENEWAL_DATE =>
+                Yang::try_from((cbor, YANG_DISC_DATE_AND_TIME)),
+            SID_VCH_IDEVID_ISSUER |
+            SID_VCH_NONCE |
+            SID_VCH_PINNED_DOMAIN_CERT |
+            SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO =>
+                Yang::try_from((cbor, YANG_DISC_BINARY)),
+            SID_VCH_SERIAL_NUMBER =>
+                Yang::try_from((cbor, YANG_DISC_STRING)),
             _ => Err(()),
         }
     }
