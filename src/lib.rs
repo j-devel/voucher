@@ -72,20 +72,36 @@ pub enum Assertion {
     Proximity,
 }
 
+pub type AttrDisc = u8;
+pub const ATTR_ASSERTION: AttrDisc =                                    0;
+pub const ATTR_CREATED_ON: AttrDisc =                                   1;
+pub const ATTR_DOMAIN_CERT_REVOCATION_CHECKS: AttrDisc =                2;
+pub const ATTR_EXPIRES_ON: AttrDisc =                                   3;
+pub const ATTR_IDEVID_ISSUER: AttrDisc =                                4;
+pub const ATTR_LAST_RENEWAL_DATE: AttrDisc =                            5;
+pub const ATTR_NONCE: AttrDisc =                                        6;
+pub const ATTR_PINNED_DOMAIN_CERT: AttrDisc =                           7;
+pub const ATTR_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO: AttrDisc =        8;
+pub const ATTR_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO: AttrDisc =  9;
+pub const ATTR_PRIOR_SIGNED_VOUCHER_REQUEST: AttrDisc =                10;
+pub const ATTR_PROXIMITY_REGISTRAR_CERT: AttrDisc =                    11;
+pub const ATTR_SERIAL_NUMBER: AttrDisc =                               12;
+
+#[repr(u8)]
 pub enum Attr {
-    Assertion(Assertion),
-    CreatedOn(u64),
-    DomainCertRevocationChecks(bool),
-    ExpiresOn(u64),
-    IdevidIssuer(Vec<u8>),
-    LastRenewalDate(u64),
-    Nonce(Vec<u8>),
-    PinnedDomainCert(Vec<u8>),
-    PinnedDomainSubjectPublicKeyInfo(Vec<u8>),        // vch only
-    ProximityRegistrarSubjectPublicKeyInfo(Vec<u8>),  // vrq only
-    PriorSignedVoucherRequest(Vec<u8>),               // vrq only
-    ProximityRegistrarCert(Vec<u8>),                  // vrq only
-    SerialNumber(String),
+    Assertion(Assertion) =                      ATTR_ASSERTION,
+    CreatedOn(u64) =                            ATTR_CREATED_ON,
+    DomainCertRevocationChecks(bool) =          ATTR_DOMAIN_CERT_REVOCATION_CHECKS,
+    ExpiresOn(u64) =                            ATTR_EXPIRES_ON,
+    IdevidIssuer(Vec<u8>) =                     ATTR_IDEVID_ISSUER,
+    LastRenewalDate(u64) =                      ATTR_LAST_RENEWAL_DATE,
+    Nonce(Vec<u8>) =                            ATTR_NONCE,
+    PinnedDomainCert(Vec<u8>) =                 ATTR_PINNED_DOMAIN_CERT,
+    PinnedDomainSubjectPublicKeyInfo(Vec<u8>) = ATTR_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO, // vch only
+    ProximityRegistrarSubjectPublicKeyInfo(Vec<u8>) = ATTR_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO, // vrq only
+    PriorSignedVoucherRequest(Vec<u8>) =        ATTR_PRIOR_SIGNED_VOUCHER_REQUEST, // vrq only
+    ProximityRegistrarCert(Vec<u8>) =           ATTR_PROXIMITY_REGISTRAR_CERT, // vrq only
+    SerialNumber(String) =                      ATTR_SERIAL_NUMBER,
 }
 
 impl Voucher {
