@@ -123,17 +123,17 @@ impl Cbor for Sid {
                 None,
             VchAssertion(yg) |
             VrqAssertion(yg) =>
-                yang_to_cbor(yg, YANG_DISC_ENUMERATION),
+                yang_to_cbor(yg, YANG_ENUMERATION),
             VchDomainCertRevocationChecks(yg) |
             VrqDomainCertRevocationChecks(yg) =>
-                yang_to_cbor(yg, YANG_DISC_BOOLEAN),
+                yang_to_cbor(yg, YANG_BOOLEAN),
             VchCreatedOn(yg) |
             VchExpiresOn(yg) |
             VchLastRenewalDate(yg) |
             VrqCreatedOn(yg) |
             VrqExpiresOn(yg) |
             VrqLastRenewalDate(yg) =>
-                yang_to_cbor(yg, YANG_DISC_DATE_AND_TIME),
+                yang_to_cbor(yg, YANG_DATE_AND_TIME),
             VchIdevidIssuer(yg) |
             VchNonce(yg) |
             VchPinnedDomainCert(yg) |
@@ -144,10 +144,10 @@ impl Cbor for Sid {
             VrqProximityRegistrarSubjectPublicKeyInfo(yg) |
             VrqPriorSignedVoucherRequest(yg) |
             VrqProximityRegistrarCert(yg) =>
-                yang_to_cbor(yg, YANG_DISC_BINARY),
+                yang_to_cbor(yg, YANG_BINARY),
             VchSerialNumber(yg) |
             VrqSerialNumber(yg) =>
-                yang_to_cbor(yg, YANG_DISC_STRING),
+                yang_to_cbor(yg, YANG_STRING),
         }
     }
 }
