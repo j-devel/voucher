@@ -297,9 +297,9 @@ fn test_sid_02_00_2e() {
     assert_eq!(disc(&Sid::VrqNonce(Yang::Binary(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))),
                1001161);
 
-    let serial_02_00_2e = crate::string::String::from("00-D0-E5-02-00-2E");
-    assert_eq!(serial_02_00_2e.as_bytes(), [48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69]);
-    assert_eq!(disc(&Sid::VrqSerialNumber(Yang::String(serial_02_00_2e))), 1001164);
+    let serial_02_00_2e = "00-D0-E5-02-00-2E".as_bytes();
+    assert_eq!(serial_02_00_2e, [48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69]);
+    assert_eq!(disc(&Sid::VrqSerialNumber(Yang::String(serial_02_00_2e.to_vec()))), 1001164);
 }
 
 #[test]
@@ -318,7 +318,7 @@ fn test_sid_data_vrq_02_00_2e() {
         Sid::VrqAssertion(Yang::Enumeration(YangEnum::Proximity)),
         Sid::VrqCreatedOn(Yang::DateAndTime(1635218340)),
         Sid::VrqNonce(Yang::Binary(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103])),
-        Sid::VrqSerialNumber(Yang::String(crate::string::String::from("00-D0-E5-02-00-2E"))),
+        Sid::VrqSerialNumber(Yang::String("00-D0-E5-02-00-2E".as_bytes().to_vec())),
     ]));
 
     println!("sd_vrq: {:?}", sd_vrq);

@@ -150,7 +150,7 @@ impl Voucher {
             Attr::IdevidIssuer(x) => if is_vrq { Sid::VrqIdevidIssuer(Binary(x)) } else { Sid::VchIdevidIssuer(Binary(x)) },
             Attr::Nonce(x) => if is_vrq { Sid::VrqNonce(Binary(x)) } else { Sid::VchNonce(Binary(x)) },
             Attr::PinnedDomainCert(x) => if is_vrq { Sid::VrqPinnedDomainCert(Binary(x)) } else { Sid::VchPinnedDomainCert(Binary(x)) },
-            Attr::SerialNumber(x) => if is_vrq { Sid::VrqSerialNumber(String(x)) } else { Sid::VchSerialNumber(String(x)) },
+            Attr::SerialNumber(x) => if is_vrq { Sid::VrqSerialNumber(String(x.as_bytes().to_vec())) } else { Sid::VchSerialNumber(String(x.as_bytes().to_vec())) },
             Attr::PinnedDomainSubjectPublicKeyInfo(x) => { assert!(!is_vrq); Sid::VchPinnedDomainSubjectPublicKeyInfo(Binary(x)) },
             Attr::ProximityRegistrarSubjectPublicKeyInfo(x) => { assert!(is_vrq); Sid::VrqProximityRegistrarSubjectPublicKeyInfo(Binary(x)) },
             Attr::PriorSignedVoucherRequest(x) => { assert!(is_vrq); Sid::VrqPriorSignedVoucherRequest(Binary(x)) },
@@ -274,7 +274,7 @@ impl TryFrom<&[u8]> for Voucher {
                             (Yang::try_from((v, sid_disc)).unwrap(), sid_disc)).unwrap())
                         .for_each(|sid| sd.replace(sid));
 
-                    //if 1 == 1 { panic!("[vch] sd: {:?}", sd); } // !!!! !!!! !!!! !!!!
+                    // if 1 == 1 { panic!("[vch] sd: {:?}", sd); } // !!!! !!!! !!!! !!!!
 
                     sd_opt.replace(sd);
                 } else if let Ok(CborType::Map(ref vrq_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VRQ_TOP_LEVEL)) {
@@ -289,7 +289,7 @@ impl TryFrom<&[u8]> for Voucher {
                             (Yang::try_from((v, sid_disc)).unwrap(), sid_disc)).unwrap())
                         .for_each(|sid| sd.replace(sid));
 
-                    if 1 == 1 { panic!("[vrq] sd: {:?}", sd); } // !!!! !!!! !!!! !!!!
+                    // if 1 == 1 { panic!("[vrq] sd: {:?}", sd); } // !!!! !!!! !!!! !!!!
 
                     sd_opt.replace(sd);
                 } else if is_permissive {

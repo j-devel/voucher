@@ -13,14 +13,14 @@ pub const YANG_ENUMERATION: YangDisc =   4; // 'enumeration'
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Yang {
     DateAndTime(u64) =      YANG_DATE_AND_TIME,
-    String(String) =        YANG_STRING,
+    String(Vec<u8>) =       YANG_STRING,
     Binary(Vec<u8>) =       YANG_BINARY,
     Boolean(bool) =         YANG_BOOLEAN,
     Enumeration(YangEnum) = YANG_ENUMERATION,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
-pub enum YangEnum {              // 'enumeration'
+pub enum YangEnum {
     Verified,
     Logged,
     Proximity,
@@ -49,17 +49,9 @@ impl TryFrom<(&CborType, YangDisc)> for Yang {
                 assert_eq!(*tag, CBOR_TAG_UNIX_TIME); // !!
                 if let Integer(dat) = **bx { Ok(Yang::DateAndTime(dat)) } else { Err(()) }
             },
-            (StringAsBytes(x), YANG_STRING) => {
-                #[cfg(feature = "std")]
-                {
-                    use crate::std::string::ToString; // !!!!
-                    Ok(Yang::String(crate::String::from_utf8_lossy(x).to_string())) // !!!!
-                }
-                #[cfg(not(feature = "std"))]
-                { // !!!! fixme; adapt `no_std` cases
-                    Err(()) // !!!!
-                }
-            },
+            (Bytes(x), YANG_STRING) |          // vrq samples {Rust,Ruby}-generated
+            (StringAsBytes(x), YANG_STRING) => // vch samples (old?)
+                Ok(Yang::String(x.to_vec())),
             (StringAsBytes(x), YANG_BINARY) => Ok(Yang::Binary(x.to_vec())),
             (True, YANG_BOOLEAN) => Ok(Yang::Boolean(true)),
             (False, YANG_BOOLEAN) => Ok(Yang::Boolean(false)),
@@ -114,13 +106,9 @@ impl TryFrom<(&CborType, SidDisc)> for Yang {
             SID_VRQ_PROXIMITY_REGISTRAR_CERT =>
                 Yang::try_from((cbor, YANG_BINARY)),
             SID_VCH_SERIAL_NUMBER |
-            SID_VRQ_SERIAL_NUMBER /*    check !!!! */ =>
+            SID_VRQ_SERIAL_NUMBER =>
                 Yang::try_from((cbor, YANG_STRING)),
-            _ => {
-                println!("111111 sid_disc: {}", sid_disc);
-                Err(())
-            },
-//            _ => Err(()),
+            _ => Err(()),
         }
     }
 }
@@ -131,7 +119,7 @@ impl Cbor for Yang {
 
         let cbor = match self {
             Yang::DateAndTime(x) => Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*x))),
-            Yang::String(x) => Bytes(x.as_bytes().to_vec()),
+            Yang::String(x) => Bytes(x.clone()),
             Yang::Binary(x) => StringAsBytes(x.clone()),
             Yang::Boolean(x) => if *x { True } else { False },
             Yang::Enumeration(x) => StringAsBytes(x.value().as_bytes().to_vec()),
