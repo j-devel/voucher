@@ -236,7 +236,7 @@ impl SidData {
         }
     }
 
-    fn inner(&self) -> (&BTreeSet<Sid>, bool /* is_vrq */) {
+    pub fn inner(&self) -> (&BTreeSet<Sid>, bool /* is_vrq */) {
         match self {
             Self::Voucher(set) => (set, false),
             Self::VoucherRequest(set) => (set, true),

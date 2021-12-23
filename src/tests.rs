@@ -213,6 +213,14 @@ fn test_highlevel_interface() {
     assert_eq!(vrq.get_signature().0, /* asn1 */ [48, 69, 2, 32, 110, 143, 135, 7, 170, 12, 231, 167, 243, 130, 212, 214, 122, 23, 71, 106, 100, 76, 173, 196, 236, 73, 58, 126, 151, 8, 46, 127, 206, 190, 196, 66, 2, 33, 0, 217, 20, 0, 2, 48, 18, 151, 42, 133, 159, 125, 145, 86, 197, 138, 227, 30, 64, 230, 164, 214, 125, 78, 62, 183, 48, 179, 249, 79, 147, 36, 112]);
     assert_eq!(vrq.serialize().unwrap().len(), 148);
 
+    /* WIP */ assert_eq!(vrq.get(ATTR_CREATED_ON), Some(Attr::CreatedOn(1635218340)));
+
+    // vrq.iter().for_each(|attr_disc| {
+    //    let attr = vrq.get(attr_disc); // cloned
+    //    println!("cloned attr: {:?}", attr); // Some(....)
+    // })
+
+
     //
 
     let _ = Voucher::new_vch_with(vec![

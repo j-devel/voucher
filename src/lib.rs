@@ -65,7 +65,7 @@ pub enum VoucherType {
     Vrq, // 'voucher request'
 }
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Assertion {
     Verified,
     Logged,
@@ -88,6 +88,7 @@ pub const ATTR_PROXIMITY_REGISTRAR_CERT: AttrDisc =                    11;
 pub const ATTR_SERIAL_NUMBER: AttrDisc =                               12;
 
 #[repr(u8)]
+#[derive(PartialEq, Debug)]
 pub enum Attr {
     Assertion(Assertion) =                      ATTR_ASSERTION,
     CreatedOn(u64) =                            ATTR_CREATED_ON,
@@ -145,6 +146,20 @@ impl Voucher {
 
     pub fn get_voucher_type(&self) -> VoucherType {
         if self.sid.is_vrq() { VoucherType::Vrq } else { VoucherType::Vch }
+    }
+
+    pub fn get(&self, attr_disc: AttrDisc) -> Option<Attr> {
+        use core::intrinsics::discriminant_value as disc;
+
+        let (set, is_vrq) = self.sid.inner();
+        let sid_disc = sid_data::SID_VRQ_CREATED_ON; // <- attr_disc, is_vrq; todo !!!!
+
+        let mut out: Vec<_> = set.iter()
+            .filter_map(|sid| if disc(sid) == sid_disc { Some(Attr::CreatedOn(1635218340)) } else { None })
+// /* todo */ .filter_map(|sid| if disc(sid) == sid_disc { Some(Attr::try_from(sid)) } else { None })
+            .collect();
+        println!("out: {:?}", out);
+        if out.len() == 1 { out.pop() } else { None }
     }
 
     pub fn set(&mut self, attr: Attr) -> &mut Self {
