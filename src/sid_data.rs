@@ -277,6 +277,39 @@ impl Cbor for SidData {
     }
 }
 
+impl TryFrom<CborType> for SidData {
+    type Error = ();
+
+    fn try_from(sidhash: CborType) -> Result<Self, Self::Error> {
+        from_sidhash(sidhash).ok_or(())
+    }
+}
+
+fn from_sidhash(sidhash: CborType) -> Option<SidData> {
+    use super::cose_sig::map_value_from;
+    use CborType::*;
+
+    let (is_vrq, btmap, sid_tl_disc, sid_tl) =
+        if let Ok(Map(btmap)) = map_value_from(&sidhash, &Integer(SID_VCH_TOP_LEVEL)) {
+            (false, btmap, SID_VCH_TOP_LEVEL, Sid::VchTopLevel(TopLevel::VoucherVoucher))
+        } else if let Ok(Map(btmap)) = map_value_from(&sidhash, &Integer(SID_VRQ_TOP_LEVEL)) {
+            (true, btmap, SID_VRQ_TOP_LEVEL, Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher))
+        } else {
+            return None;
+        };
+
+    let mut sd = if is_vrq { SidData::new_vrq() } else { SidData::new_vch() };
+    sd.replace(sid_tl);
+
+    btmap.iter()
+        .filter_map(|(k, v)| if let Integer(delta) = k { Some((sid_tl_disc + delta, v)) } else { None })
+        .map(|(sid_disc, v)| Sid::try_from(
+            (Yang::try_from((v, sid_disc)).unwrap(), sid_disc)).unwrap())
+        .for_each(|sid| sd.replace(sid));
+
+    Some(sd)
+}
+
 //
 
 pub fn content_comp(a: &[u8], b: &[u8]) -> bool {

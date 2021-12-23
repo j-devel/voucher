@@ -236,83 +236,28 @@ impl TryFrom<&[u8]> for Voucher {
     type Error = &'static str;
 
     fn try_from(raw: &[u8]) -> Result<Self, Self::Error> {
-        if let Ok((tag, cose)) = CoseData::decode(raw) {
-            if tag == COSE_SIGN_ONE_TAG {
-                //======== begin WIP - to be refactored
-                use cose::decoder::CborType;
-                use cose_sig::{decode, map_value_from};
-                use sid_data::{Cbor, *};
+        let (tag, cose) = if let Ok(decoded) = CoseData::decode(raw) { decoded } else {
+            return Err("Failed to decode raw voucher");
+        };
 
-                let content = {
-                    if let Some(content) = cose.get_content() {
-                        content
-                    } else {
-                        return Err("Invalid `content`");
-                    }
-                };
-                let sidhash = if let Ok(sidhash) = decode(&content) {
-                    sidhash
-                } else {
-                    return Err("Failed to decode `content`");
-                };
+        if tag != COSE_SIGN_ONE_TAG {
+            return Err("Only `CoseSign1` vouchers are supported");
+        }
 
-                //
+        let content = if let Some(content) = cose.get_content() { content } else {
+            return Err("Invalid `content`");
+        };
 
-                let is_permissive = true; // !!!!
-                let msg = "Neither `SID_VCH_TOP_LEVEL` nor `SID_VRQ_TOP_LEVEL` found";
-                let mut sd_opt = None;
+        let sidhash = if let Ok(sidhash) = cose_sig::decode(&content) { sidhash } else {
+            return Err("Failed to decode `content`");
+        };
+        println!("sidhash: {:?}", sidhash);
 
-                if let Ok(CborType::Map(ref vch_map)) = map_value_from(&sidhash, &CborType::Integer(SID_VCH_TOP_LEVEL)) {
-
-                    let mut sd = SidData::new_vch();
-                    sd.replace(Sid::VchTopLevel(sid_data::TopLevel::VoucherVoucher));
-
-                    vch_map.iter() // 11 refactor
-                        .filter_map(|(k, v)| if let CborType::Integer(delta) = k {
-                            Some((SID_VCH_TOP_LEVEL + delta, v)) } else { None }) // 11 refactor
-                        .map(|(sid_disc, v)| Sid::try_from(
-                            (Yang::try_from((v, sid_disc)).unwrap(), sid_disc)).unwrap())
-                        .for_each(|sid| sd.replace(sid));
-
-                    // if 1 == 1 { panic!("[vch] sd: {:?}", sd); } // !!!! !!!! !!!! !!!!
-
-                    sd_opt.replace(sd);
-                } else if let Ok(CborType::Map(ref vrq_map)) = map_value_from(&sidhash, &CborType::Integer(sid_data::SID_VRQ_TOP_LEVEL)) {
-
-                    let mut sd = SidData::new_vrq();
-                    sd.replace(Sid::VrqTopLevel(sid_data::TopLevel::VoucherRequestVoucher));
-
-                    vrq_map.iter() // 22 refactor
-                        .filter_map(|(k, v)| if let CborType::Integer(delta) = k {
-                            Some((SID_VRQ_TOP_LEVEL + delta, v)) } else { None }) // 22 refactor
-                        .map(|(sid_disc, v)| Sid::try_from(
-                            (Yang::try_from((v, sid_disc)).unwrap(), sid_disc)).unwrap())
-                        .for_each(|sid| sd.replace(sid));
-
-                    // if 1 == 1 { panic!("[vrq] sd: {:?}", sd); } // !!!! !!!! !!!! !!!!
-
-                    sd_opt.replace(sd);
-                } else if is_permissive {
-                    println!("⚠️ warning: {}", msg);
-                } else {
-                    return Err(msg);
-                }
-
-                if let Some(sd) = sd_opt {
-//                    panic!("sd.to_cbor(): {:?}", sd.to_cbor()); // check!
-                }
-
-                // -> populate `self.sid` (sid_data) .... `.get_attrs()` API
-                //======== end WIP
-                let sd = SidData::new_vch(); // !!!! dummy !!!!
-                let _ = SidData::new_vrq(); // !!!! dummy !!!!
-
-                Ok(Self { sid: sd, cose })
-            } else {
-                Err("Only `CoseSign1` vouchers are supported")
-            }
+        if let Ok(sd) = SidData::try_from(sidhash) {
+            //use sid_data::Cbor; panic!("sd.to_cbor(): {:?}", sd.to_cbor()); // check!!
+            Ok(Self { sid: sd, cose })
         } else {
-            Err("Failed to decode raw voucher")
+            Err("Filed to decode `sidhash`")
         }
     }
 }

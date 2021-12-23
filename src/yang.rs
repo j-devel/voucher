@@ -1,4 +1,4 @@
-use crate::{println, Box, string::String, Vec};
+use crate::{Box, Vec};
 use super::sid_data::{CborType, Cbor, SidDisc};
 use core::convert::TryFrom;
 
@@ -79,7 +79,6 @@ impl TryFrom<(&CborType, SidDisc)> for Yang {
         use super::sid_data::*;
 
         let (cbor, sid_disc) = input;
-        println!("0000 sid_disc: {}", sid_disc);
         match sid_disc {
             SID_VCH_ASSERTION |
             SID_VRQ_ASSERTION =>
