@@ -16,6 +16,7 @@ pub trait Cbor {
 }
 
 pub type SidDisc = u64;
+
 pub const SID_VCH_TOP_LEVEL: SidDisc =                                   1001100; // 'voucher' <- ['ietf-cwt-voucher', 'ietf-voucher:voucher']
 pub const SID_VCH_ASSERTION: SidDisc =                                   1001105; // 'assertion'
 pub const SID_VCH_CREATED_ON: SidDisc =                                  1001106; // 'created-on'
@@ -27,6 +28,7 @@ pub const SID_VCH_NONCE: SidDisc =                                       1001111
 pub const SID_VCH_PINNED_DOMAIN_CERT: SidDisc =                          1001112; // 'pinned-domain-cert'
 pub const SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO: SidDisc =       1001113; // 'pinned-domain-subject-public-key-info'
 pub const SID_VCH_SERIAL_NUMBER: SidDisc =                               1001114; // 'serial-number'
+
 pub const SID_VRQ_TOP_LEVEL: SidDisc =                                   1001154; // 'voucher' <- ['ietf-cwt-voucher-request', 'ietf-cwt-voucher-request:voucher', 'ietf-voucher-request:voucher']
 pub const SID_VRQ_ASSERTION: SidDisc =                                   1001155; // 'assertion'
 pub const SID_VRQ_CREATED_ON: SidDisc =                                  1001156; // 'created-on'
