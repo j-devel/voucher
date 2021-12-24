@@ -324,49 +324,45 @@ fn from_sidhash(sidhash: CborType) -> Option<SidData> {
 
 pub fn content_comp(a: &[u8], b: &[u8]) -> bool {
     let sum = |v: &[u8]| -> u32 { v.iter().map(|b| *b as u32).sum() };
+    println!("content_comp(): {} {} {} {}", a.len(), b.len(), sum(a), sum(b));
 
     a.len() == b.len() && sum(a) == sum(b)
 }
 
-pub fn vrhash_sidhash_content_02_00_2e() -> Vec<u8> {
-    vec![161, 26, 0, 15, 70, 194, 164, 1, 105, 112, 114, 111, 120, 105, 109, 105, 116, 121, 2, 193, 26, 97, 119, 115, 164, 10, 81, 48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69, 7, 118, 114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]
+pub fn content_vch_f2_00_02() -> Vec<u8> {
+    vec![161, 25, 9, 147, 165, 1, 102, 108, 111, 103, 103, 101, 100, 2, 193, 26, 95, 86, 209, 119, 11, 113, 48, 48, 45, 68, 48, 45, 69, 53, 45, 70, 50, 45, 48, 48, 45, 48, 50, 7, 118, 88, 83, 121, 70, 52, 76, 76, 73, 105, 113, 85, 50, 45, 79, 71, 107, 54, 108, 70, 67, 65, 103, 8, 121, 2, 116, 77, 73, 73, 66, 48, 84, 67, 67, 65, 86, 97, 103, 65, 119, 73, 66, 65, 103, 73, 66, 65, 106, 65, 75, 66, 103, 103, 113, 104, 107, 106, 79, 80, 81, 81, 68, 65, 122, 66, 120, 77, 82, 73, 119, 69, 65, 89, 75, 67, 90, 73, 109, 105, 90, 80, 121, 76, 71, 81, 66, 71, 82, 89, 67, 89, 50, 69, 120, 71, 84, 65, 88, 66, 103, 111, 74, 107, 105, 97, 74, 107, 47, 73, 115, 90, 65, 69, 90, 70, 103, 108, 122, 89, 87, 53, 107, 90, 87, 120, 116, 89, 87, 52, 120, 81, 68, 65, 43, 66, 103, 78, 86, 66, 65, 77, 77, 78, 121, 77, 56, 85, 51, 108, 122, 100, 71, 86, 116, 86, 109, 70, 121, 97, 87, 70, 105, 98, 71, 85, 54, 77, 72, 103, 119, 77, 68, 65, 119, 77, 68, 65, 119, 78, 71, 89, 53, 77, 84, 70, 104, 77, 68, 52, 103, 86, 87, 53, 122, 100, 72, 74, 49, 98, 109, 99, 103, 82, 109, 57, 49, 98, 110, 82, 104, 97, 87, 52, 103, 81, 48, 69, 119, 72, 104, 99, 78, 77, 84, 99, 120, 77, 84, 65, 51, 77, 106, 77, 48, 78, 84, 73, 52, 87, 104, 99, 78, 77, 84, 107, 120, 77, 84, 65, 51, 77, 106, 77, 48, 78, 84, 73, 52, 87, 106, 66, 68, 77, 82, 73, 119, 69, 65, 89, 75, 67, 90, 73, 109, 105, 90, 80, 121, 76, 71, 81, 66, 71, 82, 89, 67, 89, 50, 69, 120, 71, 84, 65, 88, 66, 103, 111, 74, 107, 105, 97, 74, 107, 47, 73, 115, 90, 65, 69, 90, 70, 103, 108, 122, 89, 87, 53, 107, 90, 87, 120, 116, 89, 87, 52, 120, 69, 106, 65, 81, 66, 103, 78, 86, 66, 65, 77, 77, 67, 87, 120, 118, 89, 50, 70, 115, 97, 71, 57, 122, 100, 68, 66, 90, 77, 66, 77, 71, 66, 121, 113, 71, 83, 77, 52, 57, 65, 103, 69, 71, 67, 67, 113, 71, 83, 77, 52, 57, 65, 119, 69, 72, 65, 48, 73, 65, 66, 74, 90, 108, 85, 72, 73, 48, 117, 112, 47, 108, 51, 101, 90, 102, 57, 118, 67, 66, 98, 43, 108, 73, 110, 111, 69, 77, 69, 103, 99, 55, 82, 111, 43, 88, 90, 67, 116, 106, 65, 73, 48, 67, 68, 49, 102, 74, 102, 74, 82, 47, 104, 73, 121, 121, 68, 109, 72, 87, 121, 89, 105, 78, 70, 98, 82, 67, 72, 57, 102, 121, 97, 114, 102, 107, 122, 103, 88, 52, 112, 48, 122, 84, 105, 122, 113, 106, 68, 84, 65, 76, 77, 65, 107, 71, 65, 49, 85, 100, 69, 119, 81, 67, 77, 65, 65, 119, 67, 103, 89, 73, 75, 111, 90, 73, 122, 106, 48, 69, 65, 119, 77, 68, 97, 81, 65, 119, 90, 103, 73, 120, 65, 76, 81, 77, 78, 117, 114, 102, 56, 116, 118, 53, 48, 108, 82, 79, 68, 53, 68, 81, 88, 72, 69, 79, 74, 74, 78, 87, 51, 81, 86, 50, 103, 57, 81, 69, 100, 68, 83, 107, 50, 77, 89, 43, 65, 111, 83, 114, 66, 83, 109, 71, 83, 78, 106, 104, 52, 111, 108, 69, 79, 104, 69, 117, 76, 103, 73, 120, 65, 74, 52, 110, 87, 102, 78, 119, 43, 66, 106, 98, 90, 109, 75, 105, 73, 105, 85, 69, 99, 84, 119, 72, 77, 104, 71, 86, 88, 97, 77, 72, 89, 47, 70, 55, 110, 51, 57, 119, 119, 75, 99, 66, 66, 83, 79, 110, 100, 78, 80, 113, 67, 112, 79, 69, 76, 108, 54, 98, 113, 51, 67, 90, 113, 81, 61, 61]
 }
 
 #[test]
-fn test_sid_02_00_2e() {
-    assert_eq!(disc(&Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher)), 1001154);
-    assert_eq!(disc(&Sid::VrqAssertion(Yang::Enumeration(YangEnum::Proximity))), 1001155);
-    assert_eq!(disc(&Sid::VrqCreatedOn(Yang::DateAndTime(1635218340))), 1001156);
-    assert_eq!(disc(&Sid::VrqNonce(Yang::Binary(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103]))),
-               1001161);
+fn test_sid_vch_f2_00_02() {
+    assert_eq!(disc(&Sid::VchTopLevel(TopLevel::VoucherVoucher)), SID_VCH_TOP_LEVEL);
+    assert_eq!(disc(&Sid::VchAssertion(Yang::Enumeration(YangEnum::Logged))), SID_VCH_ASSERTION);
+    assert_eq!(disc(&Sid::VchCreatedOn(Yang::DateAndTime(1599525239))), SID_VCH_CREATED_ON);
+    assert_eq!(disc(&Sid::VchNonce(Yang::Binary(vec![88, 83, 121, 70, 52, 76, 76, 73, 105, 113, 85, 50, 45, 79, 71, 107, 54, 108, 70, 67, 65, 103]))),
+               SID_VCH_NONCE);
+    assert_eq!(disc(&Sid::VchPinnedDomainCert(Yang::Binary("MIIB0TCCAVagAwIBAgIBAjAKBggqhkjOPQQDAzBxMRIwEAYKCZImiZPyLGQBGRYCY2ExGTAXBgoJkiaJk/IsZAEZFglzYW5kZWxtYW4xQDA+BgNVBAMMNyM8U3lzdGVtVmFyaWFibGU6MHgwMDAwMDAwNGY5MTFhMD4gVW5zdHJ1bmcgRm91bnRhaW4gQ0EwHhcNMTcxMTA3MjM0NTI4WhcNMTkxMTA3MjM0NTI4WjBDMRIwEAYKCZImiZPyLGQBGRYCY2ExGTAXBgoJkiaJk/IsZAEZFglzYW5kZWxtYW4xEjAQBgNVBAMMCWxvY2FsaG9zdDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJZlUHI0up/l3eZf9vCBb+lInoEMEgc7Ro+XZCtjAI0CD1fJfJR/hIyyDmHWyYiNFbRCH9fyarfkzgX4p0zTizqjDTALMAkGA1UdEwQCMAAwCgYIKoZIzj0EAwMDaQAwZgIxALQMNurf8tv50lROD5DQXHEOJJNW3QV2g9QEdDSk2MY+AoSrBSmGSNjh4olEOhEuLgIxAJ4nWfNw+BjbZmKiIiUEcTwHMhGVXaMHY/F7n39wwKcBBSOndNPqCpOELl6bq3CZqQ=="
+        .as_bytes().to_vec()))), SID_VCH_PINNED_DOMAIN_CERT);
 
-    let serial_02_00_2e = "00-D0-E5-02-00-2E".as_bytes();
-    assert_eq!(serial_02_00_2e, [48, 48, 45, 68, 48, 45, 69, 53, 45, 48, 50, 45, 48, 48, 45, 50, 69]);
-    assert_eq!(disc(&Sid::VrqSerialNumber(Yang::String(serial_02_00_2e.to_vec()))), 1001164);
+    let serial = "00-D0-E5-F2-00-02".as_bytes();
+    assert_eq!(serial, [48, 48, 45, 68, 48, 45, 69, 53, 45, 70, 50, 45, 48, 48, 45, 48, 50]);
+    assert_eq!(disc(&Sid::VchSerialNumber(Yang::String(serial.to_vec()))), SID_VCH_SERIAL_NUMBER);
 }
 
 #[test]
-fn test_sid_data_vch_02_00_2e() {
-    let _sd_vch = SidData::vch_from(BTreeSet::from([
-        // ...
+fn test_sid_data_vch_f2_00_02() {
+    let sd = SidData::vch_from(BTreeSet::from([
+        Sid::VchTopLevel(TopLevel::VoucherVoucher),
+        Sid::VchAssertion(Yang::Enumeration(YangEnum::Logged)),
+        Sid::VchCreatedOn(Yang::DateAndTime(1599525239)),
+        Sid::VchNonce(Yang::Binary(vec![88, 83, 121, 70, 52, 76, 76, 73, 105, 113, 85, 50, 45, 79, 71, 107, 54, 108, 70, 67, 65, 103])),
+        Sid::VchPinnedDomainCert(Yang::Binary("MIIB0TCCAVagAwIBAgIBAjAKBggqhkjOPQQDAzBxMRIwEAYKCZImiZPyLGQBGRYCY2ExGTAXBgoJkiaJk/IsZAEZFglzYW5kZWxtYW4xQDA+BgNVBAMMNyM8U3lzdGVtVmFyaWFibGU6MHgwMDAwMDAwNGY5MTFhMD4gVW5zdHJ1bmcgRm91bnRhaW4gQ0EwHhcNMTcxMTA3MjM0NTI4WhcNMTkxMTA3MjM0NTI4WjBDMRIwEAYKCZImiZPyLGQBGRYCY2ExGTAXBgoJkiaJk/IsZAEZFglzYW5kZWxtYW4xEjAQBgNVBAMMCWxvY2FsaG9zdDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJZlUHI0up/l3eZf9vCBb+lInoEMEgc7Ro+XZCtjAI0CD1fJfJR/hIyyDmHWyYiNFbRCH9fyarfkzgX4p0zTizqjDTALMAkGA1UdEwQCMAAwCgYIKoZIzj0EAwMDaQAwZgIxALQMNurf8tv50lROD5DQXHEOJJNW3QV2g9QEdDSk2MY+AoSrBSmGSNjh4olEOhEuLgIxAJ4nWfNw+BjbZmKiIiUEcTwHMhGVXaMHY/F7n39wwKcBBSOndNPqCpOELl6bq3CZqQ==".as_bytes().to_vec())),
+        Sid::VchSerialNumber(Yang::String("00-D0-E5-F2-00-02".as_bytes().to_vec())),
     ]));
 
-    // TODO
-}
+    println!("sd: {:?}", sd);
 
-#[test]
-fn test_sid_data_vrq_02_00_2e() {
-    let sd_vrq = SidData::vrq_from(BTreeSet::from([
-        Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher),
-        Sid::VrqAssertion(Yang::Enumeration(YangEnum::Proximity)),
-        Sid::VrqCreatedOn(Yang::DateAndTime(1635218340)),
-        Sid::VrqNonce(Yang::Binary(vec![114, 72, 103, 99, 66, 86, 78, 86, 97, 70, 109, 66, 87, 98, 84, 77, 109, 101, 79, 75, 117, 103])),
-        Sid::VrqSerialNumber(Yang::String("00-D0-E5-02-00-2E".as_bytes().to_vec())),
-    ]));
-
-    println!("sd_vrq: {:?}", sd_vrq);
-    assert!(content_comp(&sd_vrq.serialize().unwrap(),
-                         &vrhash_sidhash_content_02_00_2e()));
+    // TODO check; `sum()`s not agree ....
+    assert!(content_comp(&sd.serialize().unwrap(), &content_vch_f2_00_02()));
 }
 
 #[test]
@@ -386,6 +382,4 @@ fn test_sid_cbor_boolean() {
     let sid = Sid::VrqDomainCertRevocationChecks(Yang::Boolean(true));
     assert_eq!(sid.to_cbor(), Some(CborType::True));
     assert_eq!(sid.serialize(), Some(vec![245]));
-
-    assert_eq!(CborType::Null.serialize(), vec![246]); // FYI
 }

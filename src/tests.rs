@@ -89,9 +89,10 @@ fn test_voucher_decode_f2_00_02() {
     assert_eq!(*alg, SignatureAlgorithm::ES256);
 
     assert_eq!(vch.get_signer_cert(), None);
+    assert_eq!(vch.get_content_debug(), Some(debug::content_vch_f2_00_02()));
 }
 
-//#[test]
+#[test]
 fn test_voucher_validate_f2_00_02() {
     #[cfg(feature = "v3")]
     init_psa_crypto();
@@ -104,7 +105,7 @@ fn test_voucher_validate_f2_00_02() {
     assert!(vch.validate(Some(masa_pem)).is_ok());
 }
 
-//#[test]
+#[test]
 fn test_voucher_serialize_f2_00_02() {
     #[cfg(feature = "v3")]
     init_psa_crypto();
