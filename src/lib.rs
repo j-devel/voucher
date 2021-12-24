@@ -148,6 +148,10 @@ impl Voucher {
         if self.sid.is_vrq() { VoucherType::Vrq } else { VoucherType::Vch }
     }
 
+    pub fn remove(&mut self, attr_disc: AttrDisc) -> Option<Attr> {
+        //
+    }
+
     pub fn get(&self, attr_disc: AttrDisc) -> Option<Attr> {
         use core::intrinsics::discriminant_value as disc;
 
@@ -193,11 +197,26 @@ impl Voucher {
         self
     }
 
-    fn set_sid(&mut self, sid: Sid) -> &mut Self {
+    // pub fn print(&self) -> { // ??
+    //     self.sid.dump();
+    //     self.cose.dump();
+    // }
+    //----^^^^ Attr layer API
+
+    //----vvvv SID/Yang layer API
+    // pub fn sid_iter(&self) -> xx {}
+    // pub fn sid_iter_mut(&mut self) -> xx {}
+    // pub fn sid_remove() -> {}
+    // pub fn sid_get() -> &Sid {}
+    // pub fn sid_get_mut() -> &mut Sid {}
+    /* (pub sid_set(..) -> */ fn set_sid(&mut self, sid: Sid) -> &mut Self {
         self.sid.replace(sid);
 
         self
     }
+    //----vvvv COSE layer API
+    // pub fn cose_content() -> Option<Vec<u8>> {} // <<? `pub fn get_content_debug(&self)`
+    // pub fn cose_signature() -> xx {} // <<? `pub fn get_signature(&self)`
 
     /// Interface with meta data to be used in ECDSA based signing
     pub fn to_sign(&mut self) -> (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8]) {
