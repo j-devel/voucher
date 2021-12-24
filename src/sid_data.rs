@@ -17,31 +17,33 @@ pub trait Cbor {
 
 pub type SidDisc = u64;
 
-pub const SID_VCH_TOP_LEVEL: SidDisc =                                   1001100; // 'voucher' <- ['ietf-cwt-voucher', 'ietf-voucher:voucher']
-pub const SID_VCH_ASSERTION: SidDisc =                                   1001105; // 'assertion'
-pub const SID_VCH_CREATED_ON: SidDisc =                                  1001106; // 'created-on'
-pub const SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS: SidDisc =               1001107; // 'domain-cert-revocation-checks'
-pub const SID_VCH_EXPIRES_ON: SidDisc =                                  1001108; // 'expires-on'
-pub const SID_VCH_IDEVID_ISSUER: SidDisc =                               1001109; // 'idevid-issuer'
-pub const SID_VCH_LAST_RENEWAL_DATE: SidDisc =                           1001110; // 'last-renewal-date'
-pub const SID_VCH_NONCE: SidDisc =                                       1001111; // 'nonce'
-pub const SID_VCH_PINNED_DOMAIN_CERT: SidDisc =                          1001112; // 'pinned-domain-cert'
-pub const SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO: SidDisc =       1001113; // 'pinned-domain-subject-public-key-info'
-pub const SID_VCH_SERIAL_NUMBER: SidDisc =                               1001114; // 'serial-number'
+pub const SID_VCH_TOP_LEVEL: SidDisc =                                   2451; // 'voucher' <- ['ietf-cwt-voucher', 'ietf-voucher-constrained:voucher']
+pub const SID_VCH_ASSERTION: SidDisc =                                   2452; // 'assertion'
+pub const SID_VCH_CREATED_ON: SidDisc =                                  2453; // 'created-on'
+pub const SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS: SidDisc =               2454; // 'domain-cert-revocation-checks'
+pub const SID_VCH_EXPIRES_ON: SidDisc =                                  2455; // 'expires-on'
+pub const SID_VCH_IDEVID_ISSUER: SidDisc =                               2456; // 'idevid-issuer'
+pub const SID_VCH_LAST_RENEWAL_DATE: SidDisc =                           2457; // 'last-renewal-date'
+pub const SID_VCH_NONCE: SidDisc =                                       2458; // 'nonce'
+pub const SID_VCH_PINNED_DOMAIN_CERT: SidDisc =                          2459; // 'pinned-domain-cert'
+pub const SID_VCH_PINNED_DOMAIN_PUBK: SidDisc =                          2460; // 'pinned-domain-pubk'
+pub const SID_VCH_PINNED_DOMAIN_PUBK_SHA256: SidDisc =                   2461; // 'pinned-domain-pubk-sha256'
+pub const SID_VCH_SERIAL_NUMBER: SidDisc =                               2462; // 'serial-number'
 
-pub const SID_VRQ_TOP_LEVEL: SidDisc =                                   1001154; // 'voucher' <- ['ietf-cwt-voucher-request', 'ietf-cwt-voucher-request:voucher', 'ietf-voucher-request:voucher']
-pub const SID_VRQ_ASSERTION: SidDisc =                                   1001155; // 'assertion'
-pub const SID_VRQ_CREATED_ON: SidDisc =                                  1001156; // 'created-on'
-pub const SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS: SidDisc =               1001157; // 'domain-cert-revocation-checks'
-pub const SID_VRQ_EXPIRES_ON: SidDisc =                                  1001158; // 'expires-on'
-pub const SID_VRQ_IDEVID_ISSUER: SidDisc =                               1001159; // 'idevid-issuer'
-pub const SID_VRQ_LAST_RENEWAL_DATE: SidDisc =                           1001160; // 'last-renewal-date'
-pub const SID_VRQ_NONCE: SidDisc =                                       1001161; // 'nonce'
-pub const SID_VRQ_PINNED_DOMAIN_CERT: SidDisc =                          1001162; // 'pinned-domain-cert'
-pub const SID_VRQ_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO: SidDisc = 1001163; // 'proximity-registrar-subject-public-key-info'
-pub const SID_VRQ_SERIAL_NUMBER: SidDisc =                               1001164; // 'serial-number'
-pub const SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST: SidDisc =                1001165; // 'prior-signed-voucher-request'
-pub const SID_VRQ_PROXIMITY_REGISTRAR_CERT: SidDisc =                    1001166; // 'proximity-registrar-cert'
+pub const SID_VRQ_TOP_LEVEL: SidDisc =                                   2501; // 'voucher' <- ['ietf-cwt-voucher-request', 'ietf-cwt-voucher-request:voucher', 'ietf-voucher-request-constrained:voucher']
+pub const SID_VRQ_ASSERTION: SidDisc =                                   2502; // 'assertion'
+pub const SID_VRQ_CREATED_ON: SidDisc =                                  2503; // 'created-on'
+pub const SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS: SidDisc =               2504; // 'domain-cert-revocation-checks'
+pub const SID_VRQ_EXPIRES_ON: SidDisc =                                  2505; // 'expires-on'
+pub const SID_VRQ_IDEVID_ISSUER: SidDisc =                               2506; // 'idevid-issuer'
+pub const SID_VRQ_LAST_RENEWAL_DATE: SidDisc =                           2507; // 'last-renewal-date'
+pub const SID_VRQ_NONCE: SidDisc =                                       2508; // 'nonce'
+pub const SID_VRQ_PINNED_DOMAIN_CERT: SidDisc =                          2509; // 'pinned-domain-cert'
+pub const SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST: SidDisc =                2510; // 'prior-signed-voucher-request'
+pub const SID_VRQ_PROXIMITY_REGISTRAR_CERT: SidDisc =                    2511; // 'proximity-registrar-cert'
+pub const SID_VRQ_PROXIMITY_REGISTRAR_PUBK: SidDisc =                    2513; // 'proximity-registrar-pubk'
+pub const SID_VRQ_PROXIMITY_REGISTRAR_PUBK_SHA256: SidDisc =             2512; // 'proximity-registrar-pubk-sha256'
+pub const SID_VRQ_SERIAL_NUMBER: SidDisc =                               2514; // 'serial-number'
 
 #[repr(u64)]
 #[derive(Clone, Eq, Debug)]
@@ -55,7 +57,8 @@ pub enum Sid {
     VchLastRenewalDate(Yang) =                        SID_VCH_LAST_RENEWAL_DATE,
     VchNonce(Yang) =                                  SID_VCH_NONCE,
     VchPinnedDomainCert(Yang) =                       SID_VCH_PINNED_DOMAIN_CERT,
-    VchPinnedDomainSubjectPublicKeyInfo(Yang) =       SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO,
+    VchPinnedDomainPubk(Yang) =                       SID_VCH_PINNED_DOMAIN_PUBK,
+    VchPinnedDomainPubkSha256(Yang) =                 SID_VCH_PINNED_DOMAIN_PUBK_SHA256,
     VchSerialNumber(Yang) =                           SID_VCH_SERIAL_NUMBER,
     VrqTopLevel(TopLevel) =                           SID_VRQ_TOP_LEVEL,
     VrqAssertion(Yang) =                              SID_VRQ_ASSERTION,
@@ -66,10 +69,11 @@ pub enum Sid {
     VrqLastRenewalDate(Yang) =                        SID_VRQ_LAST_RENEWAL_DATE,
     VrqNonce(Yang) =                                  SID_VRQ_NONCE,
     VrqPinnedDomainCert(Yang) =                       SID_VRQ_PINNED_DOMAIN_CERT,
-    VrqProximityRegistrarSubjectPublicKeyInfo(Yang) = SID_VRQ_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO,
-    VrqSerialNumber(Yang) =                           SID_VRQ_SERIAL_NUMBER,
     VrqPriorSignedVoucherRequest(Yang) =              SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST,
     VrqProximityRegistrarCert(Yang) =                 SID_VRQ_PROXIMITY_REGISTRAR_CERT,
+    VrqProximityRegistrarPubk(Yang) =                 SID_VRQ_PROXIMITY_REGISTRAR_PUBK,
+    VrqProximityRegistrarPubkSha256(Yang) =           SID_VRQ_PROXIMITY_REGISTRAR_PUBK_SHA256,
+    VrqSerialNumber(Yang) =                           SID_VRQ_SERIAL_NUMBER,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
@@ -139,13 +143,15 @@ impl Cbor for Sid {
             VchIdevidIssuer(yg) |
             VchNonce(yg) |
             VchPinnedDomainCert(yg) |
-            VchPinnedDomainSubjectPublicKeyInfo(yg) |
+            VchPinnedDomainPubk(yg) |
+            VchPinnedDomainPubkSha256(yg) |
             VrqIdevidIssuer(yg) |
             VrqNonce(yg) |
             VrqPinnedDomainCert(yg) |
-            VrqProximityRegistrarSubjectPublicKeyInfo(yg) |
             VrqPriorSignedVoucherRequest(yg) |
-            VrqProximityRegistrarCert(yg) =>
+            VrqProximityRegistrarCert(yg) |
+            VrqProximityRegistrarPubk(yg) |
+            VrqProximityRegistrarPubkSha256(yg) =>
                 yang_to_cbor(yg, YANG_BINARY),
             VchSerialNumber(yg) |
             VrqSerialNumber(yg) =>
@@ -169,7 +175,8 @@ impl TryFrom<(Yang, SidDisc)> for Sid {
             SID_VCH_LAST_RENEWAL_DATE => Ok(Sid::VchLastRenewalDate(yg)),
             SID_VCH_NONCE => Ok(Sid::VchNonce(yg)),
             SID_VCH_PINNED_DOMAIN_CERT => Ok(Sid::VchPinnedDomainCert(yg)),
-            SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO => Ok(Sid::VchPinnedDomainSubjectPublicKeyInfo(yg)),
+            SID_VCH_PINNED_DOMAIN_PUBK => Ok(Sid::VchPinnedDomainPubk(yg)),
+            SID_VCH_PINNED_DOMAIN_PUBK_SHA256 => Ok(Sid::VchPinnedDomainPubkSha256(yg)),
             SID_VCH_SERIAL_NUMBER => Ok(Sid::VchSerialNumber(yg)),
             SID_VRQ_TOP_LEVEL => Err(()),
             SID_VRQ_ASSERTION => Ok(Sid::VrqAssertion(yg)),
@@ -180,10 +187,11 @@ impl TryFrom<(Yang, SidDisc)> for Sid {
             SID_VRQ_LAST_RENEWAL_DATE => Ok(Sid::VrqLastRenewalDate(yg)),
             SID_VRQ_NONCE => Ok(Sid::VrqNonce(yg)),
             SID_VRQ_PINNED_DOMAIN_CERT => Ok(Sid::VrqPinnedDomainCert(yg)),
-            SID_VRQ_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO => Ok(Sid::VrqProximityRegistrarSubjectPublicKeyInfo(yg)),
-            SID_VRQ_SERIAL_NUMBER => Ok(Sid::VrqSerialNumber(yg)),
             SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST => Ok(Sid::VrqPriorSignedVoucherRequest(yg)),
             SID_VRQ_PROXIMITY_REGISTRAR_CERT => Ok(Sid::VrqProximityRegistrarCert(yg)),
+            SID_VRQ_PROXIMITY_REGISTRAR_PUBK => Ok(Sid::VrqProximityRegistrarPubk(yg)),
+            SID_VRQ_PROXIMITY_REGISTRAR_PUBK_SHA256 => Ok(Sid::VrqProximityRegistrarPubkSha256(yg)),
+            SID_VRQ_SERIAL_NUMBER => Ok(Sid::VrqSerialNumber(yg)),
             _ => Err(()),
         }
     }
@@ -253,19 +261,19 @@ impl Cbor for SidData {
         use CborType::*;
 
         let (set, is_vrq) = self.inner();
-        let top_level = if is_vrq {
+        let tl = if is_vrq {
             &Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher)
         } else {
             &Sid::VchTopLevel(TopLevel::VoucherVoucher)
         };
 
-        if set.contains(top_level) {
-            Some(Map(BTreeMap::from([(Integer(disc(top_level)), {
+        if set.contains(tl) {
+            Some(Map(BTreeMap::from([(Integer(disc(tl)), {
                 let mut attrs = BTreeMap::new();
                 set.iter()
                     .filter(|sid| !matches!(*sid, Sid::VchTopLevel(_) | Sid::VrqTopLevel(_)))
                     .for_each(|sid| {
-                        let delta = disc(sid) - disc(top_level);
+                        let delta = disc(sid) - disc(tl);
                         attrs.insert(Integer(delta), sid.to_cbor().unwrap());
                     });
 

@@ -73,36 +73,40 @@ pub enum Assertion {
 }
 
 pub type AttrDisc = u8;
-pub const ATTR_ASSERTION: AttrDisc =                                    0;
-pub const ATTR_CREATED_ON: AttrDisc =                                   1;
-pub const ATTR_DOMAIN_CERT_REVOCATION_CHECKS: AttrDisc =                2;
-pub const ATTR_EXPIRES_ON: AttrDisc =                                   3;
-pub const ATTR_IDEVID_ISSUER: AttrDisc =                                4;
-pub const ATTR_LAST_RENEWAL_DATE: AttrDisc =                            5;
-pub const ATTR_NONCE: AttrDisc =                                        6;
-pub const ATTR_PINNED_DOMAIN_CERT: AttrDisc =                           7;
-pub const ATTR_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO: AttrDisc =        8;
-pub const ATTR_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO: AttrDisc =  9;
-pub const ATTR_PRIOR_SIGNED_VOUCHER_REQUEST: AttrDisc =                10;
-pub const ATTR_PROXIMITY_REGISTRAR_CERT: AttrDisc =                    11;
-pub const ATTR_SERIAL_NUMBER: AttrDisc =                               12;
+pub const ATTR_ASSERTION: AttrDisc =                         0;
+pub const ATTR_CREATED_ON: AttrDisc =                        1;
+pub const ATTR_DOMAIN_CERT_REVOCATION_CHECKS: AttrDisc =     2;
+pub const ATTR_EXPIRES_ON: AttrDisc =                        3;
+pub const ATTR_IDEVID_ISSUER: AttrDisc =                     4;
+pub const ATTR_LAST_RENEWAL_DATE: AttrDisc =                 5;
+pub const ATTR_NONCE: AttrDisc =                             6;
+pub const ATTR_PINNED_DOMAIN_CERT: AttrDisc =                7;
+pub const ATTR_PINNED_DOMAIN_PUBK: AttrDisc =                8;
+pub const ATTR_PINNED_DOMAIN_PUBK_SHA256: AttrDisc =         9;
+pub const ATTR_PRIOR_SIGNED_VOUCHER_REQUEST: AttrDisc =     10;
+pub const ATTR_PROXIMITY_REGISTRAR_CERT: AttrDisc =         11;
+pub const ATTR_PROXIMITY_REGISTRAR_PUBK: AttrDisc =         12;
+pub const ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256: AttrDisc =  13;
+pub const ATTR_SERIAL_NUMBER: AttrDisc =                    14;
 
 #[repr(u8)]
 #[derive(PartialEq, Debug)]
 pub enum Attr {
-    Assertion(Assertion) =                      ATTR_ASSERTION,
-    CreatedOn(u64) =                            ATTR_CREATED_ON,
-    DomainCertRevocationChecks(bool) =          ATTR_DOMAIN_CERT_REVOCATION_CHECKS,
-    ExpiresOn(u64) =                            ATTR_EXPIRES_ON,
-    IdevidIssuer(Vec<u8>) =                     ATTR_IDEVID_ISSUER,
-    LastRenewalDate(u64) =                      ATTR_LAST_RENEWAL_DATE,
-    Nonce(Vec<u8>) =                            ATTR_NONCE,
-    PinnedDomainCert(Vec<u8>) =                 ATTR_PINNED_DOMAIN_CERT,
-    PinnedDomainSubjectPublicKeyInfo(Vec<u8>) = ATTR_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO, // vch only
-    ProximityRegistrarSubjectPublicKeyInfo(Vec<u8>) = ATTR_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO, // vrq only
-    PriorSignedVoucherRequest(Vec<u8>) =        ATTR_PRIOR_SIGNED_VOUCHER_REQUEST, // vrq only
-    ProximityRegistrarCert(Vec<u8>) =           ATTR_PROXIMITY_REGISTRAR_CERT, // vrq only
-    SerialNumber(String) =                      ATTR_SERIAL_NUMBER,
+    Assertion(Assertion) =                   ATTR_ASSERTION,
+    CreatedOn(u64) =                         ATTR_CREATED_ON,
+    DomainCertRevocationChecks(bool) =       ATTR_DOMAIN_CERT_REVOCATION_CHECKS,
+    ExpiresOn(u64) =                         ATTR_EXPIRES_ON,
+    IdevidIssuer(Vec<u8>) =                  ATTR_IDEVID_ISSUER,
+    LastRenewalDate(u64) =                   ATTR_LAST_RENEWAL_DATE,
+    Nonce(Vec<u8>) =                         ATTR_NONCE,
+    PinnedDomainCert(Vec<u8>) =              ATTR_PINNED_DOMAIN_CERT,
+    PinnedDomainPubk(Vec<u8>) =              ATTR_PINNED_DOMAIN_PUBK,              // vch only
+    PinnedDomainPubkSha256(Vec<u8>) =        ATTR_PINNED_DOMAIN_PUBK_SHA256,       // vch only
+    PriorSignedVoucherRequest(Vec<u8>) =     ATTR_PRIOR_SIGNED_VOUCHER_REQUEST,    // vrq only
+    ProximityRegistrarCert(Vec<u8>) =        ATTR_PROXIMITY_REGISTRAR_CERT,        // vrq only
+    ProximityRegistrarPubk(Vec<u8>) =        ATTR_PROXIMITY_REGISTRAR_PUBK,        // vrq only
+    ProximityRegistrarPubkSha256(Vec<u8>) =  ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256, // vrq only
+    SerialNumber(String) =                   ATTR_SERIAL_NUMBER,
 }
 
 impl Voucher {
@@ -167,10 +171,12 @@ impl Voucher {
     }
 
     pub fn set(&mut self, attr: Attr) -> &mut Self {
+        use Sid::*;
         use Yang::*;
 
         let is_vrq = self.sid.is_vrq();
-        let sid_assertion = |x| if is_vrq { Sid::VrqAssertion(x) } else { Sid::VchAssertion(x) };
+        let is_vch = !is_vrq;
+        let sid_assertion = |x| if is_vrq { VrqAssertion(x) } else { VchAssertion(x) };
 
         let sid = match attr {
             Attr::Assertion(inner) => match inner {
@@ -178,18 +184,20 @@ impl Voucher {
                 Assertion::Logged => sid_assertion(Enumeration(YangEnum::Logged)),
                 Assertion::Proximity => sid_assertion(Enumeration(YangEnum::Proximity)),
             },
-            Attr::DomainCertRevocationChecks(x) => if is_vrq { Sid::VrqDomainCertRevocationChecks(Boolean(x)) } else { Sid::VchDomainCertRevocationChecks(Boolean(x)) },
-            Attr::CreatedOn(x) => if is_vrq { Sid::VrqCreatedOn(DateAndTime(x)) } else { Sid::VchCreatedOn(DateAndTime(x)) },
-            Attr::ExpiresOn(x) => if is_vrq { Sid::VrqExpiresOn(DateAndTime(x)) } else { Sid::VchExpiresOn(DateAndTime(x)) },
-            Attr::LastRenewalDate(x) => if is_vrq { Sid::VrqLastRenewalDate(DateAndTime(x)) } else { Sid::VchLastRenewalDate(DateAndTime(x)) },
-            Attr::IdevidIssuer(x) => if is_vrq { Sid::VrqIdevidIssuer(Binary(x)) } else { Sid::VchIdevidIssuer(Binary(x)) },
-            Attr::Nonce(x) => if is_vrq { Sid::VrqNonce(Binary(x)) } else { Sid::VchNonce(Binary(x)) },
-            Attr::PinnedDomainCert(x) => if is_vrq { Sid::VrqPinnedDomainCert(Binary(x)) } else { Sid::VchPinnedDomainCert(Binary(x)) },
-            Attr::SerialNumber(x) => if is_vrq { Sid::VrqSerialNumber(String(x.as_bytes().to_vec())) } else { Sid::VchSerialNumber(String(x.as_bytes().to_vec())) },
-            Attr::PinnedDomainSubjectPublicKeyInfo(x) => { assert!(!is_vrq); Sid::VchPinnedDomainSubjectPublicKeyInfo(Binary(x)) },
-            Attr::ProximityRegistrarSubjectPublicKeyInfo(x) => { assert!(is_vrq); Sid::VrqProximityRegistrarSubjectPublicKeyInfo(Binary(x)) },
-            Attr::PriorSignedVoucherRequest(x) => { assert!(is_vrq); Sid::VrqPriorSignedVoucherRequest(Binary(x)) },
-            Attr::ProximityRegistrarCert(x) => { assert!(is_vrq); Sid::VrqProximityRegistrarCert(Binary(x)) },
+            Attr::DomainCertRevocationChecks(x) => if is_vrq { VrqDomainCertRevocationChecks(Boolean(x)) } else { VchDomainCertRevocationChecks(Boolean(x)) },
+            Attr::CreatedOn(x) => if is_vrq { VrqCreatedOn(DateAndTime(x)) } else { VchCreatedOn(DateAndTime(x)) },
+            Attr::ExpiresOn(x) => if is_vrq { VrqExpiresOn(DateAndTime(x)) } else { VchExpiresOn(DateAndTime(x)) },
+            Attr::LastRenewalDate(x) => if is_vrq { VrqLastRenewalDate(DateAndTime(x)) } else { VchLastRenewalDate(DateAndTime(x)) },
+            Attr::IdevidIssuer(x) => if is_vrq { VrqIdevidIssuer(Binary(x)) } else { VchIdevidIssuer(Binary(x)) },
+            Attr::Nonce(x) => if is_vrq { VrqNonce(Binary(x)) } else { VchNonce(Binary(x)) },
+            Attr::PinnedDomainCert(x) => if is_vrq { VrqPinnedDomainCert(Binary(x)) } else { VchPinnedDomainCert(Binary(x)) },
+            Attr::PinnedDomainPubk(x) => { assert!(is_vch); VchPinnedDomainPubk(Binary(x)) },
+            Attr::PinnedDomainPubkSha256(x) => { assert!(is_vch); VchPinnedDomainPubkSha256(Binary(x)) },
+            Attr::PriorSignedVoucherRequest(x) => { assert!(is_vrq); VrqPriorSignedVoucherRequest(Binary(x)) },
+            Attr::ProximityRegistrarCert(x) => { assert!(is_vrq); VrqProximityRegistrarCert(Binary(x)) },
+            Attr::ProximityRegistrarPubk(x) => { assert!(is_vrq); VrqProximityRegistrarPubk(Binary(x)) },
+            Attr::ProximityRegistrarPubkSha256(x) => { assert!(is_vrq); VrqProximityRegistrarPubkSha256(Binary(x)) },
+            Attr::SerialNumber(x) => if is_vrq { VrqSerialNumber(String(x.as_bytes().to_vec())) } else { VchSerialNumber(String(x.as_bytes().to_vec())) },
         };
 
         self.set_sid(sid);
@@ -203,7 +211,7 @@ impl Voucher {
     // }
     //----^^^^ Attr layer API
 
-    //----vvvv SID/Yang layer API
+    //----vvvv SID/YANG layer API
     // pub fn sid_iter(&self) -> xx {}
     // pub fn sid_iter_mut(&mut self) -> xx {}
     // pub fn sid_remove() -> {}

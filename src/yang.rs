@@ -96,13 +96,15 @@ impl TryFrom<(&CborType, SidDisc)> for Yang {
             SID_VCH_IDEVID_ISSUER |
             SID_VCH_NONCE |
             SID_VCH_PINNED_DOMAIN_CERT |
-            SID_VCH_PINNED_DOMAIN_SUBJECT_PUBLIC_KEY_INFO |
+            SID_VCH_PINNED_DOMAIN_PUBK |
+            SID_VCH_PINNED_DOMAIN_PUBK_SHA256 |
             SID_VRQ_IDEVID_ISSUER |
             SID_VRQ_NONCE |
             SID_VRQ_PINNED_DOMAIN_CERT |
-            SID_VRQ_PROXIMITY_REGISTRAR_SUBJECT_PUBLIC_KEY_INFO |
             SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST |
-            SID_VRQ_PROXIMITY_REGISTRAR_CERT =>
+            SID_VRQ_PROXIMITY_REGISTRAR_CERT |
+            SID_VRQ_PROXIMITY_REGISTRAR_PUBK |
+            SID_VRQ_PROXIMITY_REGISTRAR_PUBK_SHA256 =>
                 Yang::try_from((cbor, YANG_BINARY)),
             SID_VCH_SERIAL_NUMBER |
             SID_VRQ_SERIAL_NUMBER =>
@@ -138,5 +140,5 @@ fn test_yang_conversion() {
     let result: Result<Yang, ()> = (cbor, YANG_DATE_AND_TIME).try_into();
     assert_eq!(result, Ok(Yang::DateAndTime(42)));
 
-    // TODO tests for other Yang variants
+    // TODO tests for other YANG variants
 }

@@ -238,11 +238,11 @@ fn test_highlevel_interface() {
 #[cfg(feature = "std")]
 fn test_highlevel_attr_integrity() {
     assert!(std::panic::catch_unwind(|| {
-        Voucher::new_vrq().set(Attr::PinnedDomainSubjectPublicKeyInfo(vec![]));
+        Voucher::new_vrq().set(Attr::PinnedDomainPubk(vec![]));
     }).is_err());
 
     assert!(std::panic::catch_unwind(|| {
-        Voucher::new_vch().set(Attr::ProximityRegistrarSubjectPublicKeyInfo(vec![]));
+        Voucher::new_vrq().set(Attr::PinnedDomainPubkSha256(vec![]));
     }).is_err());
 
     assert!(std::panic::catch_unwind(|| {
@@ -251,5 +251,13 @@ fn test_highlevel_attr_integrity() {
 
     assert!(std::panic::catch_unwind(|| {
         Voucher::new_vch().set(Attr::ProximityRegistrarCert(vec![]));
+    }).is_err());
+
+    assert!(std::panic::catch_unwind(|| {
+        Voucher::new_vch().set(Attr::ProximityRegistrarPubk(vec![]));
+    }).is_err());
+
+    assert!(std::panic::catch_unwind(|| {
+        Voucher::new_vch().set(Attr::ProximityRegistrarPubkSha256(vec![]));
     }).is_err());
 }
