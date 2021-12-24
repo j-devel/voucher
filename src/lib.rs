@@ -32,7 +32,7 @@ pub use cose_data::SignatureAlgorithm;
 
 pub mod debug {
     pub use super::cose_sig::{sig_one_struct_bytes_from, CborType, decode};
-    pub use super::sid_data::{content_comp, content_vch_f2_00_02};
+    pub use super::sid_data::{content_comp, content_vch_f2_00_02, content_vch_jada};
     pub use content_vch_f2_00_02 as vrhash_sidhash_content_02_00_2e; // shim TEMP !!!!
 }
 

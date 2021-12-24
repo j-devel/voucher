@@ -17,9 +17,11 @@ static VOUCHER_F2_00_02: &[u8] = core::include_bytes!(
 static MASA_CRT_F2_00_02: &[u8] = core::include_bytes!(
     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/masa.crt"));
 
+// DEPRECATED
 static KEY_PEM_02_00_2E: &[u8] = core::include_bytes!(
     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-02-00-2E/key.pem"));
 
+// DEPRECATED
 static DEVICE_CRT_02_00_2E: &[u8] = core::include_bytes!(
     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-02-00-2E/device.crt"));
 
@@ -53,6 +55,7 @@ fn test_voucher_decode_jada() {
     assert_eq!(*alg, SignatureAlgorithm::ES256);
 
     assert_eq!(vch.get_signer_cert().unwrap().len(), 65);
+    assert_eq!(vch.get_content_debug(), Some(debug::content_vch_jada()));
 }
 
 #[test]
