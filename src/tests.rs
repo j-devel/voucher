@@ -77,7 +77,7 @@ fn test_voucher_serialize_jada() {
 
 //
 
-//#[test]
+#[test]
 fn test_voucher_decode_f2_00_02() {
     #[cfg(feature = "v3")]
     init_psa_crypto();

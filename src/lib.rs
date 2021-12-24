@@ -149,7 +149,7 @@ impl Voucher {
     }
 
     pub fn remove(&mut self, attr_disc: AttrDisc) -> Option<Attr> {
-        //
+        None // dummy; todo
     }
 
     pub fn get(&self, attr_disc: AttrDisc) -> Option<Attr> {
@@ -286,7 +286,7 @@ impl TryFrom<&[u8]> for Voucher {
     type Error = &'static str;
 
     fn try_from(raw: &[u8]) -> Result<Self, Self::Error> {
-        let (tag, cose) = if let Ok(decoded) = CoseData::decode(raw) { decoded } else {
+        let (tag, cose) = if let Ok(x) = CoseData::decode(raw) { x } else {
             return Err("Failed to decode raw voucher");
         };
 
@@ -294,11 +294,11 @@ impl TryFrom<&[u8]> for Voucher {
             return Err("Only `CoseSign1` vouchers are supported");
         }
 
-        let content = if let Some(content) = cose.get_content() { content } else {
+        let content = if let Some(x) = cose.get_content() { x } else {
             return Err("Invalid `content`");
         };
 
-        let sidhash = if let Ok(sidhash) = cose_sig::decode(&content) { sidhash } else {
+        let sidhash = if let Ok(x) = cose_sig::decode(&content) { x } else {
             return Err("Failed to decode `content`");
         };
         println!("sidhash: {:?}", sidhash);
