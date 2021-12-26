@@ -120,7 +120,7 @@ impl Cbor for Yang {
 
         let cbor = match self {
             Yang::DateAndTime(x) => Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*x))),
-            Yang::String(x) => Bytes(x.clone()),
+            Yang::String(x) => StringAsBytes(x.clone()),
             Yang::Binary(x) => StringAsBytes(x.clone()),
             Yang::Boolean(x) => if *x { True } else { False },
             Yang::Enumeration(x) => StringAsBytes(x.value().as_bytes().to_vec()),

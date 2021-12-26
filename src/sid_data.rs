@@ -364,7 +364,6 @@ fn test_sid_data_vch_f2_00_02() {
     ]));
     println!("sd: {:?}", sd);
 
-    // TODO check; `sum()`s not agree; -> Integer(11): leading byte diff +32
     assert!(content_comp(&sd.serialize().unwrap(), &content_vch_f2_00_02()));
 }
 
@@ -381,9 +380,6 @@ fn test_sid_data_vch_jada() {
     ]));
     println!("sd: {:?}", sd);
 
-    println!("!!!! aaa: {:?}", sd.serialize().unwrap());
-    println!("!!!! bbb: {:?}", content_vch_jada());
-    // TODO check; `sum()`s not agree; -> Integer(11): leading byte diff +32
     assert!(content_comp(&sd.serialize().unwrap(), &content_vch_jada()));
 }
 
