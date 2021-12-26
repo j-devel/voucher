@@ -74,21 +74,21 @@ pub enum Assertion {
 }
 
 pub type AttrDisc = u8;
-pub const ATTR_ASSERTION: AttrDisc =                         0;
-pub const ATTR_CREATED_ON: AttrDisc =                        1;
-pub const ATTR_DOMAIN_CERT_REVOCATION_CHECKS: AttrDisc =     2;
-pub const ATTR_EXPIRES_ON: AttrDisc =                        3;
-pub const ATTR_IDEVID_ISSUER: AttrDisc =                     4;
-pub const ATTR_LAST_RENEWAL_DATE: AttrDisc =                 5;
-pub const ATTR_NONCE: AttrDisc =                             6;
-pub const ATTR_PINNED_DOMAIN_CERT: AttrDisc =                7;
-pub const ATTR_PINNED_DOMAIN_PUBK: AttrDisc =                8;
-pub const ATTR_PINNED_DOMAIN_PUBK_SHA256: AttrDisc =         9;
-pub const ATTR_PRIOR_SIGNED_VOUCHER_REQUEST: AttrDisc =     10;
-pub const ATTR_PROXIMITY_REGISTRAR_CERT: AttrDisc =         11;
-pub const ATTR_PROXIMITY_REGISTRAR_PUBK: AttrDisc =         12;
-pub const ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256: AttrDisc =  13;
-pub const ATTR_SERIAL_NUMBER: AttrDisc =                    14;
+pub const ATTR_ASSERTION: AttrDisc =                         0x00;
+pub const ATTR_CREATED_ON: AttrDisc =                        0x01;
+pub const ATTR_DOMAIN_CERT_REVOCATION_CHECKS: AttrDisc =     0x02;
+pub const ATTR_EXPIRES_ON: AttrDisc =                        0x03;
+pub const ATTR_IDEVID_ISSUER: AttrDisc =                     0x04;
+pub const ATTR_LAST_RENEWAL_DATE: AttrDisc =                 0x05;
+pub const ATTR_NONCE: AttrDisc =                             0x06;
+pub const ATTR_PINNED_DOMAIN_CERT: AttrDisc =                0x07;
+pub const ATTR_PINNED_DOMAIN_PUBK: AttrDisc =                0x08;
+pub const ATTR_PINNED_DOMAIN_PUBK_SHA256: AttrDisc =         0x09;
+pub const ATTR_PRIOR_SIGNED_VOUCHER_REQUEST: AttrDisc =      0x0a;
+pub const ATTR_PROXIMITY_REGISTRAR_CERT: AttrDisc =          0x0b;
+pub const ATTR_PROXIMITY_REGISTRAR_PUBK: AttrDisc =          0x0c;
+pub const ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256: AttrDisc =   0x0d;
+pub const ATTR_SERIAL_NUMBER: AttrDisc =                     0x0e;
 
 #[repr(u8)]
 #[derive(PartialEq, Debug)]
