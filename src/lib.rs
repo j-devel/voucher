@@ -39,12 +39,12 @@ pub mod debug {
 /// A compact CBOR-encoded voucher defined by [Constrained BRSKI].
 ///
 ///
-/// # Examples (!!!! WIP !!!!)
+/// # Examples (!! WIP !!)
 ///
-/// ```
+/// ```ignore
 /// use minerva_voucher::{Voucher, Sign, Validate};
 ///
-/// // (Add notes on the PSA crypto context...)
+/// // (Add notes on the PSA crypto context ...)
 /// #[cfg(feature = "v3")]
 /// init_psa_crypto();
 ///
@@ -56,7 +56,7 @@ pub mod debug {
 ///
 /// A `Voucher` with a known list of voucher attributes can be initialized from a vector:
 ///
-/// ```
+/// ```ignore
 /// use minerva_voucher::Voucher;
 ///
 /// let vrq = Voucher::new_vrq_with(vec![
@@ -68,13 +68,16 @@ pub mod debug {
 /// A raw CBOR-encoded voucher can be decoded into a [`Voucher`] through the `TryFrom` and/or `TryInto`
 /// traits.
 ///
-/// ```
+/// ```ignore
 /// use core::convert::{TryFrom, TryInto};
 ///
 /// let vch = Voucher::try_from(VOUCHER_JADA).unwrap();
 ///
 /// let result: Result<Voucher, _> = VOUCHER_JADA.try_into();
 /// assert!(result.is_ok());
+///
+/// // (Add how to access the voucher attributes ...)
+///
 /// ```
 ///
 /// [Constrained BRSKI]: https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html
@@ -158,7 +161,7 @@ impl Voucher {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// use minerva_voucher::{Voucher,VoucherType};
     ///
     /// let vrq = HashSet::new(VoucherType::Vrq);
