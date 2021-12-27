@@ -14,6 +14,9 @@ init-rust-x86_64-nightly:
 	rustup toolchain install nightly-x86_64-unknown-linux-gnu
 	rustup target add x86_64-unknown-linux-gnu
 
+doc:
+	cargo doc --no-deps
+	rsync -az target/doc docs
 build:
 	cargo build --lib --release
 build-i686:

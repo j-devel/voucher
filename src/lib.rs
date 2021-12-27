@@ -82,13 +82,13 @@ pub const ATTR_IDEVID_ISSUER: AttrDisc =                     0x04;
 pub const ATTR_LAST_RENEWAL_DATE: AttrDisc =                 0x05;
 pub const ATTR_NONCE: AttrDisc =                             0x06;
 pub const ATTR_PINNED_DOMAIN_CERT: AttrDisc =                0x07;
-pub const ATTR_PINNED_DOMAIN_PUBK: AttrDisc =                0x08;
-pub const ATTR_PINNED_DOMAIN_PUBK_SHA256: AttrDisc =         0x09;
-pub const ATTR_PRIOR_SIGNED_VOUCHER_REQUEST: AttrDisc =      0x0a;
-pub const ATTR_PROXIMITY_REGISTRAR_CERT: AttrDisc =          0x0b;
-pub const ATTR_PROXIMITY_REGISTRAR_PUBK: AttrDisc =          0x0c;
-pub const ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256: AttrDisc =   0x0d;
-pub const ATTR_SERIAL_NUMBER: AttrDisc =                     0x0e;
+pub const ATTR_PINNED_DOMAIN_PUBK: AttrDisc =                0x20;
+pub const ATTR_PINNED_DOMAIN_PUBK_SHA256: AttrDisc =         0x21;
+pub const ATTR_PRIOR_SIGNED_VOUCHER_REQUEST: AttrDisc =      0x40;
+pub const ATTR_PROXIMITY_REGISTRAR_CERT: AttrDisc =          0x41;
+pub const ATTR_PROXIMITY_REGISTRAR_PUBK: AttrDisc =          0x42;
+pub const ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256: AttrDisc =   0x43;
+pub const ATTR_SERIAL_NUMBER: AttrDisc =                     0x08;
 
 #[repr(u8)]
 #[derive(PartialEq, Debug)]
