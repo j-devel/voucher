@@ -36,7 +36,48 @@ pub mod debug {
     pub use content_vch_f2_00_02 as vrhash_sidhash_content_02_00_2e; // shim TEMP !!!!
 }
 
-//
+/// A compact CBOR-encoded voucher defined by [Constrained BRSKI].
+///
+///
+/// # Examples (!!!! WIP !!!!)
+///
+/// ```
+/// use minerva_voucher::{Voucher, Sign, Validate};
+///
+/// // (Add notes on the PSA crypto context...)
+/// #[cfg(feature = "v3")]
+/// init_psa_crypto();
+///
+/// let mut vrq = Voucher::new_vrq();
+///
+/// // ...
+///
+/// ```
+///
+/// A `Voucher` with a known list of voucher attributes can be initialized from a vector:
+///
+/// ```
+/// use minerva_voucher::Voucher;
+///
+/// let vrq = Voucher::new_vrq_with(vec![
+///     Attr::Assertion(Assertion::Proximity),
+///     Attr::SerialNumber(String::from("00-11-22-33-44-55")),
+/// ]);
+/// ```
+///
+/// A raw CBOR-encoded voucher can be decoded into a [`Voucher`] through the `TryFrom` and/or `TryInto`
+/// traits.
+///
+/// ```
+/// use core::convert::{TryFrom, TryInto};
+///
+/// let vch = Voucher::try_from(VOUCHER_JADA).unwrap();
+///
+/// let result: Result<Voucher, _> = VOUCHER_JADA.try_into();
+/// assert!(result.is_ok());
+/// ```
+///
+/// [Constrained BRSKI]: https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html
 
 #[derive(PartialEq)]
 pub struct Voucher {
@@ -111,6 +152,18 @@ pub enum Attr {
 }
 
 impl Voucher {
+    /// Creates an empty `Voucher`.
+    ///
+    /// (Add notes on voucher types...)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use minerva_voucher::{Voucher,VoucherType};
+    ///
+    /// let vrq = HashSet::new(VoucherType::Vrq);
+    /// let vch = HashSet::new(VoucherType::Vch);
+    /// ```
     pub fn new(ty: VoucherType) -> Self {
         Self {
             sid: match ty {

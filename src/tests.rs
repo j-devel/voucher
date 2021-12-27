@@ -36,10 +36,10 @@ fn test_voucher_conversion() {
     let dummy: &[u8] = &[0, 1, 2];
     assert!(Voucher::try_from(dummy).is_err());
 
-    let result: Result<Voucher, &str> = VOUCHER_JADA.try_into();
+    let result: Result<Voucher, _> = VOUCHER_JADA.try_into();
     assert!(result.is_ok());
 
-    let result: Result<Voucher, &str> = dummy.try_into();
+    let result: Result<Voucher, _> = dummy.try_into();
     assert!(result.is_err());
 }
 
