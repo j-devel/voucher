@@ -10,5 +10,5 @@
 
 Library to use [BRSKI](https://datatracker.ietf.org/doc/html/rfc8995) Voucher in Rust.
 
-(WIP) Docs and examples: https://AnimaGUS-minerva.github.io/voucher/minerva_voucher/struct.Voucher.html
+(WIP) Docs and examples: https://AnimaGUS-minerva.github.io/voucher/doc/minerva_voucher/struct.Voucher.html
 
