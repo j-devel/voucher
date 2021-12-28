@@ -8,11 +8,14 @@ fn init_psa_crypto() {
     psa_crypto::initialized().unwrap();
 }
 
-static VOUCHER_JADA: &[u8] = core::include_bytes!(
+static VCH_JADA: &[u8] = core::include_bytes!(
     concat!(env!("CARGO_MANIFEST_DIR"), "/data/jada/voucher_jada123456789.vch"));
 
-static VOUCHER_F2_00_02: &[u8] = core::include_bytes!(
+static VCH_F2_00_02: &[u8] = core::include_bytes!(
     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/voucher_00-D0-E5-F2-00-02.vch"));
+
+static VRQ_F2_00_02: &[u8] = core::include_bytes!(
+    concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/vr_00-D0-E5-F2-00-02.vrq"));
 
 static MASA_CRT_F2_00_02: &[u8] = core::include_bytes!(
     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/masa.crt"));
@@ -31,12 +34,14 @@ use core::convert::{TryFrom, TryInto};
 
 #[test]
 fn test_voucher_conversion() {
-    assert!(Voucher::try_from(VOUCHER_JADA).is_ok());
+    assert!(Voucher::try_from(VCH_JADA).is_ok());
+    assert!(Voucher::try_from(VCH_F2_00_02).is_ok());
+    assert!(Voucher::try_from(VRQ_F2_00_02).is_ok());
 
     let dummy: &[u8] = &[0, 1, 2];
     assert!(Voucher::try_from(dummy).is_err());
 
-    let result: Result<Voucher, _> = VOUCHER_JADA.try_into();
+    let result: Result<Voucher, _> = VCH_JADA.try_into();
     assert!(result.is_ok());
 
     let result: Result<Voucher, _> = dummy.try_into();
@@ -48,14 +53,14 @@ fn test_voucher_decode_jada() {
     #[cfg(feature = "v3")]
     init_psa_crypto();
 
-    let vch = Voucher::try_from(VOUCHER_JADA).unwrap();
+    let vch = Voucher::try_from(VCH_JADA).unwrap();
 
     let (sig, alg) = vch.get_signature();
     assert_eq!(sig.len(), 64);
     assert_eq!(*alg, SignatureAlgorithm::ES256);
 
     assert_eq!(vch.get_signer_cert().unwrap().len(), 65);
-    assert_eq!(vch.get_content_debug(), Some(debug::CONTENT_VCH_JADA.to_vec()));
+    assert_eq!(vch.get_content_debug().unwrap(), debug::CONTENT_VCH_JADA);
 }
 
 #[test]
@@ -63,7 +68,7 @@ fn test_voucher_validate_jada() {
     #[cfg(feature = "v3")]
     init_psa_crypto();
 
-    let vch = Voucher::try_from(VOUCHER_JADA).unwrap();
+    let vch = Voucher::try_from(VCH_JADA).unwrap();
 
     assert!(vch.validate(None).is_ok()); // Use `signer_cert` embedded in COSE unprotected
 }
@@ -74,8 +79,8 @@ fn test_voucher_serialize_jada() {
     init_psa_crypto();
 
     assert_eq!(
-        Voucher::try_from(VOUCHER_JADA).unwrap().serialize().unwrap(),
-        VOUCHER_JADA);
+        Voucher::try_from(VCH_JADA).unwrap().serialize().unwrap(),
+        VCH_JADA);
 }
 
 //
@@ -85,14 +90,14 @@ fn test_voucher_decode_f2_00_02() {
     #[cfg(feature = "v3")]
     init_psa_crypto();
 
-    let vch = Voucher::try_from(VOUCHER_F2_00_02).unwrap();
+    let vch = Voucher::try_from(VCH_F2_00_02).unwrap();
 
     let (sig, alg) = vch.get_signature();
     assert_eq!(sig.len(), 64);
     assert_eq!(*alg, SignatureAlgorithm::ES256);
 
     assert_eq!(vch.get_signer_cert(), None);
-    assert_eq!(vch.get_content_debug(), Some(debug::CONTENT_VCH_F2_00_02.to_vec()));
+    assert_eq!(vch.get_content_debug().unwrap(), debug::CONTENT_VCH_F2_00_02);
 }
 
 #[test]
@@ -100,7 +105,7 @@ fn test_voucher_validate_f2_00_02() {
     #[cfg(feature = "v3")]
     init_psa_crypto();
 
-    let vch = Voucher::try_from(VOUCHER_F2_00_02).unwrap();
+    let vch = Voucher::try_from(VCH_F2_00_02).unwrap();
 
     let masa_pem = MASA_CRT_F2_00_02;
     assert_eq!(masa_pem.len(), 684);
@@ -114,8 +119,8 @@ fn test_voucher_serialize_f2_00_02() {
     init_psa_crypto();
 
     assert_eq!(
-        Voucher::try_from(VOUCHER_F2_00_02).unwrap().serialize().unwrap(),
-        VOUCHER_F2_00_02);
+        Voucher::try_from(VCH_F2_00_02).unwrap().serialize().unwrap(),
+        VCH_F2_00_02);
 }
 
 //
@@ -141,7 +146,8 @@ fn test_pledge_vr_unsigned_02_00_2e() {
 }
 
 //#[test]
-fn test_pledge_vr_sign_02_00_2e() {
+//fn test_pledge_vr_sign_02_00_2e() {
+fn test_pledge_vr_sign_f2_00_02() { // xx VRQ_F2_00_02 !!!!!!!!
     #[cfg(feature = "v3")]
     init_psa_crypto();
 
@@ -163,6 +169,7 @@ fn test_pledge_vr_sign_02_00_2e() {
     // !!!! TODO !!!!
     assert!(debug::content_comp(&vrq.get_content_debug().unwrap(),
                                 debug::CONTENT_VRQ_02_00_2E));
+//                                debug::CONTENT_VRQ_F2_00_02));
 
     let (sig, ty) = vrq.get_signature();
     assert!(sig.len() > 0);

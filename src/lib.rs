@@ -73,9 +73,9 @@ pub mod debug {
 /// ```ignore
 /// use core::convert::{TryFrom, TryInto};
 ///
-/// let vch = Voucher::try_from(VOUCHER_JADA).unwrap();
+/// let vch = Voucher::try_from(VCH_JADA).unwrap();
 ///
-/// let result: Result<Voucher, _> = VOUCHER_JADA.try_into();
+/// let result: Result<Voucher, _> = VCH_JADA.try_into();
 /// assert!(result.is_ok());
 ///
 /// // (Add how to access the voucher attributes ...)
