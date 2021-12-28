@@ -30,10 +30,12 @@ mod cose_data;
 use cose_data::{CoseData, COSE_SIGN_ONE_TAG};
 pub use cose_data::SignatureAlgorithm;
 
+// TODO Add the `debug` feature for conditional build
 pub mod debug {
     pub use super::cose_sig::{sig_one_struct_bytes_from, CborType, decode};
-    pub use super::sid_data::{content_comp, content_vch_f2_00_02, content_vch_jada};
-    pub use content_vch_f2_00_02 as vrhash_sidhash_content_02_00_2e; // shim TEMP !!!!
+    pub use super::sid_data::{content_comp,
+                              CONTENT_VCH_JADA, CONTENT_VCH_F2_00_02, CONTENT_VRQ_02_00_2E,
+                              COSE_VRQ_02_00_2E};
 }
 
 /// A compact CBOR-encoded voucher defined by [Constrained BRSKI].
