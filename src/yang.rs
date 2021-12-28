@@ -46,13 +46,13 @@ impl TryFrom<(&CborType, YangDisc)> for Yang {
 
         match input {
             (Tag(tag, bx), YANG_DATE_AND_TIME) => {
-                assert_eq!(*tag, CBOR_TAG_UNIX_TIME); // !!
+                if *tag != CBOR_TAG_UNIX_TIME { return Err(()) }
                 if let Integer(dat) = **bx { Ok(Yang::DateAndTime(dat)) } else { Err(()) }
             },
-            (Bytes(x), YANG_STRING) |          // vrq samples {Rust,Ruby}-generated
-            (StringAsBytes(x), YANG_STRING) => // vch samples (old?)
+            (Bytes(x), YANG_STRING) /* permissive */ | (StringAsBytes(x), YANG_STRING) =>
                 Ok(Yang::String(x.to_vec())),
-            (StringAsBytes(x), YANG_BINARY) => Ok(Yang::Binary(x.to_vec())),
+            (StringAsBytes(x), YANG_BINARY) /* permissive */ | (Bytes(x), YANG_BINARY) =>
+                Ok(Yang::Binary(x.to_vec())),
             (True, YANG_BOOLEAN) => Ok(Yang::Boolean(true)),
             (False, YANG_BOOLEAN) => Ok(Yang::Boolean(false)),
             (StringAsBytes(x), YANG_ENUMERATION) => {
@@ -121,7 +121,7 @@ impl Cbor for Yang {
         let cbor = match self {
             Yang::DateAndTime(x) => Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*x))),
             Yang::String(x) => StringAsBytes(x.clone()),
-            Yang::Binary(x) => StringAsBytes(x.clone()),
+            Yang::Binary(x) => Bytes(x.clone()),
             Yang::Boolean(x) => if *x { True } else { False },
             Yang::Enumeration(x) => StringAsBytes(x.value().as_bytes().to_vec()),
         };
