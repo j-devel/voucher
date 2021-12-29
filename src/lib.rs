@@ -33,9 +33,8 @@ pub use cose_data::SignatureAlgorithm;
 // TODO Add the `debug` feature for conditional build
 pub mod debug {
     pub use super::cose_sig::{sig_one_struct_bytes_from, CborType, decode};
-    pub use super::sid_data::{content_comp,
-                              CONTENT_VCH_JADA, CONTENT_VCH_F2_00_02, CONTENT_VRQ_02_00_2E,
-                              COSE_VRQ_02_00_2E};
+    pub use super::sid_data::{content_comp, content_comp_permissive,
+                              CONTENT_VCH_JADA, CONTENT_VCH_F2_00_02, CONTENT_VRQ_F2_00_02};
 }
 
 /// A compact CBOR-encoded voucher defined by [Constrained BRSKI].
@@ -368,10 +367,14 @@ impl TryFrom<&[u8]> for Voucher {
         let sidhash = if let Ok(x) = cose_sig::decode(&content) { x } else {
             return Err("Failed to decode `content`");
         };
+
+        #[cfg(debug_assertions)]
         println!("sidhash: {:?}", sidhash);
 
         if let Ok(sd) = SidData::try_from(sidhash) {
-            //use sid_data::Cbor; panic!("sd.to_cbor(): {:?}", sd.to_cbor()); // check!!
+            #[cfg(debug_assertions)]
+            println!("sd: {:?}", sd);
+
             Ok(Self { sid: sd, cose })
         } else {
             Err("Filed to decode `sidhash`")
