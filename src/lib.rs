@@ -220,7 +220,7 @@ impl Voucher {
         let sid_disc = sid_data::SID_VRQ_CREATED_ON; // <- attr_disc, is_vrq; todo !!!!
 
         let mut out: Vec<_> = set.iter()
-            .filter_map(|sid| if disc(sid) == sid_disc { Some(Attr::CreatedOn(1635218340)) } else { None })
+            .filter_map(|sid| if disc(sid) == sid_disc { Some(Attr::CreatedOn(42)) } else { None })
 // /* todo */ .filter_map(|sid| if disc(sid) == sid_disc { Some(Attr::try_from(sid)) } else { None })
             .collect();
         println!("out: {:?}", out);
