@@ -85,8 +85,8 @@ pub mod debug {
 
 #[derive(PartialEq)]
 pub struct Voucher {
-    sid: SidData,
-    cose: CoseData,
+    sd: SidData,
+    cd: CoseData,
 }
 
 pub trait Sign {
@@ -170,11 +170,11 @@ impl Voucher {
     /// ```
     pub fn new(ty: VoucherType) -> Self {
         Self {
-            sid: match ty {
+            sd: match ty {
                 VoucherType::Vch => SidData::new_vch_cbor(),
                 VoucherType::Vrq => SidData::new_vrq_cbor(),
             },
-            cose: CoseData::new(true),
+            cd: CoseData::new(true),
         }
     }
 
@@ -203,11 +203,11 @@ impl Voucher {
     }
 
     pub fn serialize(&self) -> Option<Vec<u8>> {
-        CoseData::encode(&self.cose).ok()
+        CoseData::encode(&self.cd).ok()
     }
 
     pub fn get_voucher_type(&self) -> VoucherType {
-        if self.sid.is_vrq() { VoucherType::Vrq } else { VoucherType::Vch }
+        if self.sd.is_vrq() { VoucherType::Vrq } else { VoucherType::Vch }
     }
 
     pub fn remove(&mut self, attr_disc: AttrDisc) -> Option<Attr> {
@@ -217,7 +217,7 @@ impl Voucher {
     pub fn get(&self, attr_disc: AttrDisc) -> Option<Attr> {
         use core::intrinsics::discriminant_value as disc;
 
-        let (set, is_vrq) = self.sid.inner();
+        let (set, is_vrq) = self.sd.inner();
         let sid_disc = sid_data::SID_VRQ_CREATED_ON; // <- attr_disc, is_vrq; todo !!!!
 
         let mut out: Vec<_> = set.iter()
@@ -232,7 +232,7 @@ impl Voucher {
         use Sid::*;
         use Yang::*;
 
-        let is_vrq = self.sid.is_vrq();
+        let is_vrq = self.sd.is_vrq();
         let is_vch = !is_vrq;
         let sid_assertion = |x| if is_vrq { VrqAssertion(x) } else { VchAssertion(x) };
 
@@ -264,8 +264,8 @@ impl Voucher {
     }
 
     // pub fn print(&self) -> { // ??
-    //     self.sid.dump();
-    //     self.cose.dump();
+    //     self.sd.dump();
+    //     self.cd.dump();
     // }
     //----^^^^ Attr layer API
 
@@ -276,7 +276,7 @@ impl Voucher {
     // pub fn sid_get() -> &Sid {}
     // pub fn sid_get_mut() -> &mut Sid {}
     /* (pub sid_set(..) -> */ fn set_sid(&mut self, sid: Sid) -> &mut Self {
-        self.sid.replace(sid);
+        self.sd.replace(sid);
 
         self
     }
@@ -290,7 +290,7 @@ impl Voucher {
 
         let sig = self
             .update_cose_content()
-            .cose.sig_mut().deref_mut();
+            .cd.sig_mut().deref_mut();
 
         (&mut sig.signature, &mut sig.signature_type, &sig.to_verify)
     }
@@ -299,48 +299,46 @@ impl Voucher {
     pub fn to_validate(&self) -> (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]) {
         let (signature, alg) = self.get_signature();
 
-        (self.get_signer_cert(), signature, alg, &self.cose.sig().to_verify)
+        (self.get_signer_cert(), signature, alg, &self.cd.sig().to_verify)
     }
 
     fn update_cose_content(&mut self) -> &mut Self {
         use sid_data::Cbor;
 
-        let content = if let Some(cbor) = self.sid.serialize() {
-            cbor
-        } else {
+        let content = if let Some(cbor) = self.sd.serialize() { cbor } else {
             println!("update_cose_content(): Failed to generate `content`");
 
             vec![]
         };
 
-        self.cose.set_content(&content);
+        self.cd.set_content(&content);
 
         self
     }
 
     pub fn get_content_debug(&self) -> Option<Vec<u8>> {
-        println!("get_content_debug(): self.sid: {:?}", self.sid);
+        println!("get_content_debug(): self.sd: {:?}", self.sd);
 
-        let content = self.cose.get_content();
+        let content = self.cd.get_content();
         println!("get_content_debug(): content: {:?}", content);
 
         content
     }
 
     pub fn get_signature(&self) -> (&[u8], &SignatureAlgorithm) {
-        let sig = self.cose.sig();
+        let sig = self.cd.sig();
 
         (&sig.signature, &sig.signature_type)
     }
 
     pub fn get_signer_cert(&self) -> Option<&[u8]> {
-        let signer_cert = &self.cose.sig().signer_cert;
+        let signer_cert = &self.cd.sig().signer_cert;
 
         if signer_cert.len() > 0 { Some(signer_cert) } else { None }
     }
 
     pub fn dump(&self) {
-        self.cose.dump();
+        self.cd.dump();
     }
 }
 
@@ -352,7 +350,7 @@ impl TryFrom<&[u8]> for Voucher {
     type Error = &'static str;
 
     fn try_from(raw: &[u8]) -> Result<Self, Self::Error> {
-        let (tag, cose) = if let Ok(x) = CoseData::decode(raw) { x } else {
+        let (tag, cd) = if let Ok(x) = CoseData::decode(raw) { x } else {
             return Err("Failed to decode raw voucher");
         };
 
@@ -360,7 +358,7 @@ impl TryFrom<&[u8]> for Voucher {
             return Err("Only `CoseSign1` vouchers are supported");
         }
 
-        let content = if let Some(x) = cose.get_content() { x } else {
+        let content = if let Some(x) = cd.get_content() { x } else {
             return Err("Invalid `content`");
         };
 
@@ -375,7 +373,7 @@ impl TryFrom<&[u8]> for Voucher {
             #[cfg(debug_assertions)]
             println!("sd: {:?}", sd);
 
-            Ok(Self { sid: sd, cose })
+            Ok(Self { sd, cd })
         } else {
             Err("Filed to decode `sidhash`")
         }
