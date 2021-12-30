@@ -33,8 +33,7 @@ pub use cose_data::SignatureAlgorithm;
 // TODO Add the `debug` feature for conditional build
 pub mod debug {
     pub use super::cose_sig::{sig_one_struct_bytes_from, CborType, decode};
-    pub use super::sid_data::{content_comp, content_comp_permissive,
-                              CONTENT_VCH_JADA, CONTENT_VCH_F2_00_02, CONTENT_VRQ_F2_00_02};
+    pub use super::sid_data::{content_comp, content_comp_permissive};
 }
 
 /// A compact CBOR-encoded voucher defined by [Constrained BRSKI].
@@ -281,7 +280,7 @@ impl Voucher {
         self
     }
     //----vvvv COSE layer API
-    // pub fn cose_content() -> Option<Vec<u8>> {} // <<? `pub fn get_content_debug(&self)`
+    // pub fn cose_content() -> Option<Vec<u8>> {} // <<? `pub fn extract_cose_content(&self)`
     // pub fn cose_signature() -> xx {} // <<? `pub fn get_signature(&self)`
 
     /// Interface with meta data to be used in ECDSA based signing
@@ -316,11 +315,14 @@ impl Voucher {
         self
     }
 
-    pub fn get_content_debug(&self) -> Option<Vec<u8>> {
-        println!("get_content_debug(): self.sd: {:?}", self.sd);
+    pub fn extract_cose_content(&self) -> Option<Vec<u8>> {
+        #[cfg(debug_assertions)]
+        println!("extract_cose_content(): self.sd: {:?}", self.sd);
 
         let content = self.cd.get_content();
-        println!("get_content_debug(): content: {:?}", content);
+
+        #[cfg(debug_assertions)]
+        println!("extract_cose_content(): content: {:?}", content);
 
         content
     }

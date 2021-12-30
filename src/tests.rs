@@ -1,13 +1,5 @@
 use crate::{*, string::String};
 
-#[cfg(feature = "v3")]
-fn init_psa_crypto() {
-    use minerva_mbedtls::psa_crypto;
-
-    psa_crypto::init().unwrap();
-    psa_crypto::initialized().unwrap();
-}
-
 static VCH_JADA: &[u8] = core::include_bytes!(
     concat!(env!("CARGO_MANIFEST_DIR"), "/data/jada/voucher_jada123456789.vch"));
 
@@ -25,6 +17,23 @@ static DEVICE_CRT_F2_00_02: &[u8] = core::include_bytes!(
 
 static KEY_PEM_F2_00_02: &[u8] = core::include_bytes!(
     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/key.pem"));
+
+//
+
+fn content_from_voucher(raw: &[u8]) -> Vec<u8> {
+    Voucher::try_from(raw).unwrap().extract_cose_content().unwrap()
+}
+
+pub fn content_vch_jada() -> Vec<u8> { content_from_voucher(VCH_JADA) }
+pub fn content_vch_f2_00_02() -> Vec<u8> { content_from_voucher(VCH_F2_00_02) }
+
+#[cfg(feature = "v3")]
+fn init_psa_crypto() {
+    use minerva_mbedtls::psa_crypto;
+
+    psa_crypto::init().unwrap();
+    psa_crypto::initialized().unwrap();
+}
 
 //
 
@@ -62,7 +71,7 @@ fn test_decode_vch_jada() {
     assert_eq!(*alg, SignatureAlgorithm::ES256);
 
     assert_eq!(vch.get_signer_cert().unwrap().len(), 65);
-    assert_eq!(vch.get_content_debug().unwrap(), debug::CONTENT_VCH_JADA);
+    assert!(vch.extract_cose_content().unwrap().len() > 0);
 }
 
 #[test]
@@ -99,7 +108,7 @@ fn test_decode_vch_f2_00_02() {
     assert_eq!(*alg, SignatureAlgorithm::ES256);
 
     assert_eq!(vch.get_signer_cert(), None);
-    assert_eq!(vch.get_content_debug().unwrap(), debug::CONTENT_VCH_F2_00_02);
+    assert!(vch.extract_cose_content().unwrap().len() > 0);
 }
 
 #[test]
@@ -180,21 +189,21 @@ fn test_sign_vrq_f2_00_02() {
     assert!(vrq.validate(Some(KEY_PEM_F2_00_02)).is_ok()); // via private key
 
     assert!(debug::content_comp_permissive(
-        &vrq.get_content_debug().unwrap(),
-        &Voucher::try_from(VRQ_F2_00_02).unwrap().get_content_debug().unwrap()));
+        &vrq.extract_cose_content().unwrap(),
+        &Voucher::try_from(VRQ_F2_00_02).unwrap().extract_cose_content().unwrap()));
 
     let (sig, ty) = vrq.get_signature();
     assert!(sig.len() > 0);
     assert_eq!(ty, &SignatureAlgorithm::ES256);
 }
 
-//#[test]
+#[test]
 fn test_serialize_vrq_f2_00_02() {
     #[cfg(feature = "v3")]
     init_psa_crypto();
 
    let vrq = Voucher::try_from(VRQ_F2_00_02).unwrap();
-   // assert_eq!(vrq.get_content_debug().unwrap(), todo !!!!);
+   // assert_eq!(vrq.extract_cose_content().unwrap(), todo !!!!);
    assert_eq!(vrq.get_signature().0, /* bare */ [242, 113, 238, 15, 125, 71, 169, 233, 252, 219, 95, 74, 88, 238, 47, 97, 183, 138, 84, 131, 159, 203, 164, 31, 34, 135, 174, 129, 228, 47, 180, 129, 171, 146, 165, 162, 167, 222, 82, 112, 125, 198, 7, 254, 142, 250, 108, 214, 194, 253, 235, 104, 154, 68, 171, 179, 127, 93, 192, 158, 174, 24, 23, 8]);
    assert_eq!(vrq.serialize().unwrap(), VRQ_F2_00_02);
 }
@@ -208,7 +217,7 @@ fn test_highlevel_interface() {
 
     let mut vrq = Voucher::new_vrq();
 
-    // todo !!!!
+    // todo !!!! <- vch_f2_00_02
     // assert!(vrq
     //     .set(Attr::Assertion(Assertion::Proximity))
     //     .set(Attr::CreatedOn(1635218340))
@@ -219,8 +228,8 @@ fn test_highlevel_interface() {
     //     .validate(Some(DEVICE_CRT_02_00_2E))
     //     .is_ok());
     //
-    // // assert!(debug::content_comp(&vrq.get_content_debug().unwrap(),
-    // //                             debug::CONTENT_VRQ_02_00_2E));
+    // // assert!(debug::content_comp(&vrq.extract_cose_content().unwrap(),
+    // //                             &content_vch_f2_00_02()));
     // assert_eq!(vrq.get_signature().0, /* asn1 */ [48, 69, 2, 32, 110, 143, 135, 7, 170, 12, 231, 167, 243, 130, 212, 214, 122, 23, 71, 106, 100, 76, 173, 196, 236, 73, 58, 126, 151, 8, 46, 127, 206, 190, 196, 66, 2, 33, 0, 217, 20, 0, 2, 48, 18, 151, 42, 133, 159, 125, 145, 86, 197, 138, 227, 30, 64, 230, 164, 214, 125, 78, 62, 183, 48, 179, 249, 79, 147, 36, 112]);
     // assert_eq!(vrq.serialize().unwrap().len(), 148);
 
