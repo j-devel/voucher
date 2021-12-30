@@ -19,6 +19,15 @@ use alloc::{boxed::Box, string::{self, String}, vec, vec::Vec, collections::{BTr
 #[cfg(test)]
 mod tests;
 
+#[macro_export]
+macro_rules! debug_println {
+    ( $( $x:expr ),* ) => {
+        if cfg!(debug_assertions) {
+            println!( $( $x ),* );
+        }
+    }
+}
+
 //
 
 mod yang;
@@ -316,13 +325,10 @@ impl Voucher {
     }
 
     pub fn extract_cose_content(&self) -> Option<Vec<u8>> {
-        #[cfg(debug_assertions)]
-        println!("extract_cose_content(): self.sd: {:?}", self.sd);
+        debug_println!("extract_cose_content(): self.sd: {:?}", self.sd);
 
         let content = self.cd.get_content();
-
-        #[cfg(debug_assertions)]
-        println!("extract_cose_content(): content: {:?}", content);
+        debug_println!("extract_cose_content(): content: {:?}", content);
 
         content
     }
@@ -368,12 +374,10 @@ impl TryFrom<&[u8]> for Voucher {
             return Err("Failed to decode `content`");
         };
 
-        #[cfg(debug_assertions)]
-        println!("sidhash: {:?}", sidhash);
+        debug_println!("sidhash: {:?}", sidhash);
 
         if let Ok(sd) = SidData::try_from(sidhash) {
-            #[cfg(debug_assertions)]
-            println!("sd: {:?}", sd);
+            debug_println!("sd: {:?}", sd);
 
             Ok(Self { sd, cd })
         } else {

@@ -323,6 +323,9 @@ fn from_sidhash(sidhash: CborType) -> Option<SidData> {
 //
 
 pub fn content_comp(a: &[u8], b: &[u8]) -> bool {
+    debug_println!("content_comp(): {} {}", a.len(), b.len());
+    if a.len() != b.len() { return false; }
+
     let mut a = a.to_vec();
     let mut b = b.to_vec();
     a.sort();
