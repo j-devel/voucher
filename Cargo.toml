@@ -29,3 +29,6 @@ cose = { git = "https://github.com/j-devel/cose-rust", rev = "6786663", default-
 minerva-mbedtls = { git = "https://github.com/AnimaGUS-minerva/minerva-mbedtls", rev = "08437df", default-features = false, optional = true }
 #minerva-mbedtls = { path = "../../AnimaGUS-minerva/minerva-mbedtls", default-features = false, optional = true }
 #minerva-mbedtls = { path = "../minerva-mbedtls", default-features = false, optional = true }
+
+[dev-dependencies]
+hex-literal = { git = "https://github.com/AnimaGUS-minerva/utils.git", branch = "allow-hash-comments-in-hex" }
