@@ -43,11 +43,29 @@ mod cose_data;
 use cose_data::{CoseData, COSE_SIGN_ONE_TAG};
 pub use cose_data::SignatureAlgorithm;
 
-// TODO Add the `debug` feature for conditional build
+#[cfg(debug_assertions)]
 pub mod debug {
     pub use super::cose_sig::{sig_one_struct_bytes_from, CborType, decode};
     pub use super::sid_data::{content_comp, content_comp_permissive};
 }
+
+//
+
+pub trait Sign {
+    fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm) -> Result<&mut Self, ()>;
+}
+
+pub trait Validate {
+    fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, ()>;
+}
+
+#[cfg(any(feature = "sign", feature = "sign-lts"))]
+mod sign;
+
+#[cfg(any(feature = "validate", feature = "validate-lts"))]
+mod validate;
+
+//
 
 /// A compact CBOR-encoded voucher defined by [Constrained BRSKI].
 ///
@@ -100,22 +118,6 @@ pub struct Voucher {
     sd: SidData,
     cd: CoseData,
 }
-
-pub trait Sign {
-    fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm) -> Result<&mut Self, ()>;
-}
-
-pub trait Validate {
-    fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, ()>;
-}
-
-#[cfg(any(feature = "sign", feature = "sign-lts"))]
-mod sign;
-
-#[cfg(any(feature = "validate", feature = "validate-lts"))]
-mod validate;
-
-//
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum VoucherType {
