@@ -1,4 +1,5 @@
-use crate::{println, vec, Vec, BTreeMap, BTreeSet};
+use crate::{println, Vec, BTreeMap, BTreeSet};
+
 pub use cose::decoder::CborType;
 
 pub use super::yang::{Yang, YangEnum};

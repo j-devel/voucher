@@ -1,4 +1,5 @@
 use crate::{*, string::String};
+use super::yang::{Yang, YangEnum};
 
 static VCH_JADA: &[u8] = core::include_bytes!(
     concat!(env!("CARGO_MANIFEST_DIR"), "/data/jada/voucher_jada123456789.vch"));
