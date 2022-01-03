@@ -1,4 +1,4 @@
-use crate::{println, Vec, BTreeMap, BTreeSet};
+use crate::{println, vec, Vec, BTreeMap, BTreeSet};
 
 pub use cose::decoder::CborType;
 
@@ -7,6 +7,8 @@ use super::yang;
 
 use core::intrinsics::discriminant_value as disc;
 use core::convert::TryFrom;
+
+// TODO: refactor into 'sid.rs'
 
 pub trait Cbor {
     fn to_cbor(&self) -> Option<CborType>;
@@ -206,7 +208,6 @@ pub enum SidData {
     VoucherRequest(BTreeSet<Sid>),
 }
 
-// TODO - update according to 'draft-ietf-anima-constrained-voucher-15'
 // TODO - checker on serialize/sign/****
 // #   +---- voucher
 // #      +---- created-on?                      yang:date-and-time
