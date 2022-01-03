@@ -1,5 +1,5 @@
 use crate::{Vec, string::String};
-use super::sid_data::{self, Sid};
+use super::sid_data::{self, Sid, SidDisc};
 use super::yang::{Yang, YangEnum};
 use core::convert::TryFrom;
 
@@ -51,11 +51,11 @@ impl TryFrom<&Sid> for Attr {
     type Error = ();
 
     fn try_from(sid: &Sid) -> Result<Self, Self::Error> {
-        Ok(Attr::CreatedOn(43))
+        Ok(Attr::CreatedOn(43)) // WIP
     }
 }
 
-pub fn attr_disc_to_sid_disc(attr_disc: AttrDisc, is_vrq: bool) -> sid_data::SidDisc {
+pub fn attr_disc_to_sid_disc(attr_disc: AttrDisc, is_vrq: bool) -> SidDisc {
     use sid_data::*;
 
     match attr_disc {
