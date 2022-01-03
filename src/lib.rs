@@ -173,8 +173,8 @@ impl Voucher {
     /// ```ignore
     /// use minerva_voucher::{Voucher,VoucherType};
     ///
-    /// let vrq = HashSet::new(VoucherType::Vrq);
-    /// let vch = HashSet::new(VoucherType::Vch);
+    /// let vrq = Voucher::new(VoucherType::Vrq);
+    /// let vch = Voucher::new(VoucherType::Vch);
     /// ```
     pub fn new(ty: VoucherType) -> Self {
         Self {
@@ -222,11 +222,59 @@ impl Voucher {
         None // dummy; todo
     }
 
+    // !! to reorganize
+    fn attr_disc_to_sid_disc(attr_disc: AttrDisc, is_vrq: bool) -> sid_data::SidDisc {
+        use sid_data::*;
+
+        match attr_disc {
+            ATTR_ASSERTION => if is_vrq { SID_VRQ_ASSERTION } else { SID_VCH_ASSERTION },
+            ATTR_CREATED_ON => if is_vrq { SID_VRQ_CREATED_ON } else { SID_VCH_CREATED_ON },
+            ATTR_DOMAIN_CERT_REVOCATION_CHECKS => if is_vrq { SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS } else { SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS },
+            ATTR_EXPIRES_ON => if is_vrq { SID_VRQ_EXPIRES_ON } else { SID_VCH_EXPIRES_ON },
+            ATTR_IDEVID_ISSUER => if is_vrq { SID_VRQ_IDEVID_ISSUER } else { SID_VCH_IDEVID_ISSUER },
+            ATTR_LAST_RENEWAL_DATE => if is_vrq { SID_VRQ_LAST_RENEWAL_DATE } else { SID_VCH_LAST_RENEWAL_DATE },
+            ATTR_NONCE => if is_vrq { SID_VRQ_NONCE } else { SID_VCH_NONCE },
+            ATTR_PINNED_DOMAIN_CERT => if is_vrq { SID_VRQ_PINNED_DOMAIN_CERT } else { SID_VCH_PINNED_DOMAIN_CERT },
+            ATTR_PINNED_DOMAIN_PUBK => if is_vrq { panic!() } else { SID_VCH_PINNED_DOMAIN_PUBK },
+            ATTR_PINNED_DOMAIN_PUBK_SHA256 => if is_vrq { panic!() } else { SID_VCH_PINNED_DOMAIN_PUBK_SHA256 },
+            ATTR_PRIOR_SIGNED_VOUCHER_REQUEST => if is_vrq { SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST } else { panic!() },
+            ATTR_PROXIMITY_REGISTRAR_CERT => if is_vrq { SID_VRQ_PROXIMITY_REGISTRAR_CERT } else { panic!() },
+            ATTR_PROXIMITY_REGISTRAR_PUBK => if is_vrq { SID_VRQ_PROXIMITY_REGISTRAR_PUBK } else { panic!() },
+            ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256 => if is_vrq { SID_VRQ_PROXIMITY_REGISTRAR_PUBK_SHA256 } else { panic!() },
+            ATTR_SERIAL_NUMBER => if is_vrq { SID_VRQ_SERIAL_NUMBER } else { SID_VCH_SERIAL_NUMBER },
+            _ => panic!(),
+        }
+    }
+    // !! to reorganize
+    fn attr_to_yang(attr: Attr) -> Yang {
+        match attr {
+            Attr::Assertion(inner) => match inner {
+                Assertion::Verified => Yang::Enumeration(YangEnum::Verified),
+                Assertion::Logged => Yang::Enumeration(YangEnum::Logged),
+                Assertion::Proximity => Yang::Enumeration(YangEnum::Proximity),
+            },
+            Attr::DomainCertRevocationChecks(x) => Yang::Boolean(x),
+            Attr::CreatedOn(x) |
+            Attr::ExpiresOn(x) |
+            Attr::LastRenewalDate(x) => Yang::DateAndTime(x),
+            Attr::IdevidIssuer(x) |
+            Attr::Nonce(x) |
+            Attr::PinnedDomainCert(x) |
+            Attr::PinnedDomainPubk(x) |
+            Attr::PinnedDomainPubkSha256(x) |
+            Attr::PriorSignedVoucherRequest(x) |
+            Attr::ProximityRegistrarCert(x) |
+            Attr::ProximityRegistrarPubk(x) |
+            Attr::ProximityRegistrarPubkSha256(x) => Yang::Binary(x),
+            Attr::SerialNumber(x) => Yang::String(x.as_bytes().to_vec()),
+        }
+    }
+
     pub fn get(&self, attr_disc: AttrDisc) -> Option<Attr> {
         use core::intrinsics::discriminant_value as disc;
 
         let (set, is_vrq) = self.sd.inner();
-        let sid_disc = sid_data::SID_VRQ_CREATED_ON; // <- attr_disc, is_vrq; todo !!!!
+        let sid_disc = Self::attr_disc_to_sid_disc(attr_disc, is_vrq);
 
         let mut out: Vec<_> = set.iter()
             .filter_map(|sid| if disc(sid) == sid_disc { Some(Attr::CreatedOn(42)) } else { None })
@@ -237,36 +285,10 @@ impl Voucher {
     }
 
     pub fn set(&mut self, attr: Attr) -> &mut Self {
-        use Sid::*;
-        use Yang::*;
+        use core::intrinsics::discriminant_value as disc;
 
-        let is_vrq = self.sd.is_vrq();
-        let is_vch = !is_vrq;
-        let sid_assertion = |x| if is_vrq { VrqAssertion(x) } else { VchAssertion(x) };
-
-        let sid = match attr {
-            Attr::Assertion(inner) => match inner {
-                Assertion::Verified => sid_assertion(Enumeration(YangEnum::Verified)),
-                Assertion::Logged => sid_assertion(Enumeration(YangEnum::Logged)),
-                Assertion::Proximity => sid_assertion(Enumeration(YangEnum::Proximity)),
-            },
-            Attr::DomainCertRevocationChecks(x) => if is_vrq { VrqDomainCertRevocationChecks(Boolean(x)) } else { VchDomainCertRevocationChecks(Boolean(x)) },
-            Attr::CreatedOn(x) => if is_vrq { VrqCreatedOn(DateAndTime(x)) } else { VchCreatedOn(DateAndTime(x)) },
-            Attr::ExpiresOn(x) => if is_vrq { VrqExpiresOn(DateAndTime(x)) } else { VchExpiresOn(DateAndTime(x)) },
-            Attr::LastRenewalDate(x) => if is_vrq { VrqLastRenewalDate(DateAndTime(x)) } else { VchLastRenewalDate(DateAndTime(x)) },
-            Attr::IdevidIssuer(x) => if is_vrq { VrqIdevidIssuer(Binary(x)) } else { VchIdevidIssuer(Binary(x)) },
-            Attr::Nonce(x) => if is_vrq { VrqNonce(Binary(x)) } else { VchNonce(Binary(x)) },
-            Attr::PinnedDomainCert(x) => if is_vrq { VrqPinnedDomainCert(Binary(x)) } else { VchPinnedDomainCert(Binary(x)) },
-            Attr::PinnedDomainPubk(x) => { assert!(is_vch); VchPinnedDomainPubk(Binary(x)) },
-            Attr::PinnedDomainPubkSha256(x) => { assert!(is_vch); VchPinnedDomainPubkSha256(Binary(x)) },
-            Attr::PriorSignedVoucherRequest(x) => { assert!(is_vrq); VrqPriorSignedVoucherRequest(Binary(x)) },
-            Attr::ProximityRegistrarCert(x) => { assert!(is_vrq); VrqProximityRegistrarCert(Binary(x)) },
-            Attr::ProximityRegistrarPubk(x) => { assert!(is_vrq); VrqProximityRegistrarPubk(Binary(x)) },
-            Attr::ProximityRegistrarPubkSha256(x) => { assert!(is_vrq); VrqProximityRegistrarPubkSha256(Binary(x)) },
-            Attr::SerialNumber(x) => if is_vrq { VrqSerialNumber(String(x.as_bytes().to_vec())) } else { VchSerialNumber(String(x.as_bytes().to_vec())) },
-        };
-
-        self.set_sid(sid);
+        let sid_disc = Self::attr_disc_to_sid_disc(disc(&attr), self.sd.is_vrq());
+        self.set_sid(Sid::try_from((Self::attr_to_yang(attr), sid_disc)).unwrap());
 
         self
     }

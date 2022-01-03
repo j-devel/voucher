@@ -253,7 +253,7 @@ fn test_highlevel_interface() {
         &vrq.extract_cose_content().unwrap(), &content_vrq_f2_00_02()));
 
     assert_eq!(vrq.get_signature().0, /* asn1 */ [48, 70, 2, 33, 0, 164, 97, 9, 44, 103, 141, 55, 95, 230, 60, 165, 83, 63, 61, 81, 133, 98, 207, 213, 159, 74, 67, 180, 113, 158, 8, 220, 210, 48, 177, 185, 211, 2, 33, 0, 161, 49, 250, 154, 96, 186, 186, 87, 188, 188, 67, 249, 31, 177, 104, 160, 65, 12, 62, 87, 233, 231, 105, 58, 29, 215, 16, 227, 162, 179, 209, 110]);
-    assert_eq!(vrq.serialize().unwrap().len(), 628); // ????
+    assert_eq!(vrq.serialize().unwrap().len(), 628);
 
 //    /* WIP */ assert_eq!(vrq.get(ATTR_CREATED_ON), Some(Attr::CreatedOn(1599086034)));
 
@@ -271,7 +271,7 @@ fn test_highlevel_interface() {
 
     let _ = Voucher::new_vrq_with(vec![
         Attr::Assertion(Assertion::Proximity),
-        Attr::SerialNumber(String::from("00-D0-E5-02-00-2E")),
+        Attr::SerialNumber(String::from("00-11-22-33-44-55")),
     ]);
 }
 
