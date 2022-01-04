@@ -13,6 +13,7 @@ use std::{println, self as alloc};
 use mcu_if::{println, alloc};
 
 use alloc::{boxed::Box, string, vec, vec::Vec, collections::{BTreeMap, BTreeSet}};
+use core::intrinsics::discriminant_value as disc;
 
 //
 
@@ -180,28 +181,28 @@ impl Voucher {
         if self.sd.is_vrq() { VoucherType::Vrq } else { VoucherType::Vch }
     }
 
-    pub fn remove(&mut self, attr_disc: AttrDisc) -> Option<Attr> {
+    pub fn remove(&mut self, adisc: AttrDisc) -> Option<Attr> {
         None // dummy; todo
     }
 
-    pub fn get(&self, attr_disc: AttrDisc) -> Option<Attr> {
-        use core::intrinsics::discriminant_value as disc;
-
+    pub fn get(&self, adisc: AttrDisc) -> Option<Attr> {
         let (set, is_vrq) = self.sd.inner();
-        let sid_disc = attr_disc_to_sid_disc(attr_disc, is_vrq);
+        let sdisc = Attr::disc_to_sid_disc(adisc, is_vrq);
+
+        if sdisc.is_none() { return None; }
+        let sdisc = sdisc.unwrap();
 
         let mut out: Vec<_> = set.iter()
-            .filter_map(|sid| if disc(sid) == sid_disc { Attr::try_from(sid).ok() } else { None })
+            .filter_map(|sid| if disc(sid) == sdisc { Attr::try_from(sid).ok() } else { None })
             .collect();
-        println!("out: {:?}", out);
+        debug_println!("out: {:?}", out);
+
         if out.len() == 1 { out.pop() } else { None }
     }
 
     pub fn set(&mut self, attr: Attr) -> &mut Self {
-        use core::intrinsics::discriminant_value as disc;
-
-        let sid_disc = attr_disc_to_sid_disc(disc(&attr), self.sd.is_vrq());
-        self.set_sid(Sid::try_from((attr_to_yang(attr), sid_disc)).unwrap());
+        let sdisc = Attr::disc_to_sid_disc(disc(&attr), self.sd.is_vrq()).unwrap();
+        self.set_sid(Sid::try_from((attr.into_yang(), sdisc)).unwrap());
 
         self
     }

@@ -51,53 +51,60 @@ impl TryFrom<&Sid> for Attr {
     type Error = ();
 
     fn try_from(sid: &Sid) -> Result<Self, Self::Error> {
+        // !!!!
         Ok(Attr::CreatedOn(43)) // WIP
     }
 }
 
-pub fn attr_disc_to_sid_disc(attr_disc: AttrDisc, is_vrq: bool) -> SidDisc {
-    use sid_data::*;
-
-    match attr_disc {
-        ATTR_ASSERTION => if is_vrq { SID_VRQ_ASSERTION } else { SID_VCH_ASSERTION },
-        ATTR_CREATED_ON => if is_vrq { SID_VRQ_CREATED_ON } else { SID_VCH_CREATED_ON },
-        ATTR_DOMAIN_CERT_REVOCATION_CHECKS => if is_vrq { SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS } else { SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS },
-        ATTR_EXPIRES_ON => if is_vrq { SID_VRQ_EXPIRES_ON } else { SID_VCH_EXPIRES_ON },
-        ATTR_IDEVID_ISSUER => if is_vrq { SID_VRQ_IDEVID_ISSUER } else { SID_VCH_IDEVID_ISSUER },
-        ATTR_LAST_RENEWAL_DATE => if is_vrq { SID_VRQ_LAST_RENEWAL_DATE } else { SID_VCH_LAST_RENEWAL_DATE },
-        ATTR_NONCE => if is_vrq { SID_VRQ_NONCE } else { SID_VCH_NONCE },
-        ATTR_PINNED_DOMAIN_CERT => if is_vrq { SID_VRQ_PINNED_DOMAIN_CERT } else { SID_VCH_PINNED_DOMAIN_CERT },
-        ATTR_PINNED_DOMAIN_PUBK => if is_vrq { panic!() } else { SID_VCH_PINNED_DOMAIN_PUBK },
-        ATTR_PINNED_DOMAIN_PUBK_SHA256 => if is_vrq { panic!() } else { SID_VCH_PINNED_DOMAIN_PUBK_SHA256 },
-        ATTR_PRIOR_SIGNED_VOUCHER_REQUEST => if is_vrq { SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST } else { panic!() },
-        ATTR_PROXIMITY_REGISTRAR_CERT => if is_vrq { SID_VRQ_PROXIMITY_REGISTRAR_CERT } else { panic!() },
-        ATTR_PROXIMITY_REGISTRAR_PUBK => if is_vrq { SID_VRQ_PROXIMITY_REGISTRAR_PUBK } else { panic!() },
-        ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256 => if is_vrq { SID_VRQ_PROXIMITY_REGISTRAR_PUBK_SHA256 } else { panic!() },
-        ATTR_SERIAL_NUMBER => if is_vrq { SID_VRQ_SERIAL_NUMBER } else { SID_VCH_SERIAL_NUMBER },
-        _ => panic!(),
+impl Attr {
+    pub fn into_yang(self) -> Yang {
+        match self {
+            Attr::Assertion(x) => match x {
+                Assertion::Verified => Yang::Enumeration(YangEnum::Verified),
+                Assertion::Logged => Yang::Enumeration(YangEnum::Logged),
+                Assertion::Proximity => Yang::Enumeration(YangEnum::Proximity),
+            },
+            Attr::DomainCertRevocationChecks(x) => Yang::Boolean(x),
+            Attr::CreatedOn(x) |
+            Attr::ExpiresOn(x) |
+            Attr::LastRenewalDate(x) => Yang::DateAndTime(x),
+            Attr::IdevidIssuer(x) |
+            Attr::Nonce(x) |
+            Attr::PinnedDomainCert(x) |
+            Attr::PinnedDomainPubk(x) |
+            Attr::PinnedDomainPubkSha256(x) |
+            Attr::PriorSignedVoucherRequest(x) |
+            Attr::ProximityRegistrarCert(x) |
+            Attr::ProximityRegistrarPubk(x) |
+            Attr::ProximityRegistrarPubkSha256(x) => Yang::Binary(x),
+            Attr::SerialNumber(x) => Yang::String(x.as_bytes().to_vec()),
+        }
     }
-}
 
-pub fn attr_to_yang(attr: Attr) -> Yang {
-    match attr {
-        Attr::Assertion(inner) => match inner {
-            Assertion::Verified => Yang::Enumeration(YangEnum::Verified),
-            Assertion::Logged => Yang::Enumeration(YangEnum::Logged),
-            Assertion::Proximity => Yang::Enumeration(YangEnum::Proximity),
-        },
-        Attr::DomainCertRevocationChecks(x) => Yang::Boolean(x),
-        Attr::CreatedOn(x) |
-        Attr::ExpiresOn(x) |
-        Attr::LastRenewalDate(x) => Yang::DateAndTime(x),
-        Attr::IdevidIssuer(x) |
-        Attr::Nonce(x) |
-        Attr::PinnedDomainCert(x) |
-        Attr::PinnedDomainPubk(x) |
-        Attr::PinnedDomainPubkSha256(x) |
-        Attr::PriorSignedVoucherRequest(x) |
-        Attr::ProximityRegistrarCert(x) |
-        Attr::ProximityRegistrarPubk(x) |
-        Attr::ProximityRegistrarPubkSha256(x) => Yang::Binary(x),
-        Attr::SerialNumber(x) => Yang::String(x.as_bytes().to_vec()),
+    pub fn disc_to_sid_disc(adisc: AttrDisc, is_vrq: bool) -> Option<SidDisc> {
+        use sid_data::*;
+
+        let sdisc_none: SidDisc = 0;
+
+        let sdisc = match adisc {
+            ATTR_ASSERTION => if is_vrq { SID_VRQ_ASSERTION } else { SID_VCH_ASSERTION },
+            ATTR_CREATED_ON => if is_vrq { SID_VRQ_CREATED_ON } else { SID_VCH_CREATED_ON },
+            ATTR_DOMAIN_CERT_REVOCATION_CHECKS => if is_vrq { SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS } else { SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS },
+            ATTR_EXPIRES_ON => if is_vrq { SID_VRQ_EXPIRES_ON } else { SID_VCH_EXPIRES_ON },
+            ATTR_IDEVID_ISSUER => if is_vrq { SID_VRQ_IDEVID_ISSUER } else { SID_VCH_IDEVID_ISSUER },
+            ATTR_LAST_RENEWAL_DATE => if is_vrq { SID_VRQ_LAST_RENEWAL_DATE } else { SID_VCH_LAST_RENEWAL_DATE },
+            ATTR_NONCE => if is_vrq { SID_VRQ_NONCE } else { SID_VCH_NONCE },
+            ATTR_PINNED_DOMAIN_CERT => if is_vrq { SID_VRQ_PINNED_DOMAIN_CERT } else { SID_VCH_PINNED_DOMAIN_CERT },
+            ATTR_PINNED_DOMAIN_PUBK => if is_vrq { sdisc_none } else { SID_VCH_PINNED_DOMAIN_PUBK },
+            ATTR_PINNED_DOMAIN_PUBK_SHA256 => if is_vrq { sdisc_none } else { SID_VCH_PINNED_DOMAIN_PUBK_SHA256 },
+            ATTR_PRIOR_SIGNED_VOUCHER_REQUEST => if is_vrq { SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST } else { sdisc_none },
+            ATTR_PROXIMITY_REGISTRAR_CERT => if is_vrq { SID_VRQ_PROXIMITY_REGISTRAR_CERT } else { sdisc_none },
+            ATTR_PROXIMITY_REGISTRAR_PUBK => if is_vrq { SID_VRQ_PROXIMITY_REGISTRAR_PUBK } else { sdisc_none },
+            ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256 => if is_vrq { SID_VRQ_PROXIMITY_REGISTRAR_PUBK_SHA256 } else { sdisc_none },
+            ATTR_SERIAL_NUMBER => if is_vrq { SID_VRQ_SERIAL_NUMBER } else { SID_VCH_SERIAL_NUMBER },
+            _ => sdisc_none,
+        };
+
+        if sdisc == sdisc_none { None } else { Some(sdisc) }
     }
 }
