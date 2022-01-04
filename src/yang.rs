@@ -1,5 +1,5 @@
 use crate::{Box, Vec};
-use super::sid_data::{CborType, Cbor, SidDisc};
+use super::sid::{CborType, Cbor, SidDisc};
 use core::convert::TryFrom;
 
 pub type YangDisc = u8;
@@ -76,7 +76,7 @@ impl TryFrom<(&CborType, SidDisc)> for Yang {
     type Error = ();
 
     fn try_from(input: (&CborType, SidDisc)) -> Result<Self, Self::Error> {
-        use super::sid_data::*;
+        use super::sid::*;
 
         let (cbor, sid_disc) = input;
         match sid_disc {

@@ -1,5 +1,5 @@
 use crate::{Vec, string::String};
-use super::sid_data::{self, Sid, SidDisc};
+use super::sid::{self, Sid, SidDisc};
 use super::yang::{Yang, YangEnum};
 use core::convert::TryFrom;
 
@@ -82,7 +82,7 @@ impl Attr {
     }
 
     pub fn disc_to_sid_disc(adisc: AttrDisc, is_vrq: bool) -> Option<SidDisc> {
-        use sid_data::*;
+        use sid::*;
 
         let sdisc_none: SidDisc = 0;
 

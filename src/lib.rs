@@ -13,7 +13,9 @@ use std::{println, self as alloc};
 use mcu_if::{println, alloc};
 
 use alloc::{boxed::Box, string, vec, vec::Vec, collections::{BTreeMap, BTreeSet}};
+
 use core::intrinsics::discriminant_value as disc;
+use core::convert::TryFrom;
 
 //
 
@@ -36,8 +38,11 @@ use attr::*;
 
 mod yang;
 
+mod sid;
+use sid::Sid;
+
 mod sid_data;
-use sid_data::{SidData, Sid};
+use sid_data::SidData;
 
 mod cose_sig;
 mod cose_data;
@@ -247,7 +252,7 @@ impl Voucher {
     }
 
     fn update_cose_content(&mut self) -> &mut Self {
-        use sid_data::Cbor;
+        use sid::Cbor;
 
         let content = if let Some(cbor) = self.sd.serialize() { cbor } else {
             println!("update_cose_content(): Failed to generate `content`");
@@ -285,10 +290,6 @@ impl Voucher {
         self.cd.dump();
     }
 }
-
-//
-
-use core::convert::TryFrom;
 
 impl TryFrom<&[u8]> for Voucher {
     type Error = &'static str;
