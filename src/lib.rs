@@ -12,7 +12,7 @@ use std::{println, self as alloc};
 #[cfg(not(feature = "std"))]
 use mcu_if::{println, alloc};
 
-use alloc::{boxed::Box, string, vec, vec::Vec, collections::{BTreeMap, BTreeSet}};
+use alloc::{boxed::Box, vec, vec::Vec, collections::{BTreeMap, BTreeSet}};
 
 use core::intrinsics::discriminant_value as disc;
 use core::convert::TryFrom;

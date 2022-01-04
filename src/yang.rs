@@ -36,6 +36,21 @@ impl YangEnum {
     }
 }
 
+impl Yang {
+    pub fn to_dat(&self) -> Option<u64> {
+        if let Yang::DateAndTime(x) = self { Some(*x) } else { None }
+    }
+    pub fn to_string(&self) -> Option<Vec<u8>> {
+        if let Yang::String(x) = self { Some(x.clone()) } else { None }
+    }
+    pub fn to_binary(&self) -> Option<Vec<u8>> {
+        if let Yang::Binary(x) = self { Some(x.clone()) } else { None }
+    }
+    pub fn to_boolean(&self) -> Option<bool> {
+        if let Yang::Boolean(x) = self { Some(*x) } else { None }
+    }
+}
+
 const CBOR_TAG_UNIX_TIME: u64 = 0x01;
 
 impl TryFrom<(&CborType, YangDisc)> for Yang {

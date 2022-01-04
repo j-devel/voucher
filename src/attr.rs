@@ -1,7 +1,8 @@
-use crate::{Vec, string::String};
+use crate::Vec;
 use super::sid::{self, Sid, SidDisc};
 use super::yang::{Yang, YangEnum};
 use core::convert::TryFrom;
+
 
 pub type AttrDisc = u8;
 pub const ATTR_ASSERTION: AttrDisc =                         0x00;
@@ -12,12 +13,12 @@ pub const ATTR_IDEVID_ISSUER: AttrDisc =                     0x04;
 pub const ATTR_LAST_RENEWAL_DATE: AttrDisc =                 0x05;
 pub const ATTR_NONCE: AttrDisc =                             0x06;
 pub const ATTR_PINNED_DOMAIN_CERT: AttrDisc =                0x07;
-pub const ATTR_PINNED_DOMAIN_PUBK: AttrDisc =                0x20;
-pub const ATTR_PINNED_DOMAIN_PUBK_SHA256: AttrDisc =         0x21;
-pub const ATTR_PRIOR_SIGNED_VOUCHER_REQUEST: AttrDisc =      0x40;
-pub const ATTR_PROXIMITY_REGISTRAR_CERT: AttrDisc =          0x41;
-pub const ATTR_PROXIMITY_REGISTRAR_PUBK: AttrDisc =          0x42;
-pub const ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256: AttrDisc =   0x43;
+pub const ATTR_PINNED_DOMAIN_PUBK: AttrDisc =                0x20; // vch only
+pub const ATTR_PINNED_DOMAIN_PUBK_SHA256: AttrDisc =         0x21; // vch only
+pub const ATTR_PRIOR_SIGNED_VOUCHER_REQUEST: AttrDisc =      0x40; // vrq only
+pub const ATTR_PROXIMITY_REGISTRAR_CERT: AttrDisc =          0x41; // vrq only
+pub const ATTR_PROXIMITY_REGISTRAR_PUBK: AttrDisc =          0x42; // vrq only
+pub const ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256: AttrDisc =   0x43; // vrq only
 pub const ATTR_SERIAL_NUMBER: AttrDisc =                     0x08;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -44,15 +45,52 @@ pub enum Attr {
     ProximityRegistrarCert(Vec<u8>) =        ATTR_PROXIMITY_REGISTRAR_CERT,        // vrq only
     ProximityRegistrarPubk(Vec<u8>) =        ATTR_PROXIMITY_REGISTRAR_PUBK,        // vrq only
     ProximityRegistrarPubkSha256(Vec<u8>) =  ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256, // vrq only
-    SerialNumber(String) =                   ATTR_SERIAL_NUMBER,
+    SerialNumber(Vec<u8>) =                  ATTR_SERIAL_NUMBER,
 }
 
 impl TryFrom<&Sid> for Attr {
     type Error = ();
 
     fn try_from(sid: &Sid) -> Result<Self, Self::Error> {
-        // !!!!
-        Ok(Attr::CreatedOn(43)) // WIP
+        use Sid::*;
+
+        match sid {
+            VchTopLevel(_) | VrqTopLevel(_) => Err(()),
+            VchAssertion(yg) | VrqAssertion(yg) => match yg {
+                Yang::Enumeration(YangEnum::Verified) => Ok(Attr::Assertion(Assertion::Verified)),
+                Yang::Enumeration(YangEnum::Logged) => Ok(Attr::Assertion(Assertion::Logged)),
+                Yang::Enumeration(YangEnum::Proximity) => Ok(Attr::Assertion(Assertion::Proximity)),
+                _ => Err(()),
+            },
+            VchCreatedOn(yg) | VrqCreatedOn(yg) =>
+                Ok(Attr::CreatedOn(yg.to_dat().unwrap())),
+            VchDomainCertRevocationChecks(yg) | VrqDomainCertRevocationChecks(yg) =>
+                Ok(Attr::DomainCertRevocationChecks(yg.to_boolean().unwrap())),
+            VchExpiresOn(yg) | VrqExpiresOn(yg) =>
+                Ok(Attr::ExpiresOn(yg.to_dat().unwrap())),
+            VchIdevidIssuer(yg) | VrqIdevidIssuer(yg) =>
+                Ok(Attr::IdevidIssuer(yg.to_binary().unwrap())),
+            VchLastRenewalDate(yg) | VrqLastRenewalDate(yg) =>
+                Ok(Attr::LastRenewalDate(yg.to_dat().unwrap())),
+            VchNonce(yg) | VrqNonce(yg) =>
+                Ok(Attr::Nonce(yg.to_binary().unwrap())),
+            VchPinnedDomainCert(yg) | VrqPinnedDomainCert(yg) =>
+                Ok(Attr::PinnedDomainCert(yg.to_binary().unwrap())),
+            VchPinnedDomainPubk(yg) =>
+                Ok(Attr::PinnedDomainPubk(yg.to_binary().unwrap())),
+            VchPinnedDomainPubkSha256(yg) =>
+                Ok(Attr::PinnedDomainPubkSha256(yg.to_binary().unwrap())),
+            VrqPriorSignedVoucherRequest(yg) =>
+                Ok(Attr::PriorSignedVoucherRequest(yg.to_binary().unwrap())),
+            VrqProximityRegistrarCert(yg) =>
+                Ok(Attr::ProximityRegistrarCert(yg.to_binary().unwrap())),
+            VrqProximityRegistrarPubk(yg) =>
+                Ok(Attr::ProximityRegistrarPubk(yg.to_binary().unwrap())),
+            VrqProximityRegistrarPubkSha256(yg) =>
+                Ok(Attr::ProximityRegistrarPubkSha256(yg.to_binary().unwrap())),
+            VchSerialNumber(yg) | VrqSerialNumber(yg) =>
+                Ok(Attr::SerialNumber(yg.to_string().unwrap())),
+        }
     }
 }
 
@@ -77,7 +115,7 @@ impl Attr {
             Attr::ProximityRegistrarCert(x) |
             Attr::ProximityRegistrarPubk(x) |
             Attr::ProximityRegistrarPubkSha256(x) => Yang::Binary(x),
-            Attr::SerialNumber(x) => Yang::String(x.as_bytes().to_vec()),
+            Attr::SerialNumber(x) => Yang::String(x),
         }
     }
 
@@ -85,7 +123,6 @@ impl Attr {
         use sid::*;
 
         let sdisc_none: SidDisc = 0;
-
         let sdisc = match adisc {
             ATTR_ASSERTION => if is_vrq { SID_VRQ_ASSERTION } else { SID_VCH_ASSERTION },
             ATTR_CREATED_ON => if is_vrq { SID_VRQ_CREATED_ON } else { SID_VCH_CREATED_ON },
