@@ -54,6 +54,17 @@ impl TryFrom<&Sid> for Attr {
     fn try_from(sid: &Sid) -> Result<Self, Self::Error> {
         use Sid::*;
 
+
+        let info = Self::resolve_sid(sid);
+        if info.is_none() { return Err(()) }
+        let (adisc, yg) = info.unwrap();
+
+        let _: Result<Self, Self::Error> = match adisc {
+            ATTR_CREATED_ON => Ok(Attr::CreatedOn(yg.to_dat().unwrap())),
+            // !!!!!!!! ....
+            _ => Err(()),
+        };
+        //====
         match sid {
             VchTopLevel(_) | VrqTopLevel(_) => Err(()),
             VchAssertion(yg) | VrqAssertion(yg) => match yg {
@@ -119,7 +130,19 @@ impl Attr {
         }
     }
 
-    pub fn disc_to_sid_disc(adisc: AttrDisc, is_vrq: bool) -> Option<SidDisc> {
+    pub fn resolve_sid(sid: &Sid) -> Option<(AttrDisc, &Yang)> {
+        use Sid::*;
+
+        match sid {
+            VchTopLevel(_) | VrqTopLevel(_) => None,
+            //....
+            VchCreatedOn(yg) | VrqCreatedOn(yg) => Some((ATTR_CREATED_ON, yg)),
+            // !!!!!!!!!!! todo
+            _ => None,
+        }
+    }
+
+    pub fn to_sid_disc(adisc: AttrDisc, is_vrq: bool) -> Option<SidDisc> {
         use sid::*;
 
         let sdisc_none: SidDisc = 0;

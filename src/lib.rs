@@ -192,7 +192,7 @@ impl Voucher {
 
     pub fn get(&self, adisc: AttrDisc) -> Option<Attr> {
         let (set, is_vrq) = self.sd.inner();
-        let sdisc = Attr::disc_to_sid_disc(adisc, is_vrq);
+        let sdisc = Attr::to_sid_disc(adisc, is_vrq);
 
         if sdisc.is_none() { return None; }
         let sdisc = sdisc.unwrap();
@@ -206,10 +206,16 @@ impl Voucher {
     }
 
     pub fn set(&mut self, attr: Attr) -> &mut Self {
-        let sdisc = Attr::disc_to_sid_disc(disc(&attr), self.sd.is_vrq()).unwrap();
+        let sdisc = Attr::to_sid_disc(disc(&attr), self.sd.is_vrq()).unwrap();
         self.set_sid(Sid::try_from((attr.into_yang(), sdisc)).unwrap());
 
         self
+    }
+
+    pub fn attrs(&self) -> Vec<AttrDisc> {
+        self.sd.inner().0.iter()
+            .filter_map(|sid| if let Some((adisc, _)) = Attr::resolve_sid(sid) { Some(adisc) } else { None })
+            .collect::<Vec<_>>()
     }
 
     // pub fn print(&self) -> { // ??
