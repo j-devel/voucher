@@ -191,18 +191,29 @@ impl Voucher {
     }
 
     pub fn get(&self, adisc: AttrDisc) -> Option<Attr> {
+//    pub fn get(&self, adisc: AttrDisc) -> Option<&yang::Yang> {
         let (set, is_vrq) = self.sd.inner();
         let sdisc = Attr::to_sid_disc(adisc, is_vrq);
 
         if sdisc.is_none() { return None; }
         let sdisc = sdisc.unwrap();
+        debug_println!("sdisc: {}", sdisc);
 
         let mut out: Vec<_> = set.iter()
             .filter_map(|sid| if disc(sid) == sdisc { Attr::try_from(sid).ok() } else { None })
+            //====
+            // .filter(|sid| {
+            //     println!("disc(sid): {} sid: {:?}", disc(sid), sid);
+            //     //disc(sid) == sdisc
+            //     true
+            // })
+            // .filter_map(|sid| if let Some((_, yg)) = Attr::resolve_sid(sid) { Some(yg) } else { None })
+            //====
             .collect();
         debug_println!("out: {:?}", out);
 
         if out.len() == 1 { out.pop() } else { None }
+        // if out.len() == 1 { Some(out[0]) } else { None }
     }
 
     pub fn set(&mut self, attr: Attr) -> &mut Self {

@@ -52,55 +52,33 @@ impl TryFrom<&Sid> for Attr {
     type Error = ();
 
     fn try_from(sid: &Sid) -> Result<Self, Self::Error> {
-        use Sid::*;
-
-
         let info = Self::resolve_sid(sid);
+
         if info.is_none() { return Err(()) }
         let (adisc, yg) = info.unwrap();
 
-        let _: Result<Self, Self::Error> = match adisc {
-            ATTR_CREATED_ON => Ok(Attr::CreatedOn(yg.to_dat().unwrap())),
-            // !!!!!!!! ....
-            _ => Err(()),
-        };
-        //====
-        match sid {
-            VchTopLevel(_) | VrqTopLevel(_) => Err(()),
-            VchAssertion(yg) | VrqAssertion(yg) => match yg {
+        match adisc {
+            ATTR_ASSERTION => match yg {
                 Yang::Enumeration(YangEnum::Verified) => Ok(Attr::Assertion(Assertion::Verified)),
                 Yang::Enumeration(YangEnum::Logged) => Ok(Attr::Assertion(Assertion::Logged)),
                 Yang::Enumeration(YangEnum::Proximity) => Ok(Attr::Assertion(Assertion::Proximity)),
                 _ => Err(()),
             },
-            VchCreatedOn(yg) | VrqCreatedOn(yg) =>
-                Ok(Attr::CreatedOn(yg.to_dat().unwrap())),
-            VchDomainCertRevocationChecks(yg) | VrqDomainCertRevocationChecks(yg) =>
-                Ok(Attr::DomainCertRevocationChecks(yg.to_boolean().unwrap())),
-            VchExpiresOn(yg) | VrqExpiresOn(yg) =>
-                Ok(Attr::ExpiresOn(yg.to_dat().unwrap())),
-            VchIdevidIssuer(yg) | VrqIdevidIssuer(yg) =>
-                Ok(Attr::IdevidIssuer(yg.to_binary().unwrap())),
-            VchLastRenewalDate(yg) | VrqLastRenewalDate(yg) =>
-                Ok(Attr::LastRenewalDate(yg.to_dat().unwrap())),
-            VchNonce(yg) | VrqNonce(yg) =>
-                Ok(Attr::Nonce(yg.to_binary().unwrap())),
-            VchPinnedDomainCert(yg) | VrqPinnedDomainCert(yg) =>
-                Ok(Attr::PinnedDomainCert(yg.to_binary().unwrap())),
-            VchPinnedDomainPubk(yg) =>
-                Ok(Attr::PinnedDomainPubk(yg.to_binary().unwrap())),
-            VchPinnedDomainPubkSha256(yg) =>
-                Ok(Attr::PinnedDomainPubkSha256(yg.to_binary().unwrap())),
-            VrqPriorSignedVoucherRequest(yg) =>
-                Ok(Attr::PriorSignedVoucherRequest(yg.to_binary().unwrap())),
-            VrqProximityRegistrarCert(yg) =>
-                Ok(Attr::ProximityRegistrarCert(yg.to_binary().unwrap())),
-            VrqProximityRegistrarPubk(yg) =>
-                Ok(Attr::ProximityRegistrarPubk(yg.to_binary().unwrap())),
-            VrqProximityRegistrarPubkSha256(yg) =>
-                Ok(Attr::ProximityRegistrarPubkSha256(yg.to_binary().unwrap())),
-            VchSerialNumber(yg) | VrqSerialNumber(yg) =>
-                Ok(Attr::SerialNumber(yg.to_string().unwrap())),
+            ATTR_CREATED_ON => Ok(Attr::CreatedOn(yg.to_dat().unwrap())),
+            ATTR_DOMAIN_CERT_REVOCATION_CHECKS => Ok(Attr::DomainCertRevocationChecks(yg.to_boolean().unwrap())),
+            ATTR_EXPIRES_ON => Ok(Attr::ExpiresOn(yg.to_dat().unwrap())),
+            ATTR_IDEVID_ISSUER => Ok(Attr::IdevidIssuer(yg.to_binary().unwrap())),
+            ATTR_LAST_RENEWAL_DATE => Ok(Attr::LastRenewalDate(yg.to_dat().unwrap())),
+            ATTR_NONCE => Ok(Attr::Nonce(yg.to_binary().unwrap())),
+            ATTR_PINNED_DOMAIN_CERT => Ok(Attr::PinnedDomainCert(yg.to_binary().unwrap())),
+            ATTR_PINNED_DOMAIN_PUBK => Ok(Attr::PinnedDomainPubk(yg.to_binary().unwrap())),
+            ATTR_PINNED_DOMAIN_PUBK_SHA256 => Ok(Attr::PinnedDomainPubkSha256(yg.to_binary().unwrap())),
+            ATTR_PRIOR_SIGNED_VOUCHER_REQUEST => Ok(Attr::PriorSignedVoucherRequest(yg.to_binary().unwrap())),
+            ATTR_PROXIMITY_REGISTRAR_CERT => Ok(Attr::ProximityRegistrarCert(yg.to_binary().unwrap())),
+            ATTR_PROXIMITY_REGISTRAR_PUBK => Ok(Attr::ProximityRegistrarPubk(yg.to_binary().unwrap())),
+            ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256 => Ok(Attr::ProximityRegistrarPubkSha256(yg.to_binary().unwrap())),
+            ATTR_SERIAL_NUMBER => Ok(Attr::SerialNumber(yg.to_string().unwrap())),
+            _ => Err(()),
         }
     }
 }
@@ -135,10 +113,21 @@ impl Attr {
 
         match sid {
             VchTopLevel(_) | VrqTopLevel(_) => None,
-            //....
+            VchAssertion(yg) | VrqAssertion(yg) => Some((ATTR_ASSERTION, yg)),
             VchCreatedOn(yg) | VrqCreatedOn(yg) => Some((ATTR_CREATED_ON, yg)),
-            // !!!!!!!!!!! todo
-            _ => None,
+            VchDomainCertRevocationChecks(yg) | VrqDomainCertRevocationChecks(yg) => Some((ATTR_DOMAIN_CERT_REVOCATION_CHECKS, yg)),
+            VchExpiresOn(yg) | VrqExpiresOn(yg) => Some((ATTR_EXPIRES_ON, yg)),
+            VchIdevidIssuer(yg) | VrqIdevidIssuer(yg) => Some((ATTR_IDEVID_ISSUER, yg)),
+            VchLastRenewalDate(yg) | VrqLastRenewalDate(yg) => Some((ATTR_LAST_RENEWAL_DATE, yg)),
+            VchNonce(yg) | VrqNonce(yg) => Some((ATTR_NONCE, yg)),
+            VchPinnedDomainCert(yg) | VrqPinnedDomainCert(yg) => Some((ATTR_PINNED_DOMAIN_CERT, yg)),
+            VchPinnedDomainPubk(yg) => Some((ATTR_PINNED_DOMAIN_PUBK, yg)),
+            VchPinnedDomainPubkSha256(yg) => Some((ATTR_PINNED_DOMAIN_PUBK_SHA256, yg)),
+            VrqPriorSignedVoucherRequest(yg) => Some((ATTR_PRIOR_SIGNED_VOUCHER_REQUEST, yg)),
+            VrqProximityRegistrarCert(yg) => Some((ATTR_PROXIMITY_REGISTRAR_CERT, yg)),
+            VrqProximityRegistrarPubk(yg) => Some((ATTR_PROXIMITY_REGISTRAR_PUBK, yg)),
+            VrqProximityRegistrarPubkSha256(yg) => Some((ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256, yg)),
+            VchSerialNumber(yg) | VrqSerialNumber(yg) => Some((ATTR_SERIAL_NUMBER, yg)),
         }
     }
 
