@@ -145,26 +145,32 @@ impl Attr {
         }
     }
 
-    pub fn resolve_sid(sid: &Sid) -> Option<(AttrDisc, &Yang)> {
+    pub fn resolve_sid(sid: &Sid) -> Option<&Attr> {
         use Sid::*;
 
         match sid {
             VchTopLevel(_) | VrqTopLevel(_) => None,
-            VchAssertion(yg) | VrqAssertion(yg) => Some((ATTR_ASSERTION, yg)),
-            VchCreatedOn(yg) | VrqCreatedOn(yg) => Some((ATTR_CREATED_ON, yg)),
-            VchDomainCertRevocationChecks(yg) | VrqDomainCertRevocationChecks(yg) => Some((ATTR_DOMAIN_CERT_REVOCATION_CHECKS, yg)),
-            VchExpiresOn(yg) | VrqExpiresOn(yg) => Some((ATTR_EXPIRES_ON, yg)),
-            VchIdevidIssuer(yg) | VrqIdevidIssuer(yg) => Some((ATTR_IDEVID_ISSUER, yg)),
-            VchLastRenewalDate(yg) | VrqLastRenewalDate(yg) => Some((ATTR_LAST_RENEWAL_DATE, yg)),
-            VchNonce(yg) | VrqNonce(yg) => Some((ATTR_NONCE, yg)),
-            VchPinnedDomainCert(yg) | VrqPinnedDomainCert(yg) => Some((ATTR_PINNED_DOMAIN_CERT, yg)),
-            VchPinnedDomainPubk(yg) => Some((ATTR_PINNED_DOMAIN_PUBK, yg)),
-            VchPinnedDomainPubkSha256(yg) => Some((ATTR_PINNED_DOMAIN_PUBK_SHA256, yg)),
-            VrqPriorSignedVoucherRequest(yg) => Some((ATTR_PRIOR_SIGNED_VOUCHER_REQUEST, yg)),
-            VrqProximityRegistrarCert(yg) => Some((ATTR_PROXIMITY_REGISTRAR_CERT, yg)),
-            VrqProximityRegistrarPubk(yg) => Some((ATTR_PROXIMITY_REGISTRAR_PUBK, yg)),
-            VrqProximityRegistrarPubkSha256(yg) => Some((ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256, yg)),
-            VchSerialNumber(yg) | VrqSerialNumber(yg) => Some((ATTR_SERIAL_NUMBER, yg)),
+            VchAssertion(yg) | VrqAssertion(yg) |
+            VchCreatedOn(yg) | VrqCreatedOn(yg) |
+            VchDomainCertRevocationChecks(yg) | VrqDomainCertRevocationChecks(yg) |
+            VchExpiresOn(yg) | VrqExpiresOn(yg) |
+            VchIdevidIssuer(yg) | VrqIdevidIssuer(yg) |
+            VchLastRenewalDate(yg) | VrqLastRenewalDate(yg) |
+            VchNonce(yg) | VrqNonce(yg) |
+            VchPinnedDomainCert(yg) | VrqPinnedDomainCert(yg) |
+            VchPinnedDomainPubk(yg) |
+            VchPinnedDomainPubkSha256(yg) |
+            VrqPriorSignedVoucherRequest(yg) |
+            VrqProximityRegistrarCert(yg) |
+            VrqProximityRegistrarPubk(yg) |
+            VrqProximityRegistrarPubkSha256(yg) |
+            VchSerialNumber(yg) | VrqSerialNumber(yg) => match yg {
+                Yang::DateAndTime(attr) |
+                Yang::String(attr) |
+                Yang::Binary(attr) |
+                Yang::Boolean(attr) |
+                Yang::Enumeration(attr) => Some(attr),
+            },
         }
     }
 
