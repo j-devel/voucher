@@ -261,9 +261,11 @@ fn test_highlevel_interface() {
     assert_eq!(vrq.get(ATTR_CREATED_ON), Some(Attr::CreatedOn(1599086034)));
     assert_eq!(vrq.get(ATTR_EXPIRES_ON), None);
 
-    vrq.attrs().into_iter().for_each(|attr_disc| {
-       let attr = vrq.get(attr_disc); // cloned
-       println!("cloned attr: {:?}", attr); // Some(....)
+    vrq.attrs().for_each(|thing| {
+        println!("thing: {:?}", thing);
+
+        // let attr = vrq.get(thing.0); // cloned
+        // println!("cloned attr: {:?}", attr);
     });
 //    if 1 == 1 { panic!(); } // !!!!!!!!
 

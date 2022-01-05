@@ -212,10 +212,9 @@ impl Voucher {
         self
     }
 
-    pub fn attrs(&self) -> Vec<AttrDisc> {
+    pub fn attrs(&self) -> impl Iterator<Item = (AttrDisc, &yang::Yang)> + '_ {
         self.sd.inner().0.iter()
-            .filter_map(|sid| if let Some((adisc, _)) = Attr::resolve_sid(sid) { Some(adisc) } else { None })
-            .collect::<Vec<_>>()
+            .filter_map(|sid| if let Some((adisc, yg)) = Attr::resolve_sid(sid) { Some((adisc, yg)) } else { None })
     }
 
     // pub fn print(&self) -> { // ??
