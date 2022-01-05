@@ -237,17 +237,12 @@ impl Voucher {
     // }
     //----^^^^ Attr layer API
 
-    //----vvvv SID/YANG layer API
-    // pub fn sid_iter(&self) -> xx {}
-    // pub fn sid_iter_mut(&mut self) -> xx {}
-    // pub fn sid_remove() -> {}
-    // pub fn sid_get() -> &Sid {}
-    // pub fn sid_get_mut() -> &mut Sid {}
-    /* (pub sid_set(..) -> */ fn set_sid(&mut self, sid: Sid) -> &mut Self {
+    fn set_sid(&mut self, sid: Sid) -> &mut Self {
         self.sd.replace(sid);
 
         self
     }
+
     //----vvvv COSE layer API
     // pub fn cose_content() -> Option<Vec<u8>> {} // <<? `pub fn extract_cose_content(&self)`
     // pub fn cose_signature() -> xx {} // <<? `pub fn get_signature(&self)`
