@@ -199,21 +199,23 @@ impl Voucher {
         let sdisc = sdisc.unwrap();
         debug_println!("sdisc: {}", sdisc);
 
-        let mut out: Vec<_> = set.iter()
-            .filter_map(|sid| if disc(sid) == sdisc { Attr::try_from(sid).ok() } else { None })
-            //====
-            // .filter(|sid| {
-            //     println!("disc(sid): {} sid: {:?}", disc(sid), sid);
-            //     //disc(sid) == sdisc
-            //     true
-            // })
-            // .filter_map(|sid| if let Some((_, yg)) = Attr::resolve_sid(sid) { Some(yg) } else { None })
-            //====
-            .collect();
-        debug_println!("out: {:?}", out);
-
-        if out.len() == 1 { out.pop() } else { None }
-        // if out.len() == 1 { Some(out[0]) } else { None }
+//         let mut out: Vec<_> = set.iter()
+// //            .filter_map(|sid| if disc(sid) == sdisc { Attr::try_from(sid).ok() } else { None })
+//             //====
+//             // .filter(|sid| {
+//             //     println!("disc(sid): {} sid: {:?}", disc(sid), sid);
+//             //     //disc(sid) == sdisc
+//             //     true
+//             // })
+//             // .filter_map(|sid| if let Some((_, yg)) = Attr::resolve_sid(sid) { Some(yg) } else { None })
+//             //====
+//             .collect();
+//         debug_println!("out: {:?}", out);
+//
+//         if out.len() == 1 { out.pop() } else { None }
+//         // if out.len() == 1 { Some(out[0]) } else { None }
+//====
+        None
     }
 
     pub fn set(&mut self, attr: Attr) -> &mut Self {
@@ -223,7 +225,8 @@ impl Voucher {
         self
     }
 
-    pub fn attrs(&self) -> impl Iterator<Item = (AttrDisc, &yang::Yang)> + '_ {
+    // pub fn attr_iter_mut(&mut self) -> xx // !!
+    pub fn attr_iter(&self) -> impl Iterator<Item = (AttrDisc, &yang::Yang)> + '_ {
         self.sd.inner().0.iter()
             .filter_map(|sid| if let Some((adisc, yg)) = Attr::resolve_sid(sid) { Some((adisc, yg)) } else { None })
     }
