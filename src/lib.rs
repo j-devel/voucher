@@ -281,7 +281,7 @@ impl Voucher {
     /// # Examples
     ///
     /// ```
-    /// use minerva_voucher::{Voucher, attr::{Attr,Assertion}};
+    /// use minerva_voucher::{Voucher, attr::{Attr, Assertion}};
     ///
     /// let mut vrq = Voucher::new_vrq();
     ///
