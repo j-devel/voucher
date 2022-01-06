@@ -213,7 +213,7 @@ fn test_sid_vch_f2_00_02() {
     assert_eq!(serial, [48, 48, 45, 68, 48, 45, 69, 53, 45, 70, 50, 45, 48, 48, 45, 48, 50]);
     assert_eq!(Sid::VchSerialNumber(Yang::String(Attr::SerialNumber(serial.to_vec()))).disc(), SID_VCH_SERIAL_NUMBER);
 }
-/* zzz ccc
+
 #[test]
 fn test_sid_cbor_boolean() {
     use crate::{vec, attr::Attr::DomainCertRevocationChecks as Checks};
@@ -234,4 +234,3 @@ fn test_sid_cbor_boolean() {
     assert_eq!(sid.to_cbor(), Some(CborType::True));
     assert_eq!(sid.serialize(), Some(vec![245]));
 }
-*/

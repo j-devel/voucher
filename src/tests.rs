@@ -1,5 +1,5 @@
 use crate::*;
-use super::yang::{Yang, YangEnum};
+use super::yang::Yang;
 
 static VCH_JADA: &[u8] = core::include_bytes!(
     concat!(env!("CARGO_MANIFEST_DIR"), "/data/jada/voucher_jada123456789.vch"));
@@ -46,6 +46,13 @@ fn test_voucher_conversion() {
     assert!(Voucher::try_from(VCH_JADA).is_ok());
     assert!(Voucher::try_from(VCH_F2_00_02).is_ok());
     assert!(Voucher::try_from(VRQ_F2_00_02).is_ok());
+
+    if 10 == 1 { // todo: zzz ttt
+        Voucher::try_from(VCH_JADA).unwrap().iter().for_each(|attr| {
+            println!("attr: {:?}", attr);
+        });
+        panic!();
+    }
 
     let dummy: &[u8] = &[0, 1, 2];
     assert!(Voucher::try_from(dummy).is_err());
@@ -190,10 +197,9 @@ fn test_sign_vrq_f2_00_02() {
 
     assert!(vrq.validate(Some(KEY_PEM_F2_00_02)).is_ok()); // via private key
 
- /* zzz ccc
     assert!(debug::content_comp_permissive(
         &vrq.extract_cose_content().unwrap(), &content_vrq_f2_00_02()));
- */
+
     let (sig, ty) = vrq.get_signature();
     assert!(sig.len() > 0);
     assert_eq!(ty, &SignatureAlgorithm::ES256);
@@ -250,13 +256,13 @@ fn test_highlevel_interface() {
         .unwrap()
         .validate(Some(DEVICE_CRT_F2_00_02))
         .is_ok());
- /* zzz ccc
+
     assert!(debug::content_comp_permissive(
         &vrq.extract_cose_content().unwrap(), &content_vrq_f2_00_02()));
 
     assert_eq!(vrq.get_signature().0, /* asn1 */ [48, 70, 2, 33, 0, 164, 97, 9, 44, 103, 141, 55, 95, 230, 60, 165, 83, 63, 61, 81, 133, 98, 207, 213, 159, 74, 67, 180, 113, 158, 8, 220, 210, 48, 177, 185, 211, 2, 33, 0, 161, 49, 250, 154, 96, 186, 186, 87, 188, 188, 67, 249, 31, 177, 104, 160, 65, 12, 62, 87, 233, 231, 105, 58, 29, 215, 16, 227, 162, 179, 209, 110]);
     assert_eq!(vrq.serialize().unwrap().len(), 628);
- */
+
 
     assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&Attr::CreatedOn(1599086034)));
     assert_eq!(vrq.get(ATTR_EXPIRES_ON), None);

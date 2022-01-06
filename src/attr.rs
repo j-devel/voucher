@@ -1,6 +1,6 @@
 use crate::Vec;
-use super::sid::{self, CborType, Cbor, Sid, SidDisc};
-use super::yang::{Yang, YangEnum};
+use super::sid::{self, CborType, Sid, SidDisc};
+use super::yang::Yang;
 use core::convert::TryFrom;
 
 
@@ -28,6 +28,16 @@ pub enum Assertion {
     Proximity,
 }
 
+impl Assertion {
+    pub const fn value(self) -> &'static str {
+        match self {
+            Self::Verified => "verified",
+            Self::Logged => "logged",
+            Self::Proximity => "proximity",
+        }
+    }
+}
+
 #[repr(u8)]
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Attr {
@@ -48,17 +58,7 @@ pub enum Attr {
     SerialNumber(Vec<u8>) =                  ATTR_SERIAL_NUMBER,
 }
 
-const CBOR_TAG_UNIX_TIME: u64 = 0x01;
-
-/* zzz ttt // todo: "Cbor for Attr" to be called from `impl Cbor for Yang {` of 'yang.rs'
-let cbor = match self {
-    Yang::DateAndTime(x) => Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*x))),
-    Yang::String(x) => StringAsBytes(x.clone()),
-    Yang::Binary(x) => Bytes(x.clone()),
-    Yang::Boolean(x) => if *x { True } else { False },
-    Yang::Enumeration(x) => StringAsBytes(x.value().as_bytes().to_vec()),
-};
- */
+pub const CBOR_TAG_UNIX_TIME: u64 = 0x01;
 
 impl TryFrom<(&CborType, AttrDisc)> for Attr {
     type Error = ();
@@ -67,8 +67,8 @@ impl TryFrom<(&CborType, AttrDisc)> for Attr {
         use CborType::*;
 
         let (cbor, adisc) = input;
-
-/* zzz ttt
+// zzz ttt
+/*
         match cbor { // !!!! adapt !!!!
             (Tag(tag, bx), YANG_DATE_AND_TIME) => {
                 if *tag != CBOR_TAG_UNIX_TIME { return Err(()) }

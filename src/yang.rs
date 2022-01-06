@@ -1,8 +1,8 @@
-use crate::{Box, Vec};
+use crate::Box;
 use super::sid::{self, CborType, Cbor, SidDisc};
 use core::convert::TryFrom;
 
-use super::attr::{self, Attr};
+use super::attr::{self, Attr, CBOR_TAG_UNIX_TIME};
 
 pub type YangDisc = u8;
 pub const YANG_DATE_AND_TIME: YangDisc =  0x00; // 'yang:date-and-time'
@@ -21,26 +21,42 @@ pub enum Yang {
     Enumeration(Attr) =  YANG_ENUMERATION,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
-pub enum YangEnum {
-    Verified,
-    Logged,
-    Proximity,
-}
-
-impl YangEnum {
-    const fn value(self) -> &'static str {
-        match self {
-            Self::Verified => "verified",
-            Self::Logged => "logged",
-            Self::Proximity => "proximity",
-        }
-    }
-}
-
 impl Yang {
     pub fn disc(&self) -> YangDisc {
         core::intrinsics::discriminant_value(self)
+    }
+}
+
+impl Cbor for Yang {
+    fn to_cbor(&self) -> Option<CborType> {
+        use CborType::*;
+
+        match self {
+            Yang::DateAndTime(attr) => match attr {
+                Attr::CreatedOn(x) |
+                Attr::ExpiresOn(x) |
+                Attr::LastRenewalDate(x) => Some(Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*x)))),
+                _ => None,
+            },
+            Yang::String(attr) => if let Attr::SerialNumber(x) = attr {
+                Some(StringAsBytes(x.clone())) } else { None },
+            Yang::Binary(attr) => match attr {
+                Attr::IdevidIssuer(x) |
+                Attr::Nonce(x) |
+                Attr::PinnedDomainCert(x) |
+                Attr::PinnedDomainPubk(x) |
+                Attr::PinnedDomainPubkSha256(x) |
+                Attr::PriorSignedVoucherRequest(x) |
+                Attr::ProximityRegistrarCert(x) |
+                Attr::ProximityRegistrarPubk(x) |
+                Attr::ProximityRegistrarPubkSha256(x) => Some(Bytes(x.clone())),
+                _ => None,
+            },
+            Yang::Boolean(attr) => if let Attr::DomainCertRevocationChecks(x) = attr {
+                Some(if *x { True } else { False }) } else { None },
+            Yang::Enumeration(attr) => if let Attr::Assertion(x) = attr {
+                Some(StringAsBytes(x.value().as_bytes().to_vec())) } else { None },
+        }
     }
 }
 
@@ -87,15 +103,5 @@ impl TryFrom<(&CborType, SidDisc)> for Yang {
         };
 
         Ok(yg)
-    }
-}
-
-impl Cbor for Yang {
-    fn to_cbor(&self) -> Option<CborType> {
-        use CborType::*;
-
-        let cbor = Tag(0x01, Box::new(Integer(4242))); // todo: delegate "Cbor for Attr"
-
-        Some(cbor)
     }
 }
