@@ -274,7 +274,7 @@ fn test_highlevel_interface() {
         assert_eq!(attrs.len(), 6);
     }
 
-    if 1 == 1 { panic!(); } // !!!!!!!!
+//    if 1 == 1 { panic!(); } // !!!!!!!!
 
     //
 

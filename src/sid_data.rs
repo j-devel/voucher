@@ -1,6 +1,5 @@
 use crate::{println, Vec, BTreeMap, BTreeSet};
 use super::sid::{CborType, Cbor, Sid, TopLevel, SID_VCH_TOP_LEVEL, SID_VRQ_TOP_LEVEL};
-use core::intrinsics::discriminant_value as disc;
 use core::convert::TryFrom;
 
 #[derive(Clone, PartialEq, Debug)]
@@ -71,12 +70,12 @@ impl Cbor for SidData {
         };
 
         if set.contains(tl) {
-            Some(Map(BTreeMap::from([(Integer(disc(tl)), {
+            Some(Map(BTreeMap::from([(Integer(tl.disc()), {
                 let mut attrs = BTreeMap::new();
                 set.iter()
                     .filter(|sid| !matches!(*sid, Sid::VchTopLevel(_) | Sid::VrqTopLevel(_)))
                     .for_each(|sid| {
-                        let delta = disc(sid) - disc(tl);
+                        let delta = sid.disc() - tl.disc();
                         attrs.insert(Integer(delta), sid.to_cbor().unwrap());
                     });
 

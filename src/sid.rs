@@ -1,6 +1,5 @@
 use crate::Vec;
 use super::yang::{self, Yang};
-use core::intrinsics::discriminant_value as disc;
 use core::convert::TryFrom;
 
 pub use cose::decoder::CborType;
@@ -94,7 +93,7 @@ impl TopLevel {
 
 impl Ord for Sid {
     fn cmp(&self, other: &Self) -> core::cmp::Ordering {
-        disc(self).cmp(&disc(other))
+        self.disc().cmp(&other.disc())
     }
 }
 
@@ -106,13 +105,13 @@ impl PartialOrd for Sid {
 
 impl PartialEq for Sid {
     fn eq(&self, other: &Self) -> bool {
-        disc(self) == disc(other)
+        self.disc() == other.disc()
     }
 }
 
 impl Sid {
     pub fn disc(&self) -> SidDisc {
-        disc(self)
+        core::intrinsics::discriminant_value(self)
     }
 }
 
@@ -122,7 +121,7 @@ impl Cbor for Sid {
         use yang::*;
 
         let yang_to_cbor =
-            |yg: &Yang, ygd| if disc(yg) == ygd { yg.to_cbor() } else { None };
+            |yg: &Yang, ygd| if yg.disc() == ygd { yg.to_cbor() } else { None };
 
         match self {
             VchTopLevel(_) |
@@ -202,17 +201,17 @@ impl TryFrom<(Yang, SidDisc)> for Sid {
 fn test_sid_vch_f2_00_02() {
     use crate::{vec, attr::{Attr, Assertion}};
 
-    assert_eq!(disc(&Sid::VchTopLevel(TopLevel::VoucherVoucher)), SID_VCH_TOP_LEVEL);
-    assert_eq!(disc(&Sid::VchAssertion(Yang::Enumeration(Attr::Assertion(Assertion::Logged)))), SID_VCH_ASSERTION);
-    assert_eq!(disc(&Sid::VchCreatedOn(Yang::DateAndTime(Attr::CreatedOn(1599525239)))), SID_VCH_CREATED_ON);
-    assert_eq!(disc(&Sid::VchNonce(Yang::Binary(Attr::Nonce(vec![88, 83, 121, 70, 52, 76, 76, 73, 105, 113, 85, 50, 45, 79, 71, 107, 54, 108, 70, 67, 65, 103])))),
-               SID_VCH_NONCE);
-    assert_eq!(disc(&Sid::VchPinnedDomainCert(Yang::Binary(Attr::PinnedDomainCert("MIIB0TCCAVagAwIBAgIBAjAKBggqhkjOPQQDAzBxMRIwEAYKCZImiZPyLGQBGRYCY2ExGTAXBgoJkiaJk/IsZAEZFglzYW5kZWxtYW4xQDA+BgNVBAMMNyM8U3lzdGVtVmFyaWFibGU6MHgwMDAwMDAwNGY5MTFhMD4gVW5zdHJ1bmcgRm91bnRhaW4gQ0EwHhcNMTcxMTA3MjM0NTI4WhcNMTkxMTA3MjM0NTI4WjBDMRIwEAYKCZImiZPyLGQBGRYCY2ExGTAXBgoJkiaJk/IsZAEZFglzYW5kZWxtYW4xEjAQBgNVBAMMCWxvY2FsaG9zdDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJZlUHI0up/l3eZf9vCBb+lInoEMEgc7Ro+XZCtjAI0CD1fJfJR/hIyyDmHWyYiNFbRCH9fyarfkzgX4p0zTizqjDTALMAkGA1UdEwQCMAAwCgYIKoZIzj0EAwMDaQAwZgIxALQMNurf8tv50lROD5DQXHEOJJNW3QV2g9QEdDSk2MY+AoSrBSmGSNjh4olEOhEuLgIxAJ4nWfNw+BjbZmKiIiUEcTwHMhGVXaMHY/F7n39wwKcBBSOndNPqCpOELl6bq3CZqQ=="
-        .as_bytes().to_vec())))), SID_VCH_PINNED_DOMAIN_CERT);
+    assert_eq!(Sid::VchTopLevel(TopLevel::VoucherVoucher).disc(), SID_VCH_TOP_LEVEL);
+    assert_eq!(Sid::VchAssertion(Yang::Enumeration(Attr::Assertion(Assertion::Logged))).disc(), SID_VCH_ASSERTION);
+    assert_eq!(Sid::VchCreatedOn(Yang::DateAndTime(Attr::CreatedOn(1599525239))).disc(), SID_VCH_CREATED_ON);
+    assert_eq!(Sid::VchNonce(Yang::Binary(Attr::Nonce(vec![88, 83, 121, 70, 52, 76, 76, 73, 105, 113, 85, 50, 45, 79, 71, 107, 54, 108, 70, 67, 65, 103])))
+                   .disc(), SID_VCH_NONCE);
+    assert_eq!(Sid::VchPinnedDomainCert(Yang::Binary(Attr::PinnedDomainCert("MIIB0TCCAVagAwIBAgIBAjAKBggqhkjOPQQDAzBxMRIwEAYKCZImiZPyLGQBGRYCY2ExGTAXBgoJkiaJk/IsZAEZFglzYW5kZWxtYW4xQDA+BgNVBAMMNyM8U3lzdGVtVmFyaWFibGU6MHgwMDAwMDAwNGY5MTFhMD4gVW5zdHJ1bmcgRm91bnRhaW4gQ0EwHhcNMTcxMTA3MjM0NTI4WhcNMTkxMTA3MjM0NTI4WjBDMRIwEAYKCZImiZPyLGQBGRYCY2ExGTAXBgoJkiaJk/IsZAEZFglzYW5kZWxtYW4xEjAQBgNVBAMMCWxvY2FsaG9zdDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJZlUHI0up/l3eZf9vCBb+lInoEMEgc7Ro+XZCtjAI0CD1fJfJR/hIyyDmHWyYiNFbRCH9fyarfkzgX4p0zTizqjDTALMAkGA1UdEwQCMAAwCgYIKoZIzj0EAwMDaQAwZgIxALQMNurf8tv50lROD5DQXHEOJJNW3QV2g9QEdDSk2MY+AoSrBSmGSNjh4olEOhEuLgIxAJ4nWfNw+BjbZmKiIiUEcTwHMhGVXaMHY/F7n39wwKcBBSOndNPqCpOELl6bq3CZqQ=="
+        .as_bytes().to_vec()))).disc(), SID_VCH_PINNED_DOMAIN_CERT);
 
     let serial = "00-D0-E5-F2-00-02".as_bytes();
     assert_eq!(serial, [48, 48, 45, 68, 48, 45, 69, 53, 45, 70, 50, 45, 48, 48, 45, 48, 50]);
-    assert_eq!(disc(&Sid::VchSerialNumber(Yang::String(Attr::SerialNumber(serial.to_vec())))), SID_VCH_SERIAL_NUMBER);
+    assert_eq!(Sid::VchSerialNumber(Yang::String(Attr::SerialNumber(serial.to_vec()))).disc(), SID_VCH_SERIAL_NUMBER);
 }
 /* zzz ccc
 #[test]

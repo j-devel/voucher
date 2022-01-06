@@ -14,7 +14,6 @@ use mcu_if::{println, alloc};
 
 use alloc::{boxed::Box, vec, vec::Vec, collections::{BTreeMap, BTreeSet}};
 
-use core::intrinsics::discriminant_value as disc;
 use core::convert::TryFrom;
 
 //
@@ -218,7 +217,7 @@ impl Voucher {
     }
 
     pub fn set(&mut self, attr: Attr) -> &mut Self {
-        let sdisc = Attr::to_sid_disc(disc(&attr), self.sd.is_vrq()).unwrap();
+        let sdisc = Attr::to_sid_disc(attr.disc(), self.sd.is_vrq()).unwrap();
         self.set_sid(Sid::try_from((attr.into_yang(), sdisc)).unwrap());
 
         self

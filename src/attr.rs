@@ -125,6 +125,10 @@ impl TryFrom<(&CborType, AttrDisc)> for Attr {
 }
 
 impl Attr {
+    pub fn disc(&self) -> AttrDisc {
+        core::intrinsics::discriminant_value(self)
+    }
+
     pub fn into_yang(self) -> Yang {
         match self {
             Attr::Assertion(_) => Yang::Enumeration(self),

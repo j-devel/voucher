@@ -38,6 +38,12 @@ impl YangEnum {
     }
 }
 
+impl Yang {
+    pub fn disc(&self) -> YangDisc {
+        core::intrinsics::discriminant_value(self)
+    }
+}
+
 impl TryFrom<(&CborType, SidDisc)> for Yang {
     type Error = ();
 
