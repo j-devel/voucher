@@ -110,6 +110,12 @@ impl PartialEq for Sid {
     }
 }
 
+impl Sid {
+    pub fn disc(&self) -> SidDisc {
+        disc(self)
+    }
+}
+
 impl Cbor for Sid {
     fn to_cbor(&self) -> Option<CborType> {
         use Sid::*;

@@ -263,13 +263,14 @@ fn test_highlevel_interface() {
  */
 
     let attrs: Vec<_> = vrq.iter().collect();
+//    let attrs: Vec<_> = vrq.iter_with_sid().collect();
     println!("attrs: {:?}", attrs);
     assert_eq!(attrs.len(), 5);
 
     {
         let vch = Voucher::try_from(VCH_JADA).unwrap();
         let attrs: Vec<_> = vch.iter().collect();
-        println!("attrs: {:?}", attrs);
+        println!("attrs: {:?}", attrs); // !!!! todo; parse and populate data
         assert_eq!(attrs.len(), 6);
     }
 

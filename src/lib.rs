@@ -225,8 +225,13 @@ impl Voucher {
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &Attr> + '_ {
+        self.iter_with_sid()
+            .map(|(attr, _)| attr)
+    }
+
+    pub fn iter_with_sid(&self) -> impl Iterator<Item = (&Attr, sid::SidDisc)> + '_ {
         self.sd.inner().0.iter()
-            .filter_map(|sid| if let Some(attr) = Attr::resolve_sid(sid) { Some(attr) } else { None })
+            .filter_map(|sid| if let Some(attr) = Attr::resolve_sid(sid) { Some((attr, sid.disc())) } else { None })
     }
 
     // pub fn print(&self) -> { // ??
