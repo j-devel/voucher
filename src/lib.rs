@@ -178,6 +178,13 @@ impl Voucher {
         None // dummy; todo
     }
 
+    pub fn set(&mut self, attr: Attr) -> &mut Self {
+        let sdisc = Attr::to_sid_disc(attr.disc(), self.sd.is_vrq()).unwrap();
+        self.set_sid(Sid::try_from((attr.into_yang(), sdisc)).unwrap());
+
+        self
+    }
+
     pub fn get(&self, adisc: AttrDisc) -> Option<&Attr> {
         let (set, is_vrq) = self.sd.inner();
         let sdisc = Attr::to_sid_disc(adisc, is_vrq);
@@ -186,30 +193,12 @@ impl Voucher {
         let sdisc = sdisc.unwrap();
         debug_println!("sdisc: {}", sdisc);
 
-//         let mut out: Vec<_> = set.iter()
-// //            .filter_map(|sid| if disc(sid) == sdisc { Attr::try_from(sid).ok() } else { None })
-//             //====
-//             // .filter(|sid| {
-//             //     println!("disc(sid): {} sid: {:?}", disc(sid), sid);
-//             //     //disc(sid) == sdisc
-//             //     true
-//             // })
-//             // .filter_map(|sid| if let Some((_, yg)) = Attr::resolve_sid(sid) { Some(yg) } else { None })
-//             //====
-//             .collect();
-//         debug_println!("out: {:?}", out);
-//
-//         if out.len() == 1 { out.pop() } else { None }
-//         // if out.len() == 1 { Some(out[0]) } else { None }
-//====
-        None
-    }
+        let mut found = None;
+        set.iter().for_each(|sid| if sid.disc() == sdisc {
+            found = Attr::resolve_sid(sid);
+        });
 
-    pub fn set(&mut self, attr: Attr) -> &mut Self {
-        let sdisc = Attr::to_sid_disc(attr.disc(), self.sd.is_vrq()).unwrap();
-        self.set_sid(Sid::try_from((attr.into_yang(), sdisc)).unwrap());
-
-        self
+        found
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &Attr> + '_ {

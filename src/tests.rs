@@ -257,13 +257,10 @@ fn test_highlevel_interface() {
     assert_eq!(vrq.serialize().unwrap().len(), 628);
 */
 
- /* zzz ccc  !!!!!!!!
     assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&Attr::CreatedOn(1599086034)));
     assert_eq!(vrq.get(ATTR_EXPIRES_ON), None);
- */
 
     let attrs: Vec<_> = vrq.iter().collect();
-//    let attrs: Vec<_> = vrq.iter_with_sid().collect();
     println!("attrs: {:?}", attrs);
     assert_eq!(attrs.len(), 5);
 
