@@ -190,8 +190,7 @@ impl Voucher {
         None // dummy; todo
     }
 
-    pub fn get(&self, adisc: AttrDisc) -> Option<Attr> {
-//    pub fn get(&self, adisc: AttrDisc) -> Option<&yang::Yang> {
+    pub fn get(&self, adisc: AttrDisc) -> Option<&Attr> {
         let (set, is_vrq) = self.sd.inner();
         let sdisc = Attr::to_sid_disc(adisc, is_vrq);
 
