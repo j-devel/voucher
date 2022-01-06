@@ -1,6 +1,8 @@
 use crate::println;
 
-use crate::{SignatureAlgorithm, minerva_mbedtls_utils::*};
+use crate::SignatureAlgorithm;
+use super::utils::minerva_mbedtls_utils::*;
+
 use minerva_mbedtls::ifce::*;
 use core::ffi::c_void;
 
