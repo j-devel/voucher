@@ -21,7 +21,7 @@ mod tests;
 
 mod utils;
 
-mod attr;
+pub mod attr;
 use attr::*;
 
 mod yang;
@@ -174,10 +174,6 @@ impl Voucher {
         if self.sd.is_vrq() { VoucherType::Vrq } else { VoucherType::Vch }
     }
 
-    pub fn remove(&mut self, adisc: AttrDisc) -> Option<Attr> {
-        None // dummy; todo
-    }
-
     pub fn set(&mut self, attr: Attr) -> &mut Self {
         let sdisc = Attr::to_sid_disc(attr.disc(), self.sd.is_vrq()).unwrap();
         self.set_sid(Sid::try_from((attr.into_yang(), sdisc)).unwrap());
@@ -185,6 +181,58 @@ impl Voucher {
         self
     }
 
+    /// !!!!!!!!
+    pub fn len(&self) -> usize {
+        99
+    }
+
+    /// Removes an attribute from the voucher. Returns whether the attribute was present in the voucher.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use minerva_voucher::{Voucher, attr::*};
+    ///
+    /// let mut vrq = Voucher::new_vrq();
+    /// vrq.set(Attr::SerialNumber("JADA123456789".as_bytes().to_vec()));
+    ///
+    /// // /* todo */ assert_eq!(vrq.remove(ATTR_SERIAL_NUMBER), true);
+    /// assert_eq!(vrq.remove(ATTR_SERIAL_NUMBER), false);
+    /// ```
+    pub fn remove(&mut self, adisc: AttrDisc) -> bool {
+        false // dummy; todo
+    }
+
+    /// Removes and returns the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use minerva_voucher::{Voucher, attr::*};
+    ///
+    /// let mut vrq = Voucher::new_vrq();
+    /// vrq.set(Attr::CreatedOn(1599086034));
+    ///
+    /// // /* todo */ assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), Some(Attr::CreatedOn(1599086034)));
+    /// assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), None);
+    /// ```
+    pub fn take(&mut self, adisc: AttrDisc) -> Option<Attr> {
+        None // dummy; todo
+    }
+
+    /// Returns a reference to the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use minerva_voucher::{Voucher, attr::*};
+    ///
+    /// let mut vrq = Voucher::new_vrq();
+    /// vrq.set(Attr::CreatedOn(1599086034));
+    ///
+    /// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&Attr::CreatedOn(1599086034)));
+    /// assert_eq!(vrq.get(ATTR_SERIAL_NUMBER), None);
+    /// ```
     pub fn get(&self, adisc: AttrDisc) -> Option<&Attr> {
         let (set, is_vrq) = self.sd.inner();
         let sdisc = Attr::to_sid_disc(adisc, is_vrq);
