@@ -199,17 +199,30 @@ impl Voucher {
     /// use minerva_voucher::{Voucher, attr::*};
     ///
     /// let mut vrq = Voucher::new_vrq();
-    /// vrq.set(Attr::CreatedOn(1475868702));
     ///
+    /// vrq.set(Attr::CreatedOn(1475868702));
     /// assert_eq!(vrq.take(ATTR_CREATED_ON), Some(Attr::CreatedOn(1475868702)));
     /// assert_eq!(vrq.take(ATTR_CREATED_ON), None);
+    ///
+    /// let sn = "00-D0-E5-F2-00-02".as_bytes();
+    /// vrq.set(Attr::SerialNumber(sn.to_vec()));
+    /// assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), Some(Attr::SerialNumber(sn.to_vec())));
+    /// assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), None);
     /// ```
     pub fn take(&mut self, adisc: AttrDisc) -> Option<Attr> {
-        let dummy = Sid::VrqCreatedOn(yang::Yang::DateAndTime(Attr::CreatedOn(42))); // to generalize
+        let sdisc = Attr::to_sid_disc(adisc, self.sd.is_vrq());
+        if sdisc.is_none() { return None; }
+        let sdisc = sdisc.unwrap();
+
+        //
+
+        let dummy = Sid::try_from((
+            yang::Yang::DateAndTime(Attr::CreatedOn(0)) /* dummy */,  sdisc)).unwrap();
         let dummy_cloned = dummy.clone();
 
-        let removed = self.sd.replace(dummy);
+        //
 
+        let removed = self.sd.replace(dummy);
         let dummy_removal = self.sd.remove(&dummy_cloned);
         assert!(dummy_removal);
 
@@ -230,7 +243,7 @@ impl Voucher {
     /// assert_eq!(vrq.get(ATTR_SERIAL_NUMBER), None);
     /// ```
     pub fn get(&self, adisc: AttrDisc) -> Option<&Attr> {
-        self.get_sid(adisc).and_then(Attr::resolve_sid)
+        self.get_sid(adisc).and_then(Attr::from_sid_ref)
     }
 
     fn get_sid(&self, adisc: AttrDisc) -> Option<&Sid> {
@@ -312,7 +325,7 @@ impl Voucher {
 
     pub fn iter_with_sid(&self) -> impl Iterator<Item = (&Attr, sid::SidDisc)> + '_ {
         self.sd.inner().0.iter()
-            .filter_map(|sid| if let Some(attr) = Attr::resolve_sid(sid) { Some((attr, sid.disc())) } else { None })
+            .filter_map(|sid| if let Some(attr) = Attr::from_sid_ref(sid) { Some((attr, sid.disc())) } else { None })
     }
 
     // pub fn print(&self) -> { // ??

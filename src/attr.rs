@@ -149,7 +149,6 @@ impl Attr {
         }
     }
 
-    // todo refactor
     pub fn from_sid(sid: Sid) -> Option<Attr> {
         use Sid::*;
 
@@ -179,7 +178,7 @@ impl Attr {
         }
     }
 
-    pub fn resolve_sid(sid: &Sid) -> Option<&Attr> {
+    pub fn from_sid_ref(sid: &Sid) -> Option<&Attr> {
         use Sid::*;
 
         match sid {
