@@ -240,7 +240,7 @@ impl Voucher {
     }
 
     fn get_sid(&self, adisc: AttrDisc) -> Option<&Sid> {
-        let (set, is_vrq) = self.sd.inner();
+        let is_vrq = self.sd.is_vrq();
         let sdisc = Attr::to_sid_disc(adisc, is_vrq);
 
         if sdisc.is_none() { return None; }
@@ -248,7 +248,8 @@ impl Voucher {
         debug_println!("sdisc: {}", sdisc);
 
         let mut found = None;
-        set.iter().for_each(|sid| if sid.disc() == sdisc { found = Some(sid); });
+        self.sd.iter()
+            .for_each(|sid| if sid.disc() == sdisc { found = Some(sid); });
 
         found
     }
@@ -317,7 +318,7 @@ impl Voucher {
     }
 
     pub fn iter_with_sid(&self) -> impl Iterator<Item = (&Attr, sid::SidDisc)> + '_ {
-        self.sd.inner().0.iter()
+        self.sd.iter()
             .filter_map(|sid| if let Some(attr) = Attr::from_sid_ref(sid) { Some((attr, sid.disc())) } else { None })
     }
 

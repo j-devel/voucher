@@ -51,11 +51,15 @@ impl SidData {
         }
     }
 
-    pub fn inner(&self) -> (&BTreeSet<Sid>, bool /* is_vrq */) {
+    fn inner(&self) -> (&BTreeSet<Sid>, bool /* is_vrq */) {
         match self {
             Self::Voucher(set) => (set, false),
             Self::VoucherRequest(set) => (set, true),
         }
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &Sid> + '_ {
+        self.inner().0.iter()
     }
 
     pub fn is_vrq(&self) -> bool {
