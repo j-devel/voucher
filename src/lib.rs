@@ -27,7 +27,7 @@ use attr::*;
 mod yang;
 
 mod sid;
-use sid::Sid;
+use sid::{Sid, SidDisc};
 
 mod sid_data;
 use sid_data::SidData;
@@ -212,7 +212,7 @@ impl Voucher {
     pub fn take(&mut self, adisc: AttrDisc) -> Option<Attr> {
         let dummy = Sid::try_from((
             yang::Yang::DateAndTime(Attr::CreatedOn(0)) /* dummy */,
-            Attr::to_sid_disc(adisc, self.sd.is_vrq())?)).unwrap();
+            self.to_sid_disc(adisc)?)).ok()?;
 
         let dc = &dummy.clone();
         let removed = self.sd.replace(dummy);
@@ -239,19 +239,19 @@ impl Voucher {
         self.get_sid(adisc).and_then(Attr::from_sid_ref)
     }
 
+    fn to_sid_disc(&self, adisc: AttrDisc) -> Option<SidDisc> {
+        Attr::to_sid_disc(adisc, self.sd.is_vrq())
+    }
+
     fn get_sid(&self, adisc: AttrDisc) -> Option<&Sid> {
-        let is_vrq = self.sd.is_vrq();
-        let sdisc = Attr::to_sid_disc(adisc, is_vrq);
+        let sdisc = self.to_sid_disc(adisc)?;
+        for sid in self.sd.iter() {
+            if sid.disc() == sdisc {
+                return Some(sid);
+            }
+        }
 
-        if sdisc.is_none() { return None; }
-        let sdisc = sdisc.unwrap();
-        debug_println!("sdisc: {}", sdisc);
-
-        let mut found = None;
-        self.sd.iter()
-            .for_each(|sid| if sid.disc() == sdisc { found = Some(sid); });
-
-        found
+        None
     }
 
     /// Adds an attribute to the voucher, replacing the existing attribute, if any, that corresponds to the given one. Returns a `mut` reference to the voucher.
@@ -271,7 +271,7 @@ impl Voucher {
     /// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&Attr::CreatedOn(1599086034)));
     /// ```
     pub fn set(&mut self, attr: Attr) -> &mut Self {
-        let sdisc = Attr::to_sid_disc(attr.disc(), self.sd.is_vrq()).unwrap();
+        let sdisc = self.to_sid_disc(attr.disc()).unwrap();
         self.set_sid(Sid::try_from((attr.into_yang(), sdisc)).unwrap());
 
         self
