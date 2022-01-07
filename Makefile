@@ -18,6 +18,7 @@ init-rust-x86_64-nightly:
 
 doc:
 	cargo doc --no-deps
+doc-sync: doc
 	rsync -az target/doc/ doc/
 build:
 	cargo build --lib --release

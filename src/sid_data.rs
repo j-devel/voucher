@@ -36,8 +36,12 @@ impl SidData {
         Self::VoucherRequest(BTreeSet::from([Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher)]))
     }
 
-    pub fn replace(&mut self, sid: Sid) {
-        self.inner_mut().replace(sid);
+    pub fn replace(&mut self, sid: Sid) -> Option<Sid> {
+        self.inner_mut().replace(sid)
+    }
+
+    pub fn remove(&mut self, sid: &Sid) -> bool {
+        self.inner_mut().remove(sid)
     }
 
     fn inner_mut(&mut self) -> &mut BTreeSet<Sid> {
@@ -119,7 +123,7 @@ fn from_sidhash(sidhash: CborType) -> Option<SidData> {
         .filter_map(|(k, v)| if let Integer(delta) = k { Some((sid_tl_disc + delta, v)) } else { None })
         .map(|(sid_disc, v)| Sid::try_from(
             (Yang::try_from((v, sid_disc)).unwrap(), sid_disc)).unwrap())
-        .for_each(|sid| sd.replace(sid));
+        .for_each(|sid| { sd.replace(sid); });
 
     Some(sd)
 }

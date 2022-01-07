@@ -79,7 +79,7 @@ mod validate;
 ///
 /// ```
 ///
-/// A `Voucher` with a known list of voucher attributes can be initialized from a vector:
+/// A `Voucher` with a known list of attributes can be initialized from a vector:
 ///
 /// ```ignore
 /// use minerva_voucher::Voucher;
@@ -182,13 +182,13 @@ impl Voucher {
     /// use minerva_voucher::{Voucher, attr::*};
     ///
     /// let mut vrq = Voucher::new_vrq();
-    /// vrq.set(Attr::SerialNumber("JADA123456789".as_bytes().to_vec()));
+    /// vrq.set(Attr::CreatedOn(1475868702));
     ///
-    /// // /* todo */ assert_eq!(vrq.remove(ATTR_SERIAL_NUMBER), true);
-    /// assert_eq!(vrq.remove(ATTR_SERIAL_NUMBER), false);
+    /// assert_eq!(vrq.remove(ATTR_CREATED_ON), true);
+    /// assert_eq!(vrq.remove(ATTR_CREATED_ON), false);
     /// ```
     pub fn remove(&mut self, adisc: AttrDisc) -> bool {
-        false // dummy; todo
+        self.take(adisc).is_some()
     }
 
     /// Removes and returns the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.
@@ -201,11 +201,19 @@ impl Voucher {
     /// let mut vrq = Voucher::new_vrq();
     /// vrq.set(Attr::CreatedOn(1475868702));
     ///
-    /// // /* todo */ assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), Some(Attr::CreatedOn(1475868702)));
-    /// assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), None);
+    /// assert_eq!(vrq.take(ATTR_CREATED_ON), Some(Attr::CreatedOn(1475868702)));
+    /// assert_eq!(vrq.take(ATTR_CREATED_ON), None);
     /// ```
     pub fn take(&mut self, adisc: AttrDisc) -> Option<Attr> {
-        None // dummy; todo
+        let dummy = Sid::VrqCreatedOn(yang::Yang::DateAndTime(Attr::CreatedOn(42))); // to generalize
+        let dummy_cloned = dummy.clone();
+
+        let removed = self.sd.replace(dummy);
+
+        let dummy_removal = self.sd.remove(&dummy_cloned);
+        assert!(dummy_removal);
+
+        removed.and_then(Attr::from_sid)
     }
 
     /// Returns a reference to the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.
@@ -222,6 +230,10 @@ impl Voucher {
     /// assert_eq!(vrq.get(ATTR_SERIAL_NUMBER), None);
     /// ```
     pub fn get(&self, adisc: AttrDisc) -> Option<&Attr> {
+        self.get_sid(adisc).and_then(Attr::resolve_sid)
+    }
+
+    fn get_sid(&self, adisc: AttrDisc) -> Option<&Sid> {
         let (set, is_vrq) = self.sd.inner();
         let sdisc = Attr::to_sid_disc(adisc, is_vrq);
 
@@ -230,9 +242,7 @@ impl Voucher {
         debug_println!("sdisc: {}", sdisc);
 
         let mut found = None;
-        set.iter().for_each(|sid| if sid.disc() == sdisc {
-            found = Attr::resolve_sid(sid);
-        });
+        set.iter().for_each(|sid| if sid.disc() == sdisc { found = Some(sid); });
 
         found
     }
