@@ -107,113 +107,64 @@
 <span id="105">105</span>
 <span id="106">106</span>
 <span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
-<span id="130">130</span>
-<span id="131">131</span>
-<span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Box</span>, <span class="ident">Vec</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::sid_data</span>::{<span class="ident">CborType</span>, <span class="ident">Cbor</span>, <span class="ident">SidDisc</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Box</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::sid</span>::{<span class="self">self</span>, <span class="ident">CborType</span>, <span class="ident">Cbor</span>, <span class="ident">SidDisc</span>};
 <span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
 
+<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::attr</span>::{<span class="self">self</span>, <span class="ident">Attr</span>, <span class="ident">CBOR_TAG_UNIX_TIME</span>};
+
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">YangDisc</span> <span class="op">=</span> <span class="ident">u8</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">YANG_DATE_AND_TIME</span>: <span class="ident">YangDisc</span> <span class="op">=</span> <span class="number">0</span>; <span class="comment">// &#39;yang:date-and-time&#39;</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">YANG_STRING</span>: <span class="ident">YangDisc</span> <span class="op">=</span>        <span class="number">1</span>; <span class="comment">// &#39;string&#39;</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">YANG_BINARY</span>: <span class="ident">YangDisc</span> <span class="op">=</span>        <span class="number">2</span>; <span class="comment">// &#39;binary&#39;</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">YANG_BOOLEAN</span>: <span class="ident">YangDisc</span> <span class="op">=</span>       <span class="number">3</span>; <span class="comment">// &#39;boolean&#39;</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">YANG_ENUMERATION</span>: <span class="ident">YangDisc</span> <span class="op">=</span>   <span class="number">4</span>; <span class="comment">// &#39;enumeration&#39;</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">YANG_DATE_AND_TIME</span>: <span class="ident">YangDisc</span> <span class="op">=</span>  <span class="number">0x00</span>; <span class="comment">// &#39;yang:date-and-time&#39;</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">YANG_STRING</span>: <span class="ident">YangDisc</span> <span class="op">=</span>         <span class="number">0x01</span>; <span class="comment">// &#39;string&#39;</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">YANG_BINARY</span>: <span class="ident">YangDisc</span> <span class="op">=</span>         <span class="number">0x02</span>; <span class="comment">// &#39;binary&#39;</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">YANG_BOOLEAN</span>: <span class="ident">YangDisc</span> <span class="op">=</span>        <span class="number">0x03</span>; <span class="comment">// &#39;boolean&#39;</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">YANG_ENUMERATION</span>: <span class="ident">YangDisc</span> <span class="op">=</span>    <span class="number">0x04</span>; <span class="comment">// &#39;enumeration&#39;</span>
 
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u8</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Yang</span> {
-    <span class="ident">DateAndTime</span>(<span class="ident">u64</span>) <span class="op">=</span>      <span class="ident">YANG_DATE_AND_TIME</span>,
-    <span class="ident">String</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span>       <span class="ident">YANG_STRING</span>,
-    <span class="ident">Binary</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span>       <span class="ident">YANG_BINARY</span>,
-    <span class="ident">Boolean</span>(<span class="ident">bool</span>) <span class="op">=</span>         <span class="ident">YANG_BOOLEAN</span>,
-    <span class="ident">Enumeration</span>(<span class="ident">YangEnum</span>) <span class="op">=</span> <span class="ident">YANG_ENUMERATION</span>,
+    <span class="ident">DateAndTime</span>(<span class="ident">Attr</span>) <span class="op">=</span>  <span class="ident">YANG_DATE_AND_TIME</span>,
+    <span class="ident">String</span>(<span class="ident">Attr</span>) <span class="op">=</span>       <span class="ident">YANG_STRING</span>,
+    <span class="ident">Binary</span>(<span class="ident">Attr</span>) <span class="op">=</span>       <span class="ident">YANG_BINARY</span>,
+    <span class="ident">Boolean</span>(<span class="ident">Attr</span>) <span class="op">=</span>      <span class="ident">YANG_BOOLEAN</span>,
+    <span class="ident">Enumeration</span>(<span class="ident">Attr</span>) <span class="op">=</span>  <span class="ident">YANG_ENUMERATION</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">YangEnum</span> {
-    <span class="ident">Verified</span>,
-    <span class="ident">Logged</span>,
-    <span class="ident">Proximity</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">YangEnum</span> {
-    <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">value</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Verified</span> =&gt; <span class="string">&quot;verified&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::Logged</span> =&gt; <span class="string">&quot;logged&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::Proximity</span> =&gt; <span class="string">&quot;proximity&quot;</span>,
-        }
+<span class="kw">impl</span> <span class="ident">Yang</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">YangDisc</span> {
+        <span class="ident">core::intrinsics::discriminant_value</span>(<span class="self">self</span>)
     }
 }
 
-<span class="kw">const</span> <span class="ident">CBOR_TAG_UNIX_TIME</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">0x01</span>;
-
-<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">CborType</span>, <span class="ident">YangDisc</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Yang</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> ();
-
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">input</span>: (<span class="kw-2">&amp;</span><span class="ident">CborType</span>, <span class="ident">YangDisc</span>)) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">Cbor</span> <span class="kw">for</span> <span class="ident">Yang</span> {
+    <span class="kw">fn</span> <span class="ident">to_cbor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CborType</span><span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident">CborType</span>::<span class="kw-2">*</span>;
 
-        <span class="kw">match</span> <span class="ident">input</span> {
-            (<span class="ident">Tag</span>(<span class="ident">tag</span>, <span class="ident">bx</span>), <span class="ident">YANG_DATE_AND_TIME</span>) =&gt; {
-                <span class="macro">assert_eq!</span>(<span class="kw-2">*</span><span class="ident">tag</span>, <span class="ident">CBOR_TAG_UNIX_TIME</span>); <span class="comment">// !!</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Integer</span>(<span class="ident">dat</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">bx</span> { <span class="prelude-val">Ok</span>(<span class="ident">Yang::DateAndTime</span>(<span class="ident">dat</span>)) } <span class="kw">else</span> { <span class="prelude-val">Err</span>(()) }
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">Yang::DateAndTime</span>(<span class="ident">attr</span>) =&gt; <span class="kw">match</span> <span class="ident">attr</span> {
+                <span class="ident">Attr::CreatedOn</span>(<span class="ident">x</span>) <span class="op">|</span>
+                <span class="ident">Attr::ExpiresOn</span>(<span class="ident">x</span>) <span class="op">|</span>
+                <span class="ident">Attr::LastRenewalDate</span>(<span class="ident">x</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">Tag</span>(<span class="ident">CBOR_TAG_UNIX_TIME</span>, <span class="ident">Box::new</span>(<span class="ident">Integer</span>(<span class="kw-2">*</span><span class="ident">x</span>)))),
+                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
             },
-            (<span class="ident">Bytes</span>(<span class="ident">x</span>), <span class="ident">YANG_STRING</span>) <span class="op">|</span>          <span class="comment">// vrq samples {Rust,Ruby}-generated</span>
-            (<span class="ident">StringAsBytes</span>(<span class="ident">x</span>), <span class="ident">YANG_STRING</span>) =&gt; <span class="comment">// vch samples (old?)</span>
-                <span class="prelude-val">Ok</span>(<span class="ident">Yang::String</span>(<span class="ident">x</span>.<span class="ident">to_vec</span>())),
-            (<span class="ident">StringAsBytes</span>(<span class="ident">x</span>), <span class="ident">YANG_BINARY</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Yang::Binary</span>(<span class="ident">x</span>.<span class="ident">to_vec</span>())),
-            (<span class="ident">True</span>, <span class="ident">YANG_BOOLEAN</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Yang::Boolean</span>(<span class="bool-val">true</span>)),
-            (<span class="ident">False</span>, <span class="ident">YANG_BOOLEAN</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Yang::Boolean</span>(<span class="bool-val">false</span>)),
-            (<span class="ident">StringAsBytes</span>(<span class="ident">x</span>), <span class="ident">YANG_ENUMERATION</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">cands</span> <span class="op">=</span> [
-                    <span class="ident">YangEnum::Verified</span>,
-                    <span class="ident">YangEnum::Logged</span>,
-                    <span class="ident">YangEnum::Proximity</span>,
-                ];
-                <span class="kw">let</span> <span class="ident">residue</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">cands</span>.<span class="ident">iter</span>()
-                    .<span class="ident">enumerate</span>()
-                    .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="ident">ye</span>)<span class="op">|</span> <span class="kw">if</span> <span class="ident">ye</span>.<span class="ident">value</span>().<span class="ident">as_bytes</span>() <span class="op">==</span> <span class="ident">x</span> { <span class="prelude-val">Some</span>(<span class="ident">cands</span>[<span class="ident">i</span>]) } <span class="kw">else</span> { <span class="prelude-val">None</span> })
-                    .<span class="ident">collect</span>();
-                <span class="kw">if</span> <span class="ident">residue</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> { <span class="prelude-val">Ok</span>(<span class="ident">Yang::Enumeration</span>(<span class="ident">residue</span>[<span class="number">0</span>])) } <span class="kw">else</span> { <span class="prelude-val">Err</span>(()) }
+            <span class="ident">Yang::String</span>(<span class="ident">attr</span>) =&gt; <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Attr::SerialNumber</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">attr</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">StringAsBytes</span>(<span class="ident">x</span>.<span class="ident">clone</span>())) } <span class="kw">else</span> { <span class="prelude-val">None</span> },
+            <span class="ident">Yang::Binary</span>(<span class="ident">attr</span>) =&gt; <span class="kw">match</span> <span class="ident">attr</span> {
+                <span class="ident">Attr::IdevidIssuer</span>(<span class="ident">x</span>) <span class="op">|</span>
+                <span class="ident">Attr::Nonce</span>(<span class="ident">x</span>) <span class="op">|</span>
+                <span class="ident">Attr::PinnedDomainCert</span>(<span class="ident">x</span>) <span class="op">|</span>
+                <span class="ident">Attr::PinnedDomainPubk</span>(<span class="ident">x</span>) <span class="op">|</span>
+                <span class="ident">Attr::PinnedDomainPubkSha256</span>(<span class="ident">x</span>) <span class="op">|</span>
+                <span class="ident">Attr::PriorSignedVoucherRequest</span>(<span class="ident">x</span>) <span class="op">|</span>
+                <span class="ident">Attr::ProximityRegistrarCert</span>(<span class="ident">x</span>) <span class="op">|</span>
+                <span class="ident">Attr::ProximityRegistrarPubk</span>(<span class="ident">x</span>) <span class="op">|</span>
+                <span class="ident">Attr::ProximityRegistrarPubkSha256</span>(<span class="ident">x</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">Bytes</span>(<span class="ident">x</span>.<span class="ident">clone</span>())),
+                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
             },
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(()),
+            <span class="ident">Yang::Boolean</span>(<span class="ident">attr</span>) =&gt; <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Attr::DomainCertRevocationChecks</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">attr</span> {
+                <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="kw-2">*</span><span class="ident">x</span> { <span class="ident">True</span> } <span class="kw">else</span> { <span class="ident">False</span> }) } <span class="kw">else</span> { <span class="prelude-val">None</span> },
+            <span class="ident">Yang::Enumeration</span>(<span class="ident">attr</span>) =&gt; <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Attr::Assertion</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">attr</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">StringAsBytes</span>(<span class="ident">x</span>.<span class="ident">value</span>().<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>())) } <span class="kw">else</span> { <span class="prelude-val">None</span> },
         }
     }
 }
@@ -222,72 +173,47 @@
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> ();
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">input</span>: (<span class="kw-2">&amp;</span><span class="ident">CborType</span>, <span class="ident">SidDisc</span>)) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::sid_data</span>::<span class="kw-2">*</span>;
+        <span class="kw">use</span> <span class="ident">attr</span>::<span class="kw-2">*</span>;
+        <span class="kw">use</span> <span class="ident">sid</span>::<span class="kw-2">*</span>;
 
         <span class="kw">let</span> (<span class="ident">cbor</span>, <span class="ident">sid_disc</span>) <span class="op">=</span> <span class="ident">input</span>;
-        <span class="kw">match</span> <span class="ident">sid_disc</span> {
-            <span class="ident">SID_VCH_ASSERTION</span> <span class="op">|</span>
-            <span class="ident">SID_VRQ_ASSERTION</span> =&gt;
-                <span class="ident">Yang::try_from</span>((<span class="ident">cbor</span>, <span class="ident">YANG_ENUMERATION</span>)),
-            <span class="ident">SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS</span> <span class="op">|</span>
-            <span class="ident">SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS</span> =&gt;
-                <span class="ident">Yang::try_from</span>((<span class="ident">cbor</span>, <span class="ident">YANG_BOOLEAN</span>)),
-            <span class="ident">SID_VCH_CREATED_ON</span> <span class="op">|</span>
-            <span class="ident">SID_VCH_EXPIRES_ON</span> <span class="op">|</span>
-            <span class="ident">SID_VCH_LAST_RENEWAL_DATE</span> <span class="op">|</span>
-            <span class="ident">SID_VRQ_CREATED_ON</span> <span class="op">|</span>
-            <span class="ident">SID_VRQ_EXPIRES_ON</span> <span class="op">|</span>
-            <span class="ident">SID_VRQ_LAST_RENEWAL_DATE</span> =&gt;
-                <span class="ident">Yang::try_from</span>((<span class="ident">cbor</span>, <span class="ident">YANG_DATE_AND_TIME</span>)),
-            <span class="ident">SID_VCH_IDEVID_ISSUER</span> <span class="op">|</span>
-            <span class="ident">SID_VCH_NONCE</span> <span class="op">|</span>
-            <span class="ident">SID_VCH_PINNED_DOMAIN_CERT</span> <span class="op">|</span>
-            <span class="ident">SID_VCH_PINNED_DOMAIN_PUBK</span> <span class="op">|</span>
-            <span class="ident">SID_VCH_PINNED_DOMAIN_PUBK_SHA256</span> <span class="op">|</span>
-            <span class="ident">SID_VRQ_IDEVID_ISSUER</span> <span class="op">|</span>
-            <span class="ident">SID_VRQ_NONCE</span> <span class="op">|</span>
-            <span class="ident">SID_VRQ_PINNED_DOMAIN_CERT</span> <span class="op">|</span>
-            <span class="ident">SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST</span> <span class="op">|</span>
-            <span class="ident">SID_VRQ_PROXIMITY_REGISTRAR_CERT</span> <span class="op">|</span>
-            <span class="ident">SID_VRQ_PROXIMITY_REGISTRAR_PUBK</span> <span class="op">|</span>
+        <span class="kw">let</span> <span class="ident">yg</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">sid_disc</span> {
+            <span class="ident">SID_VCH_ASSERTION</span> <span class="op">|</span> <span class="ident">SID_VRQ_ASSERTION</span> =&gt;
+                <span class="ident">Yang::Enumeration</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_ASSERTION</span>))<span class="question-mark">?</span>),
+            <span class="ident">SID_VCH_CREATED_ON</span> <span class="op">|</span> <span class="ident">SID_VRQ_CREATED_ON</span> =&gt;
+                <span class="ident">Yang::DateAndTime</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_CREATED_ON</span>))<span class="question-mark">?</span>),
+            <span class="ident">SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS</span> <span class="op">|</span> <span class="ident">SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS</span> =&gt;
+                <span class="ident">Yang::Boolean</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_DOMAIN_CERT_REVOCATION_CHECKS</span>))<span class="question-mark">?</span>),
+            <span class="ident">SID_VCH_EXPIRES_ON</span> <span class="op">|</span> <span class="ident">SID_VRQ_EXPIRES_ON</span> =&gt;
+                <span class="ident">Yang::DateAndTime</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_EXPIRES_ON</span>))<span class="question-mark">?</span>),
+            <span class="ident">SID_VCH_IDEVID_ISSUER</span> <span class="op">|</span> <span class="ident">SID_VRQ_IDEVID_ISSUER</span> =&gt;
+                <span class="ident">Yang::Binary</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_IDEVID_ISSUER</span>))<span class="question-mark">?</span>),
+            <span class="ident">SID_VCH_LAST_RENEWAL_DATE</span> <span class="op">|</span> <span class="ident">SID_VRQ_LAST_RENEWAL_DATE</span> =&gt;
+                <span class="ident">Yang::DateAndTime</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_LAST_RENEWAL_DATE</span>))<span class="question-mark">?</span>),
+            <span class="ident">SID_VCH_NONCE</span> <span class="op">|</span> <span class="ident">SID_VRQ_NONCE</span> =&gt;
+                <span class="ident">Yang::Binary</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_NONCE</span>))<span class="question-mark">?</span>),
+            <span class="ident">SID_VCH_PINNED_DOMAIN_CERT</span> <span class="op">|</span> <span class="ident">SID_VRQ_PINNED_DOMAIN_CERT</span> =&gt;
+                <span class="ident">Yang::Binary</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_PINNED_DOMAIN_CERT</span>))<span class="question-mark">?</span>),
+            <span class="ident">SID_VCH_PINNED_DOMAIN_PUBK</span> =&gt;
+                <span class="ident">Yang::Binary</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_PINNED_DOMAIN_PUBK</span>))<span class="question-mark">?</span>),
+            <span class="ident">SID_VCH_PINNED_DOMAIN_PUBK_SHA256</span> =&gt;
+                <span class="ident">Yang::Binary</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_PINNED_DOMAIN_PUBK_SHA256</span>))<span class="question-mark">?</span>),
+            <span class="ident">SID_VRQ_PRIOR_SIGNED_VOUCHER_REQUEST</span> =&gt;
+                <span class="ident">Yang::Binary</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_PRIOR_SIGNED_VOUCHER_REQUEST</span>))<span class="question-mark">?</span>),
+            <span class="ident">SID_VRQ_PROXIMITY_REGISTRAR_CERT</span> =&gt;
+                <span class="ident">Yang::Binary</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_PROXIMITY_REGISTRAR_CERT</span>))<span class="question-mark">?</span>),
+            <span class="ident">SID_VRQ_PROXIMITY_REGISTRAR_PUBK</span> =&gt;
+                <span class="ident">Yang::Binary</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_PROXIMITY_REGISTRAR_PUBK</span>))<span class="question-mark">?</span>),
             <span class="ident">SID_VRQ_PROXIMITY_REGISTRAR_PUBK_SHA256</span> =&gt;
-                <span class="ident">Yang::try_from</span>((<span class="ident">cbor</span>, <span class="ident">YANG_BINARY</span>)),
-            <span class="ident">SID_VCH_SERIAL_NUMBER</span> <span class="op">|</span>
-            <span class="ident">SID_VRQ_SERIAL_NUMBER</span> =&gt;
-                <span class="ident">Yang::try_from</span>((<span class="ident">cbor</span>, <span class="ident">YANG_STRING</span>)),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(()),
-        }
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Cbor</span> <span class="kw">for</span> <span class="ident">Yang</span> {
-    <span class="kw">fn</span> <span class="ident">to_cbor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CborType</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">CborType</span>::<span class="kw-2">*</span>;
-
-        <span class="kw">let</span> <span class="ident">cbor</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Yang::DateAndTime</span>(<span class="ident">x</span>) =&gt; <span class="ident">Tag</span>(<span class="ident">CBOR_TAG_UNIX_TIME</span>, <span class="ident">Box::new</span>(<span class="ident">Integer</span>(<span class="kw-2">*</span><span class="ident">x</span>))),
-            <span class="ident">Yang::String</span>(<span class="ident">x</span>) =&gt; <span class="ident">StringAsBytes</span>(<span class="ident">x</span>.<span class="ident">clone</span>()),
-            <span class="ident">Yang::Binary</span>(<span class="ident">x</span>) =&gt; <span class="ident">StringAsBytes</span>(<span class="ident">x</span>.<span class="ident">clone</span>()),
-            <span class="ident">Yang::Boolean</span>(<span class="ident">x</span>) =&gt; <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">x</span> { <span class="ident">True</span> } <span class="kw">else</span> { <span class="ident">False</span> },
-            <span class="ident">Yang::Enumeration</span>(<span class="ident">x</span>) =&gt; <span class="ident">StringAsBytes</span>(<span class="ident">x</span>.<span class="ident">value</span>().<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>()),
+                <span class="ident">Yang::Binary</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256</span>))<span class="question-mark">?</span>),
+            <span class="ident">SID_VCH_SERIAL_NUMBER</span> <span class="op">|</span> <span class="ident">SID_VRQ_SERIAL_NUMBER</span> =&gt;
+                <span class="ident">Yang::String</span>(<span class="ident">Attr::try_from</span>((<span class="ident">cbor</span>, <span class="ident">ATTR_SERIAL_NUMBER</span>))<span class="question-mark">?</span>),
+            <span class="kw">_</span> =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(()),
         };
 
-        <span class="prelude-val">Some</span>(<span class="ident">cbor</span>)
+        <span class="prelude-val">Ok</span>(<span class="ident">yg</span>)
     }
 }
-
-<span class="attribute">#[<span class="ident">test</span>]</span>
-<span class="kw">fn</span> <span class="ident">test_yang_conversion</span>() {
-    <span class="kw">use</span> <span class="ident">core::convert::TryInto</span>;
-
-    <span class="kw">let</span> <span class="kw-2">ref</span> <span class="ident">cbor</span> <span class="op">=</span> <span class="ident">CborType::Tag</span>(<span class="ident">CBOR_TAG_UNIX_TIME</span>, <span class="ident">Box::new</span>(<span class="ident">CborType::Integer</span>(<span class="number">42</span>)));
-    <span class="macro">assert_eq!</span>(<span class="ident">Yang::try_from</span>((<span class="ident">cbor</span>, <span class="ident">YANG_DATE_AND_TIME</span>)), <span class="prelude-val">Ok</span>(<span class="ident">Yang::DateAndTime</span>(<span class="number">42</span>)));
-
-    <span class="kw">let</span> <span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Yang</span>, ()<span class="op">&gt;</span> <span class="op">=</span> (<span class="ident">cbor</span>, <span class="ident">YANG_DATE_AND_TIME</span>).<span class="ident">try_into</span>();
-    <span class="macro">assert_eq!</span>(<span class="ident">result</span>, <span class="prelude-val">Ok</span>(<span class="ident">Yang::DateAndTime</span>(<span class="number">42</span>)));
-
-    <span class="comment">// TODO tests for other YANG variants</span>
-}
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="minerva_voucher" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0-nightly (91a0600a5 2021-12-18)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="minerva_voucher" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0-nightly (cfa4ac66c 2022-01-06)" ></div>
 </body></html>

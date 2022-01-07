@@ -414,6 +414,21 @@
 <span id="412">412</span>
 <span id="413">413</span>
 <span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">no_std</span>]</span>
 
 <span class="attribute">#![<span class="ident">feature</span>(<span class="ident">arbitrary_enum_discriminant</span>)]</span>
@@ -428,29 +443,54 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;std&quot;</span>))]</span>
 <span class="kw">use</span> <span class="ident">mcu_if</span>::{<span class="ident">println</span>, <span class="ident">alloc</span>};
 
-<span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">boxed::Box</span>, <span class="ident">string</span>::{<span class="self">self</span>, <span class="ident">String</span>}, <span class="ident">vec</span>, <span class="ident">vec::Vec</span>, <span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>}};
+<span class="kw">use</span> <span class="ident">alloc</span>::{<span class="ident">boxed::Box</span>, <span class="ident">vec</span>, <span class="ident">vec::Vec</span>, <span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>}};
 
-<span class="comment">//</span>
+<span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
-<span class="comment">//</span>
+<span class="kw">mod</span> <span class="ident">utils</span>;
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">attr</span>;
+<span class="kw">use</span> <span class="ident">attr</span>::<span class="kw-2">*</span>;
 
 <span class="kw">mod</span> <span class="ident">yang</span>;
+
+<span class="kw">mod</span> <span class="ident">sid</span>;
+<span class="kw">use</span> <span class="ident">sid::Sid</span>;
+
 <span class="kw">mod</span> <span class="ident">sid_data</span>;
-<span class="kw">use</span> <span class="ident">sid_data</span>::{<span class="ident">SidData</span>, <span class="ident">Sid</span>, <span class="ident">Yang</span>, <span class="ident">YangEnum</span>};
+<span class="kw">use</span> <span class="ident">sid_data::SidData</span>;
 
 <span class="kw">mod</span> <span class="ident">cose_sig</span>;
 <span class="kw">mod</span> <span class="ident">cose_data</span>;
 <span class="kw">use</span> <span class="ident">cose_data</span>::{<span class="ident">CoseData</span>, <span class="ident">COSE_SIGN_ONE_TAG</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">cose_data::SignatureAlgorithm</span>;
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">debug</span> {
     <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::cose_sig</span>::{<span class="ident">sig_one_struct_bytes_from</span>, <span class="ident">CborType</span>, <span class="ident">decode</span>};
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::sid_data</span>::{<span class="ident">content_comp</span>, <span class="ident">content_vch_f2_00_02</span>, <span class="ident">content_vch_jada</span>};
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">content_vch_f2_00_02</span> <span class="kw">as</span> <span class="ident">vrhash_sidhash_content_02_00_2e</span>; <span class="comment">// shim TEMP !!!!</span>
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::sid_data</span>::{<span class="ident">content_comp</span>, <span class="ident">content_comp_permissive</span>};
 }
+
+<span class="comment">//</span>
+
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sign</span> {
+    <span class="kw">fn</span> <span class="ident">sign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">privkey_pem</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">alg</span>: <span class="ident">SignatureAlgorithm</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span>, ()<span class="op">&gt;</span>;
+}
+
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Validate</span> {
+    <span class="kw">fn</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pem</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="self">Self</span>, ()<span class="op">&gt;</span>;
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sign&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sign-lts&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">sign</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate-lts&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">validate</span>;
+
+<span class="comment">//</span>
 
 <span class="doccomment">/// A compact CBOR-encoded voucher defined by [Constrained BRSKI].</span>
 <span class="doccomment">///</span>
@@ -470,7 +510,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// A `Voucher` with a known list of voucher attributes can be initialized from a vector:</span>
+<span class="doccomment">/// A `Voucher` with a known list of attributes can be initialized from a vector:</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```ignore</span>
 <span class="doccomment">/// use minerva_voucher::Voucher;</span>
@@ -487,9 +527,9 @@
 <span class="doccomment">/// ```ignore</span>
 <span class="doccomment">/// use core::convert::{TryFrom, TryInto};</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// let vch = Voucher::try_from(VOUCHER_JADA).unwrap();</span>
+<span class="doccomment">/// let vch = Voucher::try_from(VCH_JADA).unwrap();</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// let result: Result&lt;Voucher, _&gt; = VOUCHER_JADA.try_into();</span>
+<span class="doccomment">/// let result: Result&lt;Voucher, _&gt; = VCH_JADA.try_into();</span>
 <span class="doccomment">/// assert!(result.is_ok());</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// // (Add how to access the voucher attributes ...)</span>
@@ -500,74 +540,14 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Voucher</span> {
-    <span class="ident">sid</span>: <span class="ident">SidData</span>,
-    <span class="ident">cose</span>: <span class="ident">CoseData</span>,
+    <span class="ident">sd</span>: <span class="ident">SidData</span>,
+    <span class="ident">cd</span>: <span class="ident">CoseData</span>,
 }
-
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sign</span> {
-    <span class="kw">fn</span> <span class="ident">sign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">privkey_pem</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">alg</span>: <span class="ident">SignatureAlgorithm</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span>, ()<span class="op">&gt;</span>;
-}
-
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Validate</span> {
-    <span class="kw">fn</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pem</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="self">Self</span>, ()<span class="op">&gt;</span>;
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sign&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sign-lts&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">sign</span>;
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate-lts&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">validate</span>;
-
-<span class="comment">//</span>
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">VoucherType</span> {
     <span class="ident">Vch</span>, <span class="comment">// &#39;voucher&#39;</span>
     <span class="ident">Vrq</span>, <span class="comment">// &#39;voucher request&#39;</span>
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Assertion</span> {
-    <span class="ident">Verified</span>,
-    <span class="ident">Logged</span>,
-    <span class="ident">Proximity</span>,
-}
-
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">AttrDisc</span> <span class="op">=</span> <span class="ident">u8</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_ASSERTION</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>                         <span class="number">0x00</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_CREATED_ON</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>                        <span class="number">0x01</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_DOMAIN_CERT_REVOCATION_CHECKS</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>     <span class="number">0x02</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_EXPIRES_ON</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>                        <span class="number">0x03</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_IDEVID_ISSUER</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>                     <span class="number">0x04</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_LAST_RENEWAL_DATE</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>                 <span class="number">0x05</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_NONCE</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>                             <span class="number">0x06</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_PINNED_DOMAIN_CERT</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>                <span class="number">0x07</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_PINNED_DOMAIN_PUBK</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>                <span class="number">0x20</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_PINNED_DOMAIN_PUBK_SHA256</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>         <span class="number">0x21</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_PRIOR_SIGNED_VOUCHER_REQUEST</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>      <span class="number">0x40</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_PROXIMITY_REGISTRAR_CERT</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>          <span class="number">0x41</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_PROXIMITY_REGISTRAR_PUBK</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>          <span class="number">0x42</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>   <span class="number">0x43</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ATTR_SERIAL_NUMBER</span>: <span class="ident">AttrDisc</span> <span class="op">=</span>                     <span class="number">0x08</span>;
-
-<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u8</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Attr</span> {
-    <span class="ident">Assertion</span>(<span class="ident">Assertion</span>) <span class="op">=</span>                   <span class="ident">ATTR_ASSERTION</span>,
-    <span class="ident">CreatedOn</span>(<span class="ident">u64</span>) <span class="op">=</span>                         <span class="ident">ATTR_CREATED_ON</span>,
-    <span class="ident">DomainCertRevocationChecks</span>(<span class="ident">bool</span>) <span class="op">=</span>       <span class="ident">ATTR_DOMAIN_CERT_REVOCATION_CHECKS</span>,
-    <span class="ident">ExpiresOn</span>(<span class="ident">u64</span>) <span class="op">=</span>                         <span class="ident">ATTR_EXPIRES_ON</span>,
-    <span class="ident">IdevidIssuer</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span>                  <span class="ident">ATTR_IDEVID_ISSUER</span>,
-    <span class="ident">LastRenewalDate</span>(<span class="ident">u64</span>) <span class="op">=</span>                   <span class="ident">ATTR_LAST_RENEWAL_DATE</span>,
-    <span class="ident">Nonce</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span>                         <span class="ident">ATTR_NONCE</span>,
-    <span class="ident">PinnedDomainCert</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span>              <span class="ident">ATTR_PINNED_DOMAIN_CERT</span>,
-    <span class="ident">PinnedDomainPubk</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span>              <span class="ident">ATTR_PINNED_DOMAIN_PUBK</span>,              <span class="comment">// vch only</span>
-    <span class="ident">PinnedDomainPubkSha256</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span>        <span class="ident">ATTR_PINNED_DOMAIN_PUBK_SHA256</span>,       <span class="comment">// vch only</span>
-    <span class="ident">PriorSignedVoucherRequest</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span>     <span class="ident">ATTR_PRIOR_SIGNED_VOUCHER_REQUEST</span>,    <span class="comment">// vrq only</span>
-    <span class="ident">ProximityRegistrarCert</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span>        <span class="ident">ATTR_PROXIMITY_REGISTRAR_CERT</span>,        <span class="comment">// vrq only</span>
-    <span class="ident">ProximityRegistrarPubk</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span>        <span class="ident">ATTR_PROXIMITY_REGISTRAR_PUBK</span>,        <span class="comment">// vrq only</span>
-    <span class="ident">ProximityRegistrarPubkSha256</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">=</span>  <span class="ident">ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256</span>, <span class="comment">// vrq only</span>
-    <span class="ident">SerialNumber</span>(<span class="ident">String</span>) <span class="op">=</span>                   <span class="ident">ATTR_SERIAL_NUMBER</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Voucher</span> {
@@ -580,16 +560,16 @@
     <span class="doccomment">/// ```ignore</span>
     <span class="doccomment">/// use minerva_voucher::{Voucher,VoucherType};</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let vrq = HashSet::new(VoucherType::Vrq);</span>
-    <span class="doccomment">/// let vch = HashSet::new(VoucherType::Vch);</span>
+    <span class="doccomment">/// let vrq = Voucher::new(VoucherType::Vrq);</span>
+    <span class="doccomment">/// let vch = Voucher::new(VoucherType::Vch);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ty</span>: <span class="ident">VoucherType</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">sid</span>: <span class="kw">match</span> <span class="ident">ty</span> {
+            <span class="ident">sd</span>: <span class="kw">match</span> <span class="ident">ty</span> {
                 <span class="ident">VoucherType::Vch</span> =&gt; <span class="ident">SidData::new_vch_cbor</span>(),
                 <span class="ident">VoucherType::Vrq</span> =&gt; <span class="ident">SidData::new_vrq_cbor</span>(),
             },
-            <span class="ident">cose</span>: <span class="ident">CoseData::new</span>(<span class="bool-val">true</span>),
+            <span class="ident">cd</span>: <span class="ident">CoseData::new</span>(<span class="bool-val">true</span>),
         }
     }
 
@@ -618,85 +598,175 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">CoseData::encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cose</span>).<span class="ident">ok</span>()
+        <span class="ident">CoseData::encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cd</span>).<span class="ident">ok</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_voucher_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">VoucherType</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">sid</span>.<span class="ident">is_vrq</span>() { <span class="ident">VoucherType::Vrq</span> } <span class="kw">else</span> { <span class="ident">VoucherType::Vch</span> }
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">is_vrq</span>() { <span class="ident">VoucherType::Vrq</span> } <span class="kw">else</span> { <span class="ident">VoucherType::Vch</span> }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">attr_disc</span>: <span class="ident">AttrDisc</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Attr</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span> <span class="comment">// dummy; todo</span>
+    <span class="doccomment">/// Removes an attribute from the voucher. Returns whether the attribute was present in the voucher.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use minerva_voucher::{Voucher, attr::*};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut vrq = Voucher::new_vrq();</span>
+    <span class="doccomment">/// vrq.set(Attr::CreatedOn(1475868702));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(vrq.remove(ATTR_CREATED_ON), true);</span>
+    <span class="doccomment">/// assert_eq!(vrq.remove(ATTR_CREATED_ON), false);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">adisc</span>: <span class="ident">AttrDisc</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">take</span>(<span class="ident">adisc</span>).<span class="ident">is_some</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">attr_disc</span>: <span class="ident">AttrDisc</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Attr</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">core::intrinsics::discriminant_value</span> <span class="kw">as</span> <span class="ident">disc</span>;
+    <span class="doccomment">/// Removes and returns the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use minerva_voucher::{Voucher, attr::*};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut vrq = Voucher::new_vrq();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// vrq.set(Attr::CreatedOn(1475868702));</span>
+    <span class="doccomment">/// assert_eq!(vrq.take(ATTR_CREATED_ON), Some(Attr::CreatedOn(1475868702)));</span>
+    <span class="doccomment">/// assert_eq!(vrq.take(ATTR_CREATED_ON), None);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let sn = &quot;00-D0-E5-F2-00-02&quot;.as_bytes();</span>
+    <span class="doccomment">/// vrq.set(Attr::SerialNumber(sn.to_vec()));</span>
+    <span class="doccomment">/// assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), Some(Attr::SerialNumber(sn.to_vec())));</span>
+    <span class="doccomment">/// assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), None);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">adisc</span>: <span class="ident">AttrDisc</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Attr</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">dummy</span> <span class="op">=</span> <span class="ident">Sid::try_from</span>((
+            <span class="ident">yang::Yang::DateAndTime</span>(<span class="ident">Attr::CreatedOn</span>(<span class="number">0</span>)) <span class="comment">/* dummy */</span>,
+            <span class="ident">Attr::to_sid_disc</span>(<span class="ident">adisc</span>, <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">is_vrq</span>())<span class="question-mark">?</span>)).<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> (<span class="ident">set</span>, <span class="ident">is_vrq</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">sid</span>.<span class="ident">inner</span>();
-        <span class="kw">let</span> <span class="ident">sid_disc</span> <span class="op">=</span> <span class="ident">sid_data::SID_VRQ_CREATED_ON</span>; <span class="comment">// &lt;- attr_disc, is_vrq; todo !!!!</span>
+        <span class="kw">let</span> <span class="ident">dc</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">dummy</span>.<span class="ident">clone</span>();
+        <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">replace</span>(<span class="ident">dummy</span>);
+        <span class="kw">let</span> <span class="ident">dummy_removal</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">remove</span>(<span class="ident">dc</span>);
+        <span class="macro">assert!</span>(<span class="ident">dummy_removal</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">set</span>.<span class="ident">iter</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">sid</span><span class="op">|</span> <span class="kw">if</span> <span class="ident">disc</span>(<span class="ident">sid</span>) <span class="op">==</span> <span class="ident">sid_disc</span> { <span class="prelude-val">Some</span>(<span class="ident">Attr::CreatedOn</span>(<span class="number">1635218340</span>)) } <span class="kw">else</span> { <span class="prelude-val">None</span> })
-<span class="comment">// /* todo */ .filter_map(|sid| if disc(sid) == sid_disc { Some(Attr::try_from(sid)) } else { None })</span>
-            .<span class="ident">collect</span>();
-        <span class="macro">println!</span>(<span class="string">&quot;out: {:?}&quot;</span>, <span class="ident">out</span>);
-        <span class="kw">if</span> <span class="ident">out</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> { <span class="ident">out</span>.<span class="ident">pop</span>() } <span class="kw">else</span> { <span class="prelude-val">None</span> }
+        <span class="ident">removed</span>.<span class="ident">and_then</span>(<span class="ident">Attr::from_sid</span>)
     }
 
+    <span class="doccomment">/// Returns a reference to the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use minerva_voucher::{Voucher, attr::*};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut vrq = Voucher::new_vrq();</span>
+    <span class="doccomment">/// vrq.set(Attr::CreatedOn(1475868702));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&amp;Attr::CreatedOn(1475868702)));</span>
+    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_SERIAL_NUMBER), None);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">adisc</span>: <span class="ident">AttrDisc</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Attr</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">get_sid</span>(<span class="ident">adisc</span>).<span class="ident">and_then</span>(<span class="ident">Attr::from_sid_ref</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">get_sid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">adisc</span>: <span class="ident">AttrDisc</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Sid</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">is_vrq</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">is_vrq</span>();
+        <span class="kw">let</span> <span class="ident">sdisc</span> <span class="op">=</span> <span class="ident">Attr::to_sid_disc</span>(<span class="ident">adisc</span>, <span class="ident">is_vrq</span>);
+
+        <span class="kw">if</span> <span class="ident">sdisc</span>.<span class="ident">is_none</span>() { <span class="kw">return</span> <span class="prelude-val">None</span>; }
+        <span class="kw">let</span> <span class="ident">sdisc</span> <span class="op">=</span> <span class="ident">sdisc</span>.<span class="ident">unwrap</span>();
+        <span class="macro">debug_println!</span>(<span class="string">&quot;sdisc: {}&quot;</span>, <span class="ident">sdisc</span>);
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">iter</span>()
+            .<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">sid</span><span class="op">|</span> <span class="kw">if</span> <span class="ident">sid</span>.<span class="ident">disc</span>() <span class="op">==</span> <span class="ident">sdisc</span> { <span class="ident">found</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sid</span>); });
+
+        <span class="ident">found</span>
+    }
+
+    <span class="doccomment">/// Adds an attribute to the voucher, replacing the existing attribute, if any, that corresponds to the given one. Returns a `mut` reference to the voucher.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use minerva_voucher::{Voucher, attr::*};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut vrq = Voucher::new_vrq();</span>
+    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_CREATED_ON), None);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// vrq.set(Attr::CreatedOn(1475868702));</span>
+    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&amp;Attr::CreatedOn(1475868702)));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// vrq.set(Attr::CreatedOn(1599086034));</span>
+    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&amp;Attr::CreatedOn(1599086034)));</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">attr</span>: <span class="ident">Attr</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="kw">use</span> <span class="ident">Sid</span>::<span class="kw-2">*</span>;
-        <span class="kw">use</span> <span class="ident">Yang</span>::<span class="kw-2">*</span>;
-
-        <span class="kw">let</span> <span class="ident">is_vrq</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sid</span>.<span class="ident">is_vrq</span>();
-        <span class="kw">let</span> <span class="ident">is_vch</span> <span class="op">=</span> <span class="op">!</span><span class="ident">is_vrq</span>;
-        <span class="kw">let</span> <span class="ident">sid_assertion</span> <span class="op">=</span> <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw">if</span> <span class="ident">is_vrq</span> { <span class="ident">VrqAssertion</span>(<span class="ident">x</span>) } <span class="kw">else</span> { <span class="ident">VchAssertion</span>(<span class="ident">x</span>) };
-
-        <span class="kw">let</span> <span class="ident">sid</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">attr</span> {
-            <span class="ident">Attr::Assertion</span>(<span class="ident">inner</span>) =&gt; <span class="kw">match</span> <span class="ident">inner</span> {
-                <span class="ident">Assertion::Verified</span> =&gt; <span class="ident">sid_assertion</span>(<span class="ident">Enumeration</span>(<span class="ident">YangEnum::Verified</span>)),
-                <span class="ident">Assertion::Logged</span> =&gt; <span class="ident">sid_assertion</span>(<span class="ident">Enumeration</span>(<span class="ident">YangEnum::Logged</span>)),
-                <span class="ident">Assertion::Proximity</span> =&gt; <span class="ident">sid_assertion</span>(<span class="ident">Enumeration</span>(<span class="ident">YangEnum::Proximity</span>)),
-            },
-            <span class="ident">Attr::DomainCertRevocationChecks</span>(<span class="ident">x</span>) =&gt; <span class="kw">if</span> <span class="ident">is_vrq</span> { <span class="ident">VrqDomainCertRevocationChecks</span>(<span class="ident">Boolean</span>(<span class="ident">x</span>)) } <span class="kw">else</span> { <span class="ident">VchDomainCertRevocationChecks</span>(<span class="ident">Boolean</span>(<span class="ident">x</span>)) },
-            <span class="ident">Attr::CreatedOn</span>(<span class="ident">x</span>) =&gt; <span class="kw">if</span> <span class="ident">is_vrq</span> { <span class="ident">VrqCreatedOn</span>(<span class="ident">DateAndTime</span>(<span class="ident">x</span>)) } <span class="kw">else</span> { <span class="ident">VchCreatedOn</span>(<span class="ident">DateAndTime</span>(<span class="ident">x</span>)) },
-            <span class="ident">Attr::ExpiresOn</span>(<span class="ident">x</span>) =&gt; <span class="kw">if</span> <span class="ident">is_vrq</span> { <span class="ident">VrqExpiresOn</span>(<span class="ident">DateAndTime</span>(<span class="ident">x</span>)) } <span class="kw">else</span> { <span class="ident">VchExpiresOn</span>(<span class="ident">DateAndTime</span>(<span class="ident">x</span>)) },
-            <span class="ident">Attr::LastRenewalDate</span>(<span class="ident">x</span>) =&gt; <span class="kw">if</span> <span class="ident">is_vrq</span> { <span class="ident">VrqLastRenewalDate</span>(<span class="ident">DateAndTime</span>(<span class="ident">x</span>)) } <span class="kw">else</span> { <span class="ident">VchLastRenewalDate</span>(<span class="ident">DateAndTime</span>(<span class="ident">x</span>)) },
-            <span class="ident">Attr::IdevidIssuer</span>(<span class="ident">x</span>) =&gt; <span class="kw">if</span> <span class="ident">is_vrq</span> { <span class="ident">VrqIdevidIssuer</span>(<span class="ident">Binary</span>(<span class="ident">x</span>)) } <span class="kw">else</span> { <span class="ident">VchIdevidIssuer</span>(<span class="ident">Binary</span>(<span class="ident">x</span>)) },
-            <span class="ident">Attr::Nonce</span>(<span class="ident">x</span>) =&gt; <span class="kw">if</span> <span class="ident">is_vrq</span> { <span class="ident">VrqNonce</span>(<span class="ident">Binary</span>(<span class="ident">x</span>)) } <span class="kw">else</span> { <span class="ident">VchNonce</span>(<span class="ident">Binary</span>(<span class="ident">x</span>)) },
-            <span class="ident">Attr::PinnedDomainCert</span>(<span class="ident">x</span>) =&gt; <span class="kw">if</span> <span class="ident">is_vrq</span> { <span class="ident">VrqPinnedDomainCert</span>(<span class="ident">Binary</span>(<span class="ident">x</span>)) } <span class="kw">else</span> { <span class="ident">VchPinnedDomainCert</span>(<span class="ident">Binary</span>(<span class="ident">x</span>)) },
-            <span class="ident">Attr::PinnedDomainPubk</span>(<span class="ident">x</span>) =&gt; { <span class="macro">assert!</span>(<span class="ident">is_vch</span>); <span class="ident">VchPinnedDomainPubk</span>(<span class="ident">Binary</span>(<span class="ident">x</span>)) },
-            <span class="ident">Attr::PinnedDomainPubkSha256</span>(<span class="ident">x</span>) =&gt; { <span class="macro">assert!</span>(<span class="ident">is_vch</span>); <span class="ident">VchPinnedDomainPubkSha256</span>(<span class="ident">Binary</span>(<span class="ident">x</span>)) },
-            <span class="ident">Attr::PriorSignedVoucherRequest</span>(<span class="ident">x</span>) =&gt; { <span class="macro">assert!</span>(<span class="ident">is_vrq</span>); <span class="ident">VrqPriorSignedVoucherRequest</span>(<span class="ident">Binary</span>(<span class="ident">x</span>)) },
-            <span class="ident">Attr::ProximityRegistrarCert</span>(<span class="ident">x</span>) =&gt; { <span class="macro">assert!</span>(<span class="ident">is_vrq</span>); <span class="ident">VrqProximityRegistrarCert</span>(<span class="ident">Binary</span>(<span class="ident">x</span>)) },
-            <span class="ident">Attr::ProximityRegistrarPubk</span>(<span class="ident">x</span>) =&gt; { <span class="macro">assert!</span>(<span class="ident">is_vrq</span>); <span class="ident">VrqProximityRegistrarPubk</span>(<span class="ident">Binary</span>(<span class="ident">x</span>)) },
-            <span class="ident">Attr::ProximityRegistrarPubkSha256</span>(<span class="ident">x</span>) =&gt; { <span class="macro">assert!</span>(<span class="ident">is_vrq</span>); <span class="ident">VrqProximityRegistrarPubkSha256</span>(<span class="ident">Binary</span>(<span class="ident">x</span>)) },
-            <span class="ident">Attr::SerialNumber</span>(<span class="ident">x</span>) =&gt; <span class="kw">if</span> <span class="ident">is_vrq</span> { <span class="ident">VrqSerialNumber</span>(<span class="ident">String</span>(<span class="ident">x</span>.<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>())) } <span class="kw">else</span> { <span class="ident">VchSerialNumber</span>(<span class="ident">String</span>(<span class="ident">x</span>.<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>())) },
-        };
-
-        <span class="self">self</span>.<span class="ident">set_sid</span>(<span class="ident">sid</span>);
+        <span class="kw">let</span> <span class="ident">sdisc</span> <span class="op">=</span> <span class="ident">Attr::to_sid_disc</span>(<span class="ident">attr</span>.<span class="ident">disc</span>(), <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">is_vrq</span>()).<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">set_sid</span>(<span class="ident">Sid::try_from</span>((<span class="ident">attr</span>.<span class="ident">into_yang</span>(), <span class="ident">sdisc</span>)).<span class="ident">unwrap</span>());
 
         <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Returns the number of attributes in the voucher.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use minerva_voucher::{Voucher, attr::Attr};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut vrq = Voucher::new_vrq();</span>
+    <span class="doccomment">/// assert_eq!(vrq.len(), 0);</span>
+    <span class="doccomment">/// vrq.set(Attr::CreatedOn(1475868702));</span>
+    <span class="doccomment">/// assert_eq!(vrq.len(), 1);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">iter</span>().<span class="ident">count</span>()
+    }
+
+    <span class="doccomment">/// Gets an iterator that visits the attributes in the voucher.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use minerva_voucher::{Voucher, attr::{Attr, Assertion}};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut vrq = Voucher::new_vrq();</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// vrq.set(Attr::Assertion(Assertion::Proximity))</span>
+    <span class="doccomment">///     .set(Attr::CreatedOn(1599086034))</span>
+    <span class="doccomment">///     .set(Attr::SerialNumber(&quot;00-D0-E5-F2-00-02&quot;.as_bytes().to_vec()));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut vrq_iter = vrq.iter();</span>
+    <span class="doccomment">/// assert!(vrq_iter.next().is_some());</span>
+    <span class="doccomment">/// assert!(vrq_iter.next().is_some());</span>
+    <span class="doccomment">/// assert!(vrq_iter.next().is_some());</span>
+    <span class="doccomment">/// assert!(vrq_iter.next().is_none());</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Attr</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
+        <span class="self">self</span>.<span class="ident">iter_with_sid</span>()
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">attr</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">attr</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_with_sid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="ident">Attr</span>, <span class="ident">sid::SidDisc</span>)<span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
+        <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">iter</span>()
+            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">sid</span><span class="op">|</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">attr</span>) <span class="op">=</span> <span class="ident">Attr::from_sid_ref</span>(<span class="ident">sid</span>) { <span class="prelude-val">Some</span>((<span class="ident">attr</span>, <span class="ident">sid</span>.<span class="ident">disc</span>())) } <span class="kw">else</span> { <span class="prelude-val">None</span> })
     }
 
     <span class="comment">// pub fn print(&amp;self) -&gt; { // ??</span>
-    <span class="comment">//     self.sid.dump();</span>
-    <span class="comment">//     self.cose.dump();</span>
+    <span class="comment">//     self.sd.dump();</span>
+    <span class="comment">//     self.cd.dump();</span>
     <span class="comment">// }</span>
     <span class="comment">//----^^^^ Attr layer API</span>
 
-    <span class="comment">//----vvvv SID/YANG layer API</span>
-    <span class="comment">// pub fn sid_iter(&amp;self) -&gt; xx {}</span>
-    <span class="comment">// pub fn sid_iter_mut(&amp;mut self) -&gt; xx {}</span>
-    <span class="comment">// pub fn sid_remove() -&gt; {}</span>
-    <span class="comment">// pub fn sid_get() -&gt; &amp;Sid {}</span>
-    <span class="comment">// pub fn sid_get_mut() -&gt; &amp;mut Sid {}</span>
-    <span class="comment">/* (pub sid_set(..) -&gt; */</span> <span class="kw">fn</span> <span class="ident">set_sid</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">sid</span>: <span class="ident">Sid</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">sid</span>.<span class="ident">replace</span>(<span class="ident">sid</span>);
+    <span class="kw">fn</span> <span class="ident">set_sid</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">sid</span>: <span class="ident">Sid</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">replace</span>(<span class="ident">sid</span>);
 
         <span class="self">self</span>
     }
+
     <span class="comment">//----vvvv COSE layer API</span>
-    <span class="comment">// pub fn cose_content() -&gt; Option&lt;Vec&lt;u8&gt;&gt; {} // &lt;&lt;? `pub fn get_content_debug(&amp;self)`</span>
+    <span class="comment">// pub fn cose_content() -&gt; Option&lt;Vec&lt;u8&gt;&gt; {} // &lt;&lt;? `pub fn extract_cose_content(&amp;self)`</span>
     <span class="comment">// pub fn cose_signature() -&gt; xx {} // &lt;&lt;? `pub fn get_signature(&amp;self)`</span>
 
     <span class="doccomment">/// Interface with meta data to be used in ECDSA based signing</span>
@@ -705,7 +775,7 @@
 
         <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">update_cose_content</span>()
-            .<span class="ident">cose</span>.<span class="ident">sig_mut</span>().<span class="ident">deref_mut</span>();
+            .<span class="ident">cd</span>.<span class="ident">sig_mut</span>().<span class="ident">deref_mut</span>();
 
         (<span class="kw-2">&amp;mut</span> <span class="ident">sig</span>.<span class="ident">signature</span>, <span class="kw-2">&amp;mut</span> <span class="ident">sig</span>.<span class="ident">signature_type</span>, <span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">to_verify</span>)
     }
@@ -714,60 +784,54 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_validate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
         <span class="kw">let</span> (<span class="ident">signature</span>, <span class="ident">alg</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_signature</span>();
 
-        (<span class="self">self</span>.<span class="ident">get_signer_cert</span>(), <span class="ident">signature</span>, <span class="ident">alg</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cose</span>.<span class="ident">sig</span>().<span class="ident">to_verify</span>)
+        (<span class="self">self</span>.<span class="ident">get_signer_cert</span>(), <span class="ident">signature</span>, <span class="ident">alg</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">sig</span>().<span class="ident">to_verify</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">update_cose_content</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="kw">use</span> <span class="ident">sid_data::Cbor</span>;
+        <span class="kw">use</span> <span class="ident">sid::Cbor</span>;
 
-        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cbor</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">sid</span>.<span class="ident">serialize</span>() {
-            <span class="ident">cbor</span>
-        } <span class="kw">else</span> {
+        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cbor</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">serialize</span>() { <span class="ident">cbor</span> } <span class="kw">else</span> {
             <span class="macro">println!</span>(<span class="string">&quot;update_cose_content(): Failed to generate `content`&quot;</span>);
 
             <span class="macro">vec!</span>[]
         };
 
-        <span class="self">self</span>.<span class="ident">cose</span>.<span class="ident">set_content</span>(<span class="kw-2">&amp;</span><span class="ident">content</span>);
+        <span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">set_content</span>(<span class="kw-2">&amp;</span><span class="ident">content</span>);
 
         <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_content_debug</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="macro">println!</span>(<span class="string">&quot;get_content_debug(): self.sid: {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">sid</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract_cose_content</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="macro">debug_println!</span>(<span class="string">&quot;extract_cose_content(): self.sd: {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">sd</span>);
 
-        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cose</span>.<span class="ident">get_content</span>();
-        <span class="macro">println!</span>(<span class="string">&quot;get_content_debug(): content: {:?}&quot;</span>, <span class="ident">content</span>);
+        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">get_content</span>();
+        <span class="macro">debug_println!</span>(<span class="string">&quot;extract_cose_content(): content: {:?}&quot;</span>, <span class="ident">content</span>);
 
         <span class="ident">content</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_signature</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>) {
-        <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cose</span>.<span class="ident">sig</span>();
+        <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">sig</span>();
 
         (<span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">signature</span>, <span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">signature_type</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_signer_cert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">signer_cert</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cose</span>.<span class="ident">sig</span>().<span class="ident">signer_cert</span>;
+        <span class="kw">let</span> <span class="ident">signer_cert</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">sig</span>().<span class="ident">signer_cert</span>;
 
         <span class="kw">if</span> <span class="ident">signer_cert</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span> { <span class="prelude-val">Some</span>(<span class="ident">signer_cert</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dump</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">cose</span>.<span class="ident">dump</span>();
+        <span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">dump</span>();
     }
 }
-
-<span class="comment">//</span>
-
-<span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
 
 <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Voucher</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">tag</span>, <span class="ident">cose</span>) <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">CoseData::decode</span>(<span class="ident">raw</span>) { <span class="ident">x</span> } <span class="kw">else</span> {
+        <span class="kw">let</span> (<span class="ident">tag</span>, <span class="ident">cd</span>) <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">CoseData::decode</span>(<span class="ident">raw</span>) { <span class="ident">x</span> } <span class="kw">else</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;Failed to decode raw voucher&quot;</span>);
         };
 
@@ -775,58 +839,25 @@
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;Only `CoseSign1` vouchers are supported&quot;</span>);
         }
 
-        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">cose</span>.<span class="ident">get_content</span>() { <span class="ident">x</span> } <span class="kw">else</span> {
+        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">cd</span>.<span class="ident">get_content</span>() { <span class="ident">x</span> } <span class="kw">else</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;Invalid `content`&quot;</span>);
         };
 
         <span class="kw">let</span> <span class="ident">sidhash</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">cose_sig::decode</span>(<span class="kw-2">&amp;</span><span class="ident">content</span>) { <span class="ident">x</span> } <span class="kw">else</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="string">&quot;Failed to decode `content`&quot;</span>);
         };
-        <span class="macro">println!</span>(<span class="string">&quot;sidhash: {:?}&quot;</span>, <span class="ident">sidhash</span>);
+
+        <span class="macro">debug_println!</span>(<span class="string">&quot;sidhash: {:?}&quot;</span>, <span class="ident">sidhash</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">sd</span>) <span class="op">=</span> <span class="ident">SidData::try_from</span>(<span class="ident">sidhash</span>) {
-            <span class="comment">//use sid_data::Cbor; panic!(&quot;sd.to_cbor(): {:?}&quot;, sd.to_cbor()); // check!!</span>
-            <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">sid</span>: <span class="ident">sd</span>, <span class="ident">cose</span> })
+            <span class="macro">debug_println!</span>(<span class="string">&quot;sd: {:?}&quot;</span>, <span class="ident">sd</span>);
+
+            <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">sd</span>, <span class="ident">cd</span> })
         } <span class="kw">else</span> {
             <span class="prelude-val">Err</span>(<span class="string">&quot;Filed to decode `sidhash`&quot;</span>)
         }
     }
 }
-
-<span class="comment">//</span>
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sign&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sign-lts&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate-lts&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">minerva_mbedtls_utils</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">minerva_mbedtls::ifce</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">core::ffi::c_void</span>;
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compute_digest</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">alg</span>: <span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>) -&gt; (<span class="ident">md_type</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">alg</span> {
-            <span class="ident">SignatureAlgorithm::ES256</span> =&gt; <span class="ident">md_type::MBEDTLS_MD_SHA256</span>,
-            <span class="ident">SignatureAlgorithm::ES384</span> =&gt; <span class="ident">md_type::MBEDTLS_MD_SHA384</span>,
-            <span class="ident">SignatureAlgorithm::ES512</span> =&gt; <span class="ident">md_type::MBEDTLS_MD_SHA512</span>,
-            <span class="ident">SignatureAlgorithm::PS256</span> =&gt; <span class="macro">unimplemented!</span>(<span class="string">&quot;handle PS256&quot;</span>),
-        };
-
-        (<span class="ident">ty</span>, <span class="ident">md_info::from_type</span>(<span class="ident">ty</span>).<span class="ident">md</span>(<span class="ident">msg</span>))
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pk_from_privkey_pem</span>(<span class="ident">privkey_pem</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">f_rng</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">pk_context</span>, <span class="ident">mbedtls_error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pk</span> <span class="op">=</span> <span class="ident">pk_context::new</span>();
-
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate-lts&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sign-lts&quot;</span>))]</span>
-        {
-            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">f_rng</span>;
-            <span class="ident">pk</span>.<span class="ident">parse_key_lts</span>(<span class="ident">privkey_pem</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>;
-        }
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate-lts&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sign-lts&quot;</span>)))]</span>
-        {
-            <span class="ident">pk</span>.<span class="ident">parse_key</span>(<span class="ident">privkey_pem</span>, <span class="prelude-val">None</span>, <span class="ident">f_rng</span>, <span class="ident">core::ptr::null</span>())<span class="question-mark">?</span>;
-        }
-
-        <span class="prelude-val">Ok</span>(<span class="ident">pk</span>)
-    }
-}</code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="minerva_voucher" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0-nightly (91a0600a5 2021-12-18)" ></div>
+</code></pre></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="minerva_voucher" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0-nightly (cfa4ac66c 2022-01-06)" ></div>
 </body></html>
