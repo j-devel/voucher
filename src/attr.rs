@@ -149,6 +149,7 @@ impl Attr {
         }
     }
 
+    // todo refactor
     pub fn from_sid(sid: Sid) -> Option<Attr> {
         use Sid::*;
 
@@ -178,6 +179,7 @@ impl Attr {
         }
     }
 
+    // todo refactor
     pub fn from_sid_ref(sid: &Sid) -> Option<&Attr> {
         use Sid::*;
 

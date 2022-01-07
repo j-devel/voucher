@@ -210,20 +210,13 @@ impl Voucher {
     /// assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), None);
     /// ```
     pub fn take(&mut self, adisc: AttrDisc) -> Option<Attr> {
-        let sdisc = Attr::to_sid_disc(adisc, self.sd.is_vrq());
-        if sdisc.is_none() { return None; }
-        let sdisc = sdisc.unwrap();
-
-        //
-
         let dummy = Sid::try_from((
-            yang::Yang::DateAndTime(Attr::CreatedOn(0)) /* dummy */,  sdisc)).unwrap();
-        let dummy_cloned = dummy.clone();
+            yang::Yang::DateAndTime(Attr::CreatedOn(0)) /* dummy */,
+            Attr::to_sid_disc(adisc, self.sd.is_vrq())?)).unwrap();
 
-        //
-
+        let dc = &dummy.clone();
         let removed = self.sd.replace(dummy);
-        let dummy_removal = self.sd.remove(&dummy_cloned);
+        let dummy_removal = self.sd.remove(dc);
         assert!(dummy_removal);
 
         removed.and_then(Attr::from_sid)
