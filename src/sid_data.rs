@@ -41,8 +41,8 @@ impl SidData {
         self.inner_mut().replace(sid)
     }
 
-    pub fn remove(&mut self, sid: &Sid) -> bool {
-        self.inner_mut().remove(sid)
+    pub fn remove(&mut self, sdisc: SidDisc) -> bool {
+        self.take(sdisc).is_some()
     }
 
     pub fn take(&mut self, sdisc: SidDisc) -> Option<Sid> {

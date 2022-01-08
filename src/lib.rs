@@ -188,7 +188,11 @@ impl Voucher {
     /// assert_eq!(vrq.remove(ATTR_CREATED_ON), false);
     /// ```
     pub fn remove(&mut self, adisc: AttrDisc) -> bool {
-        self.take(adisc).is_some()
+        if let Some(sdisc) = self.to_sid_disc(adisc) {
+            self.sd.remove(sdisc)
+        } else {
+            false
+        }
     }
 
     /// Removes and returns the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.
