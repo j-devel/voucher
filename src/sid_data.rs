@@ -1,6 +1,7 @@
 use crate::{println, Vec, BTreeMap, BTreeSet};
 use crate::debug_println;
-use super::sid::{CborType, Cbor, Sid, TopLevel, SID_VCH_TOP_LEVEL, SID_VRQ_TOP_LEVEL};
+use super::sid::{CborType, Cbor, Sid, SidDisc, TopLevel, SID_VCH_TOP_LEVEL, SID_VRQ_TOP_LEVEL};
+use super::yang::Yang;
 use core::convert::TryFrom;
 
 #[derive(Clone, PartialEq, Debug)]
@@ -42,6 +43,13 @@ impl SidData {
 
     pub fn remove(&mut self, sid: &Sid) -> bool {
         self.inner_mut().remove(sid)
+    }
+
+    pub fn take(&mut self, sdisc: SidDisc) -> Option<Sid> {
+        let yg = Yang::DateAndTime(crate::Attr::CreatedOn(0)); // dummy
+        let sid = Sid::try_from((yg, sdisc)).ok()?;
+
+        self.inner_mut().take(&sid)
     }
 
     fn inner_mut(&mut self) -> &mut BTreeSet<Sid> {
@@ -108,7 +116,6 @@ impl TryFrom<CborType> for SidData {
 
 fn from_sidhash(sidhash: CborType) -> Option<SidData> {
     use super::cose_sig::map_value_from;
-    use super::yang::Yang;
     use CborType::*;
 
     let (is_vrq, btmap, sid_tl_disc, sid_tl) =

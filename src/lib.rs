@@ -210,16 +210,9 @@ impl Voucher {
     /// assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), None);
     /// ```
     pub fn take(&mut self, adisc: AttrDisc) -> Option<Attr> {
-        let dummy = Sid::try_from((
-            yang::Yang::DateAndTime(Attr::CreatedOn(0)) /* dummy */,
-            self.to_sid_disc(adisc)?)).ok()?;
-
-        let dc = &dummy.clone();
-        let removed = self.sd.replace(dummy);
-        let dummy_removal = self.sd.remove(dc);
-        assert!(dummy_removal);
-
-        removed.and_then(Attr::from_sid)
+        self.sd
+            .take(self.to_sid_disc(adisc)?)
+            .and_then(Attr::from_sid)
     }
 
     /// Returns a reference to the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.
@@ -245,6 +238,7 @@ impl Voucher {
 
     fn get_sid(&self, adisc: AttrDisc) -> Option<&Sid> {
         let sdisc = self.to_sid_disc(adisc)?;
+
         for sid in self.sd.iter() {
             if sid.disc() == sdisc {
                 return Some(sid);
