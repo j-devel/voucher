@@ -117,7 +117,7 @@ impl TryFrom<(&CborType, AttrDisc)> for Attr {
             ATTR_PROXIMITY_REGISTRAR_PUBK => Attr::ProximityRegistrarPubk(yang_binary(cbor)?),
             ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256 => Attr::ProximityRegistrarPubkSha256(yang_binary(cbor)?),
             ATTR_SERIAL_NUMBER => Attr::SerialNumber(yang_string(cbor)?),
-            _ => return Err(()),
+            _ => unreachable!(),
         };
 
         Ok(attr)
@@ -229,7 +229,7 @@ impl Attr {
             ATTR_PROXIMITY_REGISTRAR_PUBK => if is_vrq { SID_VRQ_PROXIMITY_REGISTRAR_PUBK } else { sdisc_none },
             ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256 => if is_vrq { SID_VRQ_PROXIMITY_REGISTRAR_PUBK_SHA256 } else { sdisc_none },
             ATTR_SERIAL_NUMBER => if is_vrq { SID_VRQ_SERIAL_NUMBER } else { SID_VCH_SERIAL_NUMBER },
-            _ => sdisc_none,
+            _ => unreachable!(),
         };
 
         if sdisc == sdisc_none { None } else { Some(sdisc) }

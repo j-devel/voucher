@@ -192,7 +192,7 @@ impl TryFrom<(Yang, SidDisc)> for Sid {
             SID_VRQ_PROXIMITY_REGISTRAR_PUBK => Ok(Sid::VrqProximityRegistrarPubk(yg)),
             SID_VRQ_PROXIMITY_REGISTRAR_PUBK_SHA256 => Ok(Sid::VrqProximityRegistrarPubkSha256(yg)),
             SID_VRQ_SERIAL_NUMBER => Ok(Sid::VrqSerialNumber(yg)),
-            _ => Err(()),
+            _ => unreachable!(),
         }
     }
 }

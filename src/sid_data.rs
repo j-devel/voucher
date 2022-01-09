@@ -46,8 +46,8 @@ impl SidData {
     }
 
     pub fn take(&mut self, sdisc: SidDisc) -> Option<Sid> {
-        let yg = Yang::DateAndTime(crate::Attr::CreatedOn(0)); // dummy
-        let sid = Sid::try_from((yg, sdisc)).ok()?;
+        let yg_dummy = Yang::DateAndTime(crate::Attr::CreatedOn(0));
+        let sid = Sid::try_from((yg_dummy, sdisc)).ok()?;
 
         self.inner_mut().take(&sid)
     }

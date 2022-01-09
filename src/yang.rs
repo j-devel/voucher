@@ -36,10 +36,10 @@ impl Cbor for Yang {
                 Attr::CreatedOn(x) |
                 Attr::ExpiresOn(x) |
                 Attr::LastRenewalDate(x) => Some(Tag(CBOR_TAG_UNIX_TIME, Box::new(Integer(*x)))),
-                _ => None,
+                _ => unreachable!(),
             },
             Yang::String(attr) => if let Attr::SerialNumber(x) = attr {
-                Some(StringAsBytes(x.clone())) } else { None },
+                Some(StringAsBytes(x.clone())) } else { unreachable!() },
             Yang::Binary(attr) => match attr {
                 Attr::IdevidIssuer(x) |
                 Attr::Nonce(x) |
@@ -50,12 +50,12 @@ impl Cbor for Yang {
                 Attr::ProximityRegistrarCert(x) |
                 Attr::ProximityRegistrarPubk(x) |
                 Attr::ProximityRegistrarPubkSha256(x) => Some(Bytes(x.clone())),
-                _ => None,
+                _ => unreachable!(),
             },
             Yang::Boolean(attr) => if let Attr::DomainCertRevocationChecks(x) = attr {
-                Some(if *x { True } else { False }) } else { None },
+                Some(if *x { True } else { False }) } else { unreachable!() },
             Yang::Enumeration(attr) => if let Attr::Assertion(x) = attr {
-                Some(StringAsBytes(x.value().as_bytes().to_vec())) } else { None },
+                Some(StringAsBytes(x.value().as_bytes().to_vec())) } else { unreachable!() },
         }
     }
 }
@@ -99,7 +99,7 @@ impl TryFrom<(&CborType, SidDisc)> for Yang {
                 Yang::Binary(Attr::try_from((cbor, ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256))?),
             SID_VCH_SERIAL_NUMBER | SID_VRQ_SERIAL_NUMBER =>
                 Yang::String(Attr::try_from((cbor, ATTR_SERIAL_NUMBER))?),
-            _ => return Err(()),
+            _ => unreachable!(),
         };
 
         Ok(yg)
