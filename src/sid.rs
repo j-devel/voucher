@@ -127,7 +127,7 @@ macro_rules! unwrap_sid {
             Sid::VrqProximityRegistrarCert($pattern) |
             Sid::VrqProximityRegistrarPubk($pattern) |
             Sid::VrqProximityRegistrarPubkSha256($pattern) |
-            Sid::VchSerialNumber($pattern) | Sid::VrqSerialNumber($pattern) => $yang,
+            Sid::VchSerialNumber($pattern) | Sid::VrqSerialNumber($pattern) => Some($yang),
         }
     }
 }
@@ -146,7 +146,7 @@ macro_rules! unwrap_yang {
 
 macro_rules! to_attr {
     ( $sid:expr ) => {
-        unwrap_sid!($sid, yg => unwrap_yang!(yg, attr => Some(attr)))
+        unwrap_sid!($sid, yg => unwrap_yang!(yg, attr => attr))
     }
 }
 
