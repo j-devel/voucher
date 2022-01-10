@@ -1,5 +1,5 @@
 use crate::Vec;
-use super::sid::{self, CborType, Sid, SidDisc};
+use super::sid::{self, CborType, SidDisc};
 use super::yang::Yang;
 use core::convert::TryFrom;
 
@@ -146,66 +146,6 @@ impl Attr {
             Attr::ProximityRegistrarPubk(_) |
             Attr::ProximityRegistrarPubkSha256(_) => Yang::Binary(self),
             Attr::SerialNumber(_) => Yang::String(self),
-        }
-    }
-
-    // todo refactor
-    pub fn from_sid(sid: Sid) -> Option<Attr> {
-        use Sid::*;
-
-        match sid {
-            VchTopLevel(_) | VrqTopLevel(_) => None,
-            VchAssertion(yg) | VrqAssertion(yg) |
-            VchCreatedOn(yg) | VrqCreatedOn(yg) |
-            VchDomainCertRevocationChecks(yg) | VrqDomainCertRevocationChecks(yg) |
-            VchExpiresOn(yg) | VrqExpiresOn(yg) |
-            VchIdevidIssuer(yg) | VrqIdevidIssuer(yg) |
-            VchLastRenewalDate(yg) | VrqLastRenewalDate(yg) |
-            VchNonce(yg) | VrqNonce(yg) |
-            VchPinnedDomainCert(yg) | VrqPinnedDomainCert(yg) |
-            VchPinnedDomainPubk(yg) |
-            VchPinnedDomainPubkSha256(yg) |
-            VrqPriorSignedVoucherRequest(yg) |
-            VrqProximityRegistrarCert(yg) |
-            VrqProximityRegistrarPubk(yg) |
-            VrqProximityRegistrarPubkSha256(yg) |
-            VchSerialNumber(yg) | VrqSerialNumber(yg) => match yg {
-                Yang::DateAndTime(attr) |
-                Yang::String(attr) |
-                Yang::Binary(attr) |
-                Yang::Boolean(attr) |
-                Yang::Enumeration(attr) => Some(attr),
-            },
-        }
-    }
-
-    // todo refactor
-    pub fn from_sid_ref(sid: &Sid) -> Option<&Attr> {
-        use Sid::*;
-
-        match sid {
-            VchTopLevel(_) | VrqTopLevel(_) => None,
-            VchAssertion(yg) | VrqAssertion(yg) |
-            VchCreatedOn(yg) | VrqCreatedOn(yg) |
-            VchDomainCertRevocationChecks(yg) | VrqDomainCertRevocationChecks(yg) |
-            VchExpiresOn(yg) | VrqExpiresOn(yg) |
-            VchIdevidIssuer(yg) | VrqIdevidIssuer(yg) |
-            VchLastRenewalDate(yg) | VrqLastRenewalDate(yg) |
-            VchNonce(yg) | VrqNonce(yg) |
-            VchPinnedDomainCert(yg) | VrqPinnedDomainCert(yg) |
-            VchPinnedDomainPubk(yg) |
-            VchPinnedDomainPubkSha256(yg) |
-            VrqPriorSignedVoucherRequest(yg) |
-            VrqProximityRegistrarCert(yg) |
-            VrqProximityRegistrarPubk(yg) |
-            VrqProximityRegistrarPubkSha256(yg) |
-            VchSerialNumber(yg) | VrqSerialNumber(yg) => match yg {
-                Yang::DateAndTime(attr) |
-                Yang::String(attr) |
-                Yang::Binary(attr) |
-                Yang::Boolean(attr) |
-                Yang::Enumeration(attr) => Some(attr),
-            },
         }
     }
 

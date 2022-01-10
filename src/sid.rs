@@ -109,9 +109,58 @@ impl PartialEq for Sid {
     }
 }
 
+macro_rules! unwrap_sid {
+    ( $sid:expr, $pattern:pat => $yang:expr ) => {
+        match $sid {
+            Sid::VchTopLevel(_) | Sid::VrqTopLevel(_) => None,
+            Sid::VchAssertion($pattern) | Sid::VrqAssertion($pattern) |
+            Sid::VchCreatedOn($pattern) | Sid::VrqCreatedOn($pattern) |
+            Sid::VchDomainCertRevocationChecks($pattern) | Sid::VrqDomainCertRevocationChecks($pattern) |
+            Sid::VchExpiresOn($pattern) | Sid::VrqExpiresOn($pattern) |
+            Sid::VchIdevidIssuer($pattern) | Sid::VrqIdevidIssuer($pattern) |
+            Sid::VchLastRenewalDate($pattern) | Sid::VrqLastRenewalDate($pattern) |
+            Sid::VchNonce($pattern) | Sid::VrqNonce($pattern) |
+            Sid::VchPinnedDomainCert($pattern) | Sid::VrqPinnedDomainCert($pattern) |
+            Sid::VchPinnedDomainPubk($pattern) |
+            Sid::VchPinnedDomainPubkSha256($pattern) |
+            Sid::VrqPriorSignedVoucherRequest($pattern) |
+            Sid::VrqProximityRegistrarCert($pattern) |
+            Sid::VrqProximityRegistrarPubk($pattern) |
+            Sid::VrqProximityRegistrarPubkSha256($pattern) |
+            Sid::VchSerialNumber($pattern) | Sid::VrqSerialNumber($pattern) => $yang,
+        }
+    }
+}
+
+macro_rules! unwrap_yang {
+    ( $yang:expr, $pattern:pat => $attr:expr ) => {
+        match $yang {
+            Yang::DateAndTime($pattern) => $attr,
+            Yang::String($pattern) => $attr,
+            Yang::Binary($pattern) => $attr,
+            Yang::Boolean($pattern) => $attr,
+            Yang::Enumeration($pattern) => $attr,
+        }
+    }
+}
+
+macro_rules! to_attr {
+    ( $sid:expr ) => {
+        unwrap_sid!($sid, yg => unwrap_yang!(yg, attr => Some(attr)))
+    }
+}
+
 impl Sid {
     pub fn disc(&self) -> SidDisc {
         core::intrinsics::discriminant_value(self)
+    }
+
+    pub fn as_attr(&self) -> Option<&crate::Attr> {
+        to_attr!(self)
+    }
+
+    pub fn into_attr(self) -> Option<crate::Attr> {
+        to_attr!(self)
     }
 }
 

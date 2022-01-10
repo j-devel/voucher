@@ -216,7 +216,7 @@ impl Voucher {
     pub fn take(&mut self, adisc: AttrDisc) -> Option<Attr> {
         self.sd
             .take(self.to_sid_disc(adisc)?)
-            .and_then(Attr::from_sid)
+            .and_then(|sid| sid.into_attr())
     }
 
     /// Returns a reference to the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.
@@ -233,7 +233,8 @@ impl Voucher {
     /// assert_eq!(vrq.get(ATTR_SERIAL_NUMBER), None);
     /// ```
     pub fn get(&self, adisc: AttrDisc) -> Option<&Attr> {
-        self.get_sid(adisc).and_then(Attr::from_sid_ref)
+        self.get_sid(adisc)
+            .and_then(|sid| sid.as_attr())
     }
 
     fn to_sid_disc(&self, adisc: AttrDisc) -> Option<SidDisc> {
@@ -317,7 +318,7 @@ impl Voucher {
 
     pub fn iter_with_sid(&self) -> impl Iterator<Item = (&Attr, sid::SidDisc)> + '_ {
         self.sd.iter()
-            .filter_map(|sid| if let Some(attr) = Attr::from_sid_ref(sid) { Some((attr, sid.disc())) } else { None })
+            .filter_map(|sid| Some((sid.as_attr()?, sid.disc())))
     }
 
     // pub fn print(&self) -> { // ??
