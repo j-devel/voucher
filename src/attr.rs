@@ -1,7 +1,6 @@
 use crate::Vec;
-use super::sid::{self, CborType, SidDisc};
+use super::sid::{self, SidDisc};
 use super::yang::Yang;
-use core::convert::TryFrom;
 
 
 pub type AttrDisc = u8;
@@ -58,72 +57,6 @@ pub enum Attr {
     SerialNumber(Vec<u8>) =                  ATTR_SERIAL_NUMBER,
 }
 
-pub const CBOR_TAG_UNIX_TIME: u64 = 0x01;
-
-impl TryFrom<(&CborType, AttrDisc)> for Attr {
-    type Error = ();
-
-    fn try_from(input: (&CborType, AttrDisc)) -> Result<Self, Self::Error> {
-        use CborType::*;
-
-        let (cbor, adisc) = input;
-// zzz ttt
-/*
-        match cbor { // !!!! adapt !!!!
-            (Tag(tag, bx), YANG_DATE_AND_TIME) => {
-                if *tag != CBOR_TAG_UNIX_TIME { return Err(()) }
-                if let Integer(dat) = **bx { Ok(Yang::DateAndTime(dat)) } else { Err(()) }
-            },
-            (Bytes(x), YANG_STRING) /* permissive */ | (StringAsBytes(x), YANG_STRING) =>
-                Ok(Yang::String(x.to_vec())),
-            (StringAsBytes(x), YANG_BINARY) /* permissive */ | (Bytes(x), YANG_BINARY) =>
-                Ok(Yang::Binary(x.to_vec())),
-            (True, YANG_BOOLEAN) => Ok(Yang::Boolean(true)),
-            (False, YANG_BOOLEAN) => Ok(Yang::Boolean(false)),
-            (StringAsBytes(x), YANG_ENUMERATION) => {
-                let cands = [
-                    YangEnum::Verified,
-                    YangEnum::Logged,
-                    YangEnum::Proximity,
-                ];
-                let residue: Vec<_> = cands.iter()
-                    .enumerate()
-                    .filter_map(|(i, ye)| if ye.value().as_bytes() == x { Some(cands[i]) } else { None })
-                    .collect();
-                if residue.len() == 1 { Ok(Yang::Enumeration(residue[0])) } else { Err(()) }
-            },
-            _ => Err(()),
-        }
-*/
-        let yang_enumeration = |_| Ok(Assertion::Proximity);
-        let yang_dat = |_| Ok(42);
-        let yang_boolean = |_| Ok(true);
-        let yang_binary = |_| Ok(Vec::new());
-        let yang_string = |_| Ok(Vec::new());
-
-        let attr = match adisc {
-            ATTR_ASSERTION => Attr::Assertion(yang_enumeration(cbor)?),
-            ATTR_CREATED_ON => Attr::CreatedOn(yang_dat(cbor)?),
-            ATTR_DOMAIN_CERT_REVOCATION_CHECKS => Attr::DomainCertRevocationChecks(yang_boolean(cbor)?),
-            ATTR_EXPIRES_ON => Attr::ExpiresOn(yang_dat(cbor)?),
-            ATTR_IDEVID_ISSUER => Attr::IdevidIssuer(yang_binary(cbor)?),
-            ATTR_LAST_RENEWAL_DATE => Attr::LastRenewalDate(yang_dat(cbor)?),
-            ATTR_NONCE => Attr::Nonce(yang_binary(cbor)?),
-            ATTR_PINNED_DOMAIN_CERT => Attr::PinnedDomainCert(yang_binary(cbor)?),
-            ATTR_PINNED_DOMAIN_PUBK => Attr::PinnedDomainPubk(yang_binary(cbor)?),
-            ATTR_PINNED_DOMAIN_PUBK_SHA256 => Attr::PinnedDomainPubkSha256(yang_binary(cbor)?),
-            ATTR_PRIOR_SIGNED_VOUCHER_REQUEST => Attr::PriorSignedVoucherRequest(yang_binary(cbor)?),
-            ATTR_PROXIMITY_REGISTRAR_CERT => Attr::ProximityRegistrarCert(yang_binary(cbor)?),
-            ATTR_PROXIMITY_REGISTRAR_PUBK => Attr::ProximityRegistrarPubk(yang_binary(cbor)?),
-            ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256 => Attr::ProximityRegistrarPubkSha256(yang_binary(cbor)?),
-            ATTR_SERIAL_NUMBER => Attr::SerialNumber(yang_string(cbor)?),
-            _ => unreachable!(),
-        };
-
-        Ok(attr)
-    }
-}
-
 impl Attr {
     pub fn disc(&self) -> AttrDisc {
         core::intrinsics::discriminant_value(self)
@@ -152,7 +85,7 @@ impl Attr {
     pub fn to_sid_disc(adisc: AttrDisc, is_vrq: bool) -> Option<SidDisc> {
         use sid::*;
 
-        let sdisc_none: SidDisc = 0;
+        let sdisc_none = 0;
         let sdisc = match adisc {
             ATTR_ASSERTION => if is_vrq { SID_VRQ_ASSERTION } else { SID_VCH_ASSERTION },
             ATTR_CREATED_ON => if is_vrq { SID_VRQ_CREATED_ON } else { SID_VCH_CREATED_ON },

@@ -47,11 +47,11 @@ fn test_voucher_conversion() {
     assert!(Voucher::try_from(VCH_F2_00_02).is_ok());
     assert!(Voucher::try_from(VRQ_F2_00_02).is_ok());
 
-    if 0 == 10 { // todo: zzz ttt
+    if 10 == 10 {
         Voucher::try_from(VCH_JADA).unwrap().iter().for_each(|attr| {
             println!("attr: {:?}", attr);
         });
-        panic!();
+        //panic!();
     }
 
     let dummy: &[u8] = &[0, 1, 2];
