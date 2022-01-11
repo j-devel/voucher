@@ -54,6 +54,7 @@ fn test_voucher_conversion() {
 
     let vch: Voucher = VCH_JADA.try_into().unwrap();
     assert_eq!(vch.len(), 6);
+    if 0 == 1 { vch.dump_and_panic(); }
 
     vch.iter().for_each(|attr| {
         println!("attr: {:?}", attr);
@@ -312,11 +313,13 @@ fn test_highlevel_interface() {
     let vch = vch![
         Attr::Assertion(Assertion::Logged),
         Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())];
+    assert!(vch.is_vch());
     assert_eq!(vch.len(), 2);
 
     let vrq = vrq![
         Attr::Assertion(Assertion::Proximity),
         Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())];
+    assert!(vrq.is_vrq());
     assert_eq!(vrq.len(), 2);
 }
 

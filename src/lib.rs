@@ -119,18 +119,7 @@ enum VoucherType {
     Vrq, // 'voucher request'
 }
 
-#[macro_export]
-macro_rules! vch {
-    ( $( $attr:expr ),* ) => (voucher!( Voucher::new_vch(), $( $attr ),* ));
-}
-
-#[macro_export]
-macro_rules! vrq {
-    ( $( $attr:expr ),* ) => (voucher!( Voucher::new_vrq(), $( $attr ),* ));
-}
-
-#[macro_export]
-macro_rules! voucher {
+macro_rules! voucher_macro {
     ( $voucher:expr, $( $attr:expr ),* ) => {
         {
             let mut voucher = $voucher;
@@ -140,6 +129,31 @@ macro_rules! voucher {
             voucher
         }
     };
+}
+use voucher_macro;
+
+/// todo
+///
+/// # Examples
+///
+/// ```
+/// ;
+/// ```
+#[macro_export]
+macro_rules! vch {
+    ( $( $attr:expr ),* ) => (voucher_macro!( Voucher::new_vch(), $( $attr ),* ));
+}
+
+/// todo
+///
+/// # Examples
+///
+/// ```
+/// ;
+/// ```
+#[macro_export]
+macro_rules! vrq {
+    ( $( $attr:expr ),* ) => (voucher_macro!( Voucher::new_vrq(), $( $attr ),* ));
 }
 
 impl Voucher {
@@ -167,10 +181,6 @@ impl Voucher {
             },
             cd: CoseData::new(true),
         }
-    }
-
-    pub fn serialize(&self) -> Option<Vec<u8>> {
-        CoseData::encode(&self.cd).ok()
     }
 
     /// Removes an attribute from the voucher. Returns whether the attribute was present in the voucher.
@@ -242,10 +252,6 @@ impl Voucher {
         None
     }
 
-    fn to_sid_disc(&self, adisc: AttrDisc) -> Option<SidDisc> {
-        Attr::to_sid_disc(adisc, self.is_vrq())
-    }
-
     /// Adds an attribute to the voucher, replacing the existing attribute, if any, that corresponds to the given one. Returns a `mut` reference to the voucher.
     ///
     /// # Examples
@@ -267,6 +273,10 @@ impl Voucher {
         self.set_sid(Sid::try_from((attr.into_yang(), sdisc)).unwrap());
 
         self
+    }
+
+    fn to_sid_disc(&self, adisc: AttrDisc) -> Option<SidDisc> {
+        Attr::to_sid_disc(adisc, self.is_vrq())
     }
 
     /// Returns the number of attributes in the voucher.
@@ -314,38 +324,38 @@ impl Voucher {
             .filter_map(|sid| Some((sid.as_attr()?, sid.disc())))
     }
 
-    // pub fn print(&self) -> { // ??
-    //     self.sd.dump();
-    //     self.cd.dump();
-    // }
-    //----^^^^ Attr layer API
-
     fn set_sid(&mut self, sid: Sid) -> &mut Self {
         self.sd.replace(sid);
 
         self
     }
 
-    //----vvvv COSE layer API
+    pub fn dump(&self) {
+        println!("======== Voucher::dump()");
+        self.sd.dump();
+        self.cd.dump();
+        println!("========");
+    }
+
+    #[cfg(test)]
+    pub fn dump_and_panic(&self) {
+        self.dump();
+        panic!();
+    }
+
+    // todo ---- clean up COSE layer API
     // pub fn cose_content() -> Option<Vec<u8>> {} // <<? `pub fn extract_cose_content(&self)`
     // pub fn cose_signature() -> xx {} // <<? `pub fn get_signature(&self)`
 
-    /// Interface with meta data to be used in ECDSA based signing
-    pub fn to_sign(&mut self) -> (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8]) {
-        use core::ops::DerefMut;
-
-        let sig = self
-            .update_cose_content()
-            .cd.sig_mut().deref_mut();
-
-        (&mut sig.signature, &mut sig.signature_type, &sig.to_verify)
-    }
-
-    /// Interface with meta data to be used in ECDSA based validation
-    pub fn to_validate(&self) -> (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]) {
-        let (signature, alg) = self.get_signature();
-
-        (self.get_signer_cert(), signature, alg, &self.cd.sig().to_verify)
+    /// todo
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// ;
+    /// ```
+    pub fn serialize(&self) -> Option<Vec<u8>> {
+        CoseData::encode(&self.cd).ok()
     }
 
     fn update_cose_content(&mut self) -> &mut Self {
@@ -383,11 +393,44 @@ impl Voucher {
         if signer_cert.len() > 0 { Some(signer_cert) } else { None }
     }
 
-    pub fn dump(&self) {
-        self.cd.dump();
+    /// Interface with meta data to be used in ECDSA based signing
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// ;
+    /// ```
+    pub fn to_sign(&mut self) -> (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8]) {
+        use core::ops::DerefMut;
+
+        let sig = self
+            .update_cose_content()
+            .cd.sig_mut().deref_mut();
+
+        (&mut sig.signature, &mut sig.signature_type, &sig.to_verify)
+    }
+
+    /// Interface with meta data to be used in ECDSA based validation
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// ;
+    /// ```
+    pub fn to_validate(&self) -> (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]) {
+        let (signature, alg) = self.get_signature();
+
+        (self.get_signer_cert(), signature, alg, &self.cd.sig().to_verify)
     }
 }
 
+/// todo
+///
+/// # Examples
+///
+/// ```
+/// ;
+/// ```
 impl TryFrom<&[u8]> for Voucher {
     type Error = &'static str;
 

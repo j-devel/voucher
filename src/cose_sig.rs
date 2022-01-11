@@ -65,12 +65,12 @@ impl CoseSig {
     }
 
     pub fn dump(&self) {
-        println!("======== `CoseSignature` dump");
+        println!("==== CoseSig::dump()");
         println!("  signature_type: {:?}", self.signature_type);
         println!("  signature: [len={}] {:?}", self.signature.len(), self.signature);
         println!("  signer_cert: [len={}] {:?}", self.signer_cert.len(), self.signer_cert);
         println!("  to_verify: [len={}] {:?}", self.to_verify.len(), self.to_verify);
-        println!("  ====");
+        println!("====");
     }
 
     pub fn get_content(&self) -> Option<Vec<u8>> {

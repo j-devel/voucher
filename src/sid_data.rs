@@ -73,6 +73,12 @@ impl SidData {
     pub fn is_vrq(&self) -> bool {
         self.inner().1
     }
+
+    pub fn dump(&self) {
+        println!("==== SidData::dump()");
+        println!("  {:?}", self);
+        println!("====");
+    }
 }
 
 impl Cbor for SidData {
