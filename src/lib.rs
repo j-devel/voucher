@@ -151,10 +151,13 @@ impl Voucher {
         Self::new(VoucherType::Vrq)
     }
 
-    // !! `is_{vch,vrq}()`
-    // pub fn get_voucher_type(&self) -> VoucherType {
-    //     if self.sd.is_vrq() { VoucherType::Vrq } else { VoucherType::Vch }
-    // }
+    pub fn is_vch(&self) -> bool {
+        !self.is_vrq()
+    }
+
+    pub fn is_vrq(&self) -> bool {
+        self.sd.is_vrq()
+    }
 
     fn new(ty: VoucherType) -> Self {
         Self {
@@ -234,7 +237,7 @@ impl Voucher {
     }
 
     fn to_sid_disc(&self, adisc: AttrDisc) -> Option<SidDisc> {
-        Attr::to_sid_disc(adisc, self.sd.is_vrq())
+        Attr::to_sid_disc(adisc, self.is_vrq())
     }
 
     fn get_sid(&self, adisc: AttrDisc) -> Option<&Sid> {
