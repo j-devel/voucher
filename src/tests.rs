@@ -307,30 +307,17 @@ fn test_highlevel_interface() {
     assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&Attr::CreatedOn(1599086034)));
     assert_eq!(vrq.get(ATTR_EXPIRES_ON), None);
 
-    let attrs: Vec<_> = vrq.iter().collect();
-    println!("attrs: {:?}", attrs);
-    assert_eq!(attrs.len(), 5);
-
-    {
-        let vch = Voucher::try_from(VCH_JADA).unwrap();
-        let attrs: Vec<_> = vch.iter().collect();
-        println!("attrs: {:?}", attrs); // !!!! todo; parse and populate data
-        assert_eq!(attrs.len(), 6);
-    }
-
-//    if 1 == 1 { panic!(); } // !!!!!!!!
-
     //
 
-    let _ = Voucher::new_vch_with(vec![ // todo: `vch![...]` instead
+    let vch = vch![
         Attr::Assertion(Assertion::Logged),
-        Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec()),
-    ]);
+        Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())];
+    assert_eq!(vch.len(), 2);
 
-    let _ = Voucher::new_vrq_with(vec![ // todo: `vrq![...]` instead
+    let vrq = vrq![
         Attr::Assertion(Assertion::Proximity),
-        Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec()),
-    ]);
+        Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())];
+    assert_eq!(vrq.len(), 2);
 }
 
 #[test]

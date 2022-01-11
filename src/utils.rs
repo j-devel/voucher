@@ -8,7 +8,7 @@ macro_rules! debug_println {
         if cfg!(debug_assertions) {
             println!( $( $x ),* );
         }
-    }
+    };
 }
 
 //

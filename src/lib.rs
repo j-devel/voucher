@@ -107,32 +107,56 @@ mod validate;
 ///
 /// [Constrained BRSKI]: https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub struct Voucher {
     sd: SidData,
     cd: CoseData,
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
-pub enum VoucherType {
+enum VoucherType {
     Vch, // 'voucher'
     Vrq, // 'voucher request'
 }
 
+#[macro_export]
+macro_rules! vch {
+    ( $( $attr:expr ),* ) => (voucher!( Voucher::new_vch(), $( $attr ),* ));
+}
+
+#[macro_export]
+macro_rules! vrq {
+    ( $( $attr:expr ),* ) => (voucher!( Voucher::new_vrq(), $( $attr ),* ));
+}
+
+#[macro_export]
+macro_rules! voucher {
+    ( $voucher:expr, $( $attr:expr ),* ) => {
+        {
+            let mut voucher = $voucher;
+            $(
+                voucher.set($attr);
+            )*
+            voucher
+        }
+    };
+}
+
 impl Voucher {
-    /// Creates an empty `Voucher`.
-    ///
-    /// (Add notes on voucher types...)
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// use minerva_voucher::{Voucher,VoucherType};
-    ///
-    /// let vrq = Voucher::new(VoucherType::Vrq);
-    /// let vch = Voucher::new(VoucherType::Vch);
-    /// ```
-    pub fn new(ty: VoucherType) -> Self {
+    pub fn new_vch() -> Self {
+        Self::new(VoucherType::Vch)
+    }
+
+    pub fn new_vrq() -> Self {
+        Self::new(VoucherType::Vrq)
+    }
+
+    // !! `is_{vch,vrq}()`
+    // pub fn get_voucher_type(&self) -> VoucherType {
+    //     if self.sd.is_vrq() { VoucherType::Vrq } else { VoucherType::Vch }
+    // }
+
+    fn new(ty: VoucherType) -> Self {
         Self {
             sd: match ty {
                 VoucherType::Vch => SidData::new_vch_cbor(),
@@ -142,36 +166,8 @@ impl Voucher {
         }
     }
 
-    pub fn new_vch() -> Self {
-        Self::new(VoucherType::Vch)
-    }
-
-    pub fn new_vrq() -> Self {
-        Self::new(VoucherType::Vrq)
-    }
-
-    pub fn new_vch_with(attrs: Vec<Attr>) -> Self {
-        let mut vch = Self::new_vch();
-        attrs.into_iter()
-            .for_each(|attr| { vch.set(attr); });
-
-        vch
-    }
-
-    pub fn new_vrq_with(attrs: Vec<Attr>) -> Self {
-        let mut vrq = Self::new_vrq();
-        attrs.into_iter()
-            .for_each(|attr| { vrq.set(attr); });
-
-        vrq
-    }
-
     pub fn serialize(&self) -> Option<Vec<u8>> {
         CoseData::encode(&self.cd).ok()
-    }
-
-    pub fn get_voucher_type(&self) -> VoucherType {
-        if self.sd.is_vrq() { VoucherType::Vrq } else { VoucherType::Vch }
     }
 
     /// Removes an attribute from the voucher. Returns whether the attribute was present in the voucher.
