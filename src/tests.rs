@@ -53,8 +53,8 @@ fn test_voucher_conversion() {
     //
 
     let vch: Voucher = VCH_JADA.try_into().unwrap();
-
     assert_eq!(vch.len(), 6);
+
     vch.iter().for_each(|attr| {
         println!("attr: {:?}", attr);
         match attr {
@@ -70,13 +70,37 @@ fn test_voucher_conversion() {
 
     //
 
-    let result: Result<Voucher, _> = VCH_F2_00_02.try_into();
-    assert!(result.is_ok());
+    let vch: Voucher = VCH_F2_00_02.try_into().unwrap();
+    assert_eq!(vch.len(), 5);
+
+    vch.iter().for_each(|attr| {
+        println!("attr: {:?}", attr);
+        match attr {
+            Attr::Assertion(x) => assert_eq!(x, &Assertion::Logged),
+            Attr::CreatedOn(x) => assert_eq!(x, &1599525239),
+            Attr::Nonce(x) => assert_eq!(x, &[88, 83, 121, 70, 52, 76, 76, 73, 105, 113, 85, 50, 45, 79, 71, 107, 54, 108, 70, 67, 65, 103]),
+            Attr::PinnedDomainCert(x) => assert_eq!(x[0..4], [77, 73, 73, 66]),
+            Attr::SerialNumber(x) => assert_eq!(x, "00-D0-E5-F2-00-02".as_bytes()),
+            _ => panic!(),
+        }
+    });
 
     //
 
-    let result: Result<Voucher, _> = VRQ_F2_00_02.try_into();
-    assert!(result.is_ok());
+    let vrq: Voucher = VRQ_F2_00_02.try_into().unwrap();
+    assert_eq!(vrq.len(), 5);
+
+    vrq.iter().for_each(|attr| {
+        println!("attr: {:?}", attr);
+        match attr {
+            Attr::Assertion(x) => assert_eq!(x, &Assertion::Proximity),
+            Attr::CreatedOn(x) => assert_eq!(x, &1599086034),
+            Attr::Nonce(x) => assert_eq!(x, &[102, 114, 118, 85, 105, 90, 104, 89, 56, 80, 110, 86, 108, 82, 75, 67, 73, 83, 51, 113, 77, 81]),
+            Attr::ProximityRegistrarCert(x) => assert_eq!(x[0..4], [48, 130, 1, 216]),
+            Attr::SerialNumber(x) => assert_eq!(x, "00-D0-E5-F2-00-02".as_bytes()),
+            _ => panic!(),
+        }
+    });
 
     //
 
