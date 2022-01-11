@@ -43,26 +43,42 @@ use core::convert::{TryFrom, TryInto};
 
 #[test]
 fn test_voucher_conversion() {
+    let dummy: &[u8] = &[0, 1, 2];
+
     assert!(Voucher::try_from(VCH_JADA).is_ok());
     assert!(Voucher::try_from(VCH_F2_00_02).is_ok());
     assert!(Voucher::try_from(VRQ_F2_00_02).is_ok());
-
-    if 10 == 10 {
-        Voucher::try_from(VCH_JADA).unwrap().iter().for_each(|attr| {
-            println!("attr: {:?}", attr);
-        });
-        //panic!();
-    }
-
-    let dummy: &[u8] = &[0, 1, 2];
     assert!(Voucher::try_from(dummy).is_err());
 
-    let result: Result<Voucher, _> = VCH_JADA.try_into();
-    assert!(result.is_ok());
+    //
+
+    let vch: Voucher = VCH_JADA.try_into().unwrap();
+
+    assert_eq!(vch.len(), 6);
+    vch.iter().for_each(|attr| {
+        println!("attr: {:?}", attr);
+        match attr {
+            Attr::Assertion(x) => assert_eq!(x, &Assertion::Proximity),
+            Attr::CreatedOn(x) => assert_eq!(x, &1475868702),
+            Attr::ExpiresOn(x) => assert_eq!(x, &1506816000),
+            Attr::Nonce(x) => assert_eq!(x, &[97, 98, 99, 100, 49, 50, 51, 52, 53]),
+            Attr::PinnedDomainPubk(x) => assert_eq!(x[0..4], [77, 70, 107, 119]),
+            Attr::SerialNumber(x) => assert_eq!(x, "JADA123456789".as_bytes()),
+            _ => panic!(),
+        }
+    });
+
+    //
+
     let result: Result<Voucher, _> = VCH_F2_00_02.try_into();
     assert!(result.is_ok());
+
+    //
+
     let result: Result<Voucher, _> = VRQ_F2_00_02.try_into();
     assert!(result.is_ok());
+
+    //
 
     let result: Result<Voucher, _> = dummy.try_into();
     assert!(result.is_err());
