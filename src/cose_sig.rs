@@ -28,7 +28,7 @@ pub fn sig_one_struct_bytes_from(
 
 //
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub struct CoseSig(CoseSignature);
 
 impl core::ops::Deref for CoseSig {

@@ -9,14 +9,14 @@ use super::cose_sig::{CoseSig, bytes_from, map_value_from};
 
 pub const COSE_HEADER_VOUCHER_PUBKEY: u64 = 60299;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub struct CoseData {
     protected_bucket: BTreeMap<CborType, CborType>,
     unprotected_bucket: BTreeMap<CborType, CborType>,
     inner: CoseDataInner,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 enum CoseDataInner {
     CoseSignOne(CoseSig),
     CoseSign(Vec<CoseSig>),
