@@ -24,10 +24,13 @@ pub enum SidData {
 // #      +---- prior-signed-voucher-request?    binary
 // #      +---- proximity-registrar-cert?        binary
 impl SidData {
-    pub fn new_vch() -> Self { Self::Voucher(BTreeSet::new()) }
-    pub fn new_vrq() -> Self { Self::VoucherRequest(BTreeSet::new()) }
-    pub fn vch_from(set: BTreeSet<Sid>) -> Self { Self::Voucher(set) }
-    pub fn vrq_from(set: BTreeSet<Sid>) -> Self { Self::VoucherRequest(set) }
+    pub fn new_vch() -> Self {
+        Self::Voucher(BTreeSet::new())
+    }
+
+    pub fn new_vrq() -> Self {
+        Self::VoucherRequest(BTreeSet::new())
+    }
 
     pub fn new_vch_cbor() -> Self {
         Self::Voucher(BTreeSet::from([Sid::VchTopLevel(TopLevel::VoucherVoucher)]))
@@ -180,7 +183,7 @@ fn test_sid_data_vch_f2_00_02() {
     use crate::{vec, attr::{Attr, Assertion}};
     use super::yang::Yang;
 
-    let sd = SidData::vch_from(BTreeSet::from([
+    let sd = SidData::Voucher(BTreeSet::from([
         Sid::VchTopLevel(TopLevel::VoucherVoucher),
         Sid::VchAssertion(Yang::Enumeration(Attr::Assertion(Assertion::Logged))),
         Sid::VchCreatedOn(Yang::DateAndTime(Attr::CreatedOn(1599525239))),
@@ -199,7 +202,7 @@ fn test_sid_data_vch_jada() {
     use crate::{vec, attr::{Attr, Assertion}};
     use super::yang::Yang;
 
-    let sd = SidData::vch_from(BTreeSet::from([
+    let sd = SidData::Voucher(BTreeSet::from([
         Sid::VchTopLevel(TopLevel::VoucherVoucher),
         Sid::VchAssertion(Yang::Enumeration(Attr::Assertion(Assertion::Proximity))),
         Sid::VchCreatedOn(Yang::DateAndTime(Attr::CreatedOn(1475868702))),
