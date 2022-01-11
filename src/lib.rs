@@ -131,7 +131,7 @@ enum VoucherType {
     Vrq, // 'voucher request'
 }
 
-macro_rules! voucher_macro {
+macro_rules! voucher_build {
     ( $voucher:expr, $( $attr:expr ),* ) => {
         {
             let mut voucher = $voucher;
@@ -142,7 +142,7 @@ macro_rules! voucher_macro {
         }
     };
 }
-use voucher_macro;
+use voucher_build;
 
 /// todo
 ///
@@ -153,7 +153,8 @@ use voucher_macro;
 /// ```
 #[macro_export]
 macro_rules! vch {
-    ( $( $attr:expr ),* ) => (voucher_macro!( Voucher::new_vch(), $( $attr ),* ));
+    ( ) => (Voucher::new_vch());
+    ( $( $attr:expr ),* ) => (voucher_build!( Voucher::new_vch(), $( $attr ),* ));
 }
 
 /// todo
@@ -165,7 +166,8 @@ macro_rules! vch {
 /// ```
 #[macro_export]
 macro_rules! vrq {
-    ( $( $attr:expr ),* ) => (voucher_macro!( Voucher::new_vrq(), $( $attr ),* ));
+    ( ) => (Voucher::new_vrq());
+    ( $( $attr:expr ),* ) => (voucher_build!( Voucher::new_vrq(), $( $attr ),* ));
 }
 
 impl Voucher {

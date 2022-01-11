@@ -321,6 +321,11 @@ fn test_highlevel_interface() {
         Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())];
     assert!(vrq.is_vrq());
     assert_eq!(vrq.len(), 2);
+
+    //
+
+    assert_eq!(vch![].len(), 0);
+    assert_eq!(vrq![].len(), 0);
 }
 
 #[test]
