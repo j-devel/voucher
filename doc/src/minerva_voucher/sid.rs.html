@@ -236,6 +236,57 @@
 <span id="234">234</span>
 <span id="235">235</span>
 <span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Vec</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::yang</span>::{<span class="self">self</span>, <span class="ident">Yang</span>};
 <span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
@@ -308,6 +359,7 @@
     <span class="ident">VrqSerialNumber</span>(<span class="ident">Yang</span>) <span class="op">=</span>                  <span class="ident">SID_VRQ_SERIAL_NUMBER</span>,
 }
 
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TopLevel</span> {
     <span class="ident">CwtVoucher</span>,
@@ -317,6 +369,7 @@
     <span class="ident">VoucherRequestVoucher</span>,
 }
 
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
 <span class="kw">impl</span> <span class="ident">TopLevel</span> {
     <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">value</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
@@ -347,9 +400,58 @@
     }
 }
 
+<span class="macro">macro_rules!</span> <span class="ident">unwrap_sid</span> {
+    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">sid</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>:<span class="ident">pat</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">yang</span>:<span class="ident">expr</span> ) =&gt; {
+        <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">sid</span> {
+            <span class="ident">Sid::VchTopLevel</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Sid::VrqTopLevel</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">Sid::VchAssertion</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span> <span class="ident">Sid::VrqAssertion</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VchCreatedOn</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span> <span class="ident">Sid::VrqCreatedOn</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VchDomainCertRevocationChecks</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span> <span class="ident">Sid::VrqDomainCertRevocationChecks</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VchExpiresOn</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span> <span class="ident">Sid::VrqExpiresOn</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VchIdevidIssuer</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span> <span class="ident">Sid::VrqIdevidIssuer</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VchLastRenewalDate</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span> <span class="ident">Sid::VrqLastRenewalDate</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VchNonce</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span> <span class="ident">Sid::VrqNonce</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VchPinnedDomainCert</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span> <span class="ident">Sid::VrqPinnedDomainCert</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VchPinnedDomainPubk</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VchPinnedDomainPubkSha256</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VrqPriorSignedVoucherRequest</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VrqProximityRegistrarCert</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VrqProximityRegistrarPubk</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VrqProximityRegistrarPubkSha256</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span>
+            <span class="ident">Sid::VchSerialNumber</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) <span class="op">|</span> <span class="ident">Sid::VrqSerialNumber</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) =&gt; <span class="prelude-val">Some</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">yang</span>),
+        }
+    }
+}
+
+<span class="macro">macro_rules!</span> <span class="ident">unwrap_yang</span> {
+    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">yang</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>:<span class="ident">pat</span> =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">expr</span> ) =&gt; {
+        <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">yang</span> {
+            <span class="ident">Yang::DateAndTime</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>,
+            <span class="ident">Yang::String</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>,
+            <span class="ident">Yang::Binary</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>,
+            <span class="ident">Yang::Boolean</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>,
+            <span class="ident">Yang::Enumeration</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">pattern</span>) =&gt; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>,
+        }
+    }
+}
+
+<span class="macro">macro_rules!</span> <span class="ident">to_attr</span> {
+    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">sid</span>:<span class="ident">expr</span> ) =&gt; {
+        <span class="macro">unwrap_sid!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">sid</span>, <span class="ident">yg</span> =&gt; <span class="macro">unwrap_yang!</span>(<span class="ident">yg</span>, <span class="ident">attr</span> =&gt; <span class="ident">attr</span>))
+    }
+}
+
 <span class="kw">impl</span> <span class="ident">Sid</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">SidDisc</span> {
         <span class="ident">core::intrinsics::discriminant_value</span>(<span class="self">self</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_attr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::Attr</span><span class="op">&gt;</span> {
+        <span class="macro">to_attr!</span>(<span class="self">self</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_attr</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="kw">crate</span>::Attr</span><span class="op">&gt;</span> {
+        <span class="macro">to_attr!</span>(<span class="self">self</span>)
     }
 }
 
@@ -430,7 +532,7 @@
             <span class="ident">SID_VRQ_PROXIMITY_REGISTRAR_PUBK</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Sid::VrqProximityRegistrarPubk</span>(<span class="ident">yg</span>)),
             <span class="ident">SID_VRQ_PROXIMITY_REGISTRAR_PUBK_SHA256</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Sid::VrqProximityRegistrarPubkSha256</span>(<span class="ident">yg</span>)),
             <span class="ident">SID_VRQ_SERIAL_NUMBER</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Sid::VrqSerialNumber</span>(<span class="ident">yg</span>)),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">Err</span>(()),
+            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 }

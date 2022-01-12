@@ -429,6 +429,90 @@
 <span id="427">427</span>
 <span id="428">428</span>
 <span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">no_std</span>]</span>
 
 <span class="attribute">#![<span class="ident">feature</span>(<span class="ident">arbitrary_enum_discriminant</span>)]</span>
@@ -458,7 +542,7 @@
 <span class="kw">mod</span> <span class="ident">yang</span>;
 
 <span class="kw">mod</span> <span class="ident">sid</span>;
-<span class="kw">use</span> <span class="ident">sid::Sid</span>;
+<span class="kw">use</span> <span class="ident">sid</span>::{<span class="ident">Sid</span>, <span class="ident">SidDisc</span>};
 
 <span class="kw">mod</span> <span class="ident">sid_data</span>;
 <span class="kw">use</span> <span class="ident">sid_data::SidData</span>;
@@ -510,15 +594,18 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// A `Voucher` with a known list of attributes can be initialized from a vector:</span>
+<span class="doccomment">/// A `Voucher` with a known list of attributes can be initialized using macros:</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// use minerva_voucher::Voucher;</span>
+<span class="doccomment">/// use minerva_voucher::{vch, vrq};</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// let vrq = Voucher::new_vrq_with(vec![</span>
+<span class="doccomment">/// let vch = vch![</span>
+<span class="doccomment">///     Attr::Assertion(Assertion::Logged),</span>
+<span class="doccomment">///     Attr::SerialNumber(&quot;00-11-22-33-44-55&quot;.as_bytes().to_vec())];</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let vrq = vrq![</span>
 <span class="doccomment">///     Attr::Assertion(Assertion::Proximity),</span>
-<span class="doccomment">///     Attr::SerialNumber(String::from(&quot;00-11-22-33-44-55&quot;)),</span>
-<span class="doccomment">/// ]);</span>
+<span class="doccomment">///     Attr::SerialNumber(&quot;00-11-22-33-44-55&quot;.as_bytes().to_vec())];</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// A raw CBOR-encoded voucher can be decoded into a [`Voucher`] through the `TryFrom` and/or `TryInto`</span>
@@ -527,43 +614,56 @@
 <span class="doccomment">/// ```ignore</span>
 <span class="doccomment">/// use core::convert::{TryFrom, TryInto};</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// let vch = Voucher::try_from(VCH_JADA).unwrap();</span>
+<span class="doccomment">/// assert!(Voucher::try_from(VCH_JADA).is_ok());</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// let result: Result&lt;Voucher, _&gt; = VCH_JADA.try_into();</span>
-<span class="doccomment">/// assert!(result.is_ok());</span>
+<span class="doccomment">/// let vch: Voucher = VCH_JADA.try_into().unwrap();</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// // (Add how to access the voucher attributes ...)</span>
-<span class="doccomment">///</span>
+<span class="doccomment">/// vch.iter().for_each(|attr| {</span>
+<span class="doccomment">///     println!(&quot;attr: {:?}&quot;, attr);</span>
+<span class="doccomment">///     match attr {</span>
+<span class="doccomment">///         Attr::Assertion(x) =&gt; assert_eq!(x, &amp;Assertion::Proximity),</span>
+<span class="doccomment">///         Attr::CreatedOn(x) =&gt; assert_eq!(x, &amp;1475868702),</span>
+<span class="doccomment">///         Attr::ExpiresOn(x) =&gt; assert_eq!(x, &amp;1506816000),</span>
+<span class="doccomment">///         Attr::Nonce(x) =&gt; assert_eq!(x, &amp;[97, 98, 99, 100, 49, 50, 51, 52, 53]),</span>
+<span class="doccomment">///         Attr::PinnedDomainPubk(x) =&gt; assert_eq!(x[0..4], [77, 70, 107, 119]),</span>
+<span class="doccomment">///         Attr::SerialNumber(x) =&gt; assert_eq!(x, &quot;JADA123456789&quot;.as_bytes()),</span>
+<span class="doccomment">///         _ =&gt; panic!(),</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">/// });</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// [Constrained BRSKI]: https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html</span>
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Voucher</span> {
     <span class="ident">sd</span>: <span class="ident">SidData</span>,
     <span class="ident">cd</span>: <span class="ident">CoseData</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">VoucherType</span> {
+<span class="kw">enum</span> <span class="ident">VoucherType</span> {
     <span class="ident">Vch</span>, <span class="comment">// &#39;voucher&#39;</span>
     <span class="ident">Vrq</span>, <span class="comment">// &#39;voucher request&#39;</span>
 }
 
 <span class="kw">impl</span> <span class="ident">Voucher</span> {
-    <span class="doccomment">/// Creates an empty `Voucher`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// (Add notes on voucher types...)</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```ignore</span>
-    <span class="doccomment">/// use minerva_voucher::{Voucher,VoucherType};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let vrq = Voucher::new(VoucherType::Vrq);</span>
-    <span class="doccomment">/// let vch = Voucher::new(VoucherType::Vch);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ty</span>: <span class="ident">VoucherType</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_vch</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">VoucherType::Vch</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_vrq</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">VoucherType::Vrq</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_vch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="op">!</span><span class="self">self</span>.<span class="ident">is_vrq</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_vrq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">is_vrq</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ty</span>: <span class="ident">VoucherType</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">sd</span>: <span class="kw">match</span> <span class="ident">ty</span> {
                 <span class="ident">VoucherType::Vch</span> =&gt; <span class="ident">SidData::new_vch_cbor</span>(),
@@ -573,36 +673,57 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_vch</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">VoucherType::Vch</span>)
+    <span class="doccomment">/// Returns a reference to the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use minerva_voucher::{Voucher, attr::*};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut vrq = Voucher::new_vrq();</span>
+    <span class="doccomment">/// vrq.set(Attr::CreatedOn(1475868702));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&amp;Attr::CreatedOn(1475868702)));</span>
+    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_SERIAL_NUMBER), None);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">adisc</span>: <span class="ident">AttrDisc</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Attr</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">sdisc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_sid_disc</span>(<span class="ident">adisc</span>)<span class="question-mark">?</span>;
+        <span class="kw">for</span> <span class="ident">sid</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">iter</span>() {
+            <span class="kw">if</span> <span class="ident">sid</span>.<span class="ident">disc</span>() <span class="op">==</span> <span class="ident">sdisc</span> {
+                <span class="kw">return</span> <span class="ident">sid</span>.<span class="ident">as_attr</span>();
+            }
+        }
+
+        <span class="prelude-val">None</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_vrq</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">VoucherType::Vrq</span>)
+    <span class="doccomment">/// Adds an attribute to the voucher, replacing the existing attribute, if any, that corresponds to the given one. Returns a `mut` reference to the voucher.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use minerva_voucher::{Voucher, attr::*};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let mut vrq = Voucher::new_vrq();</span>
+    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_CREATED_ON), None);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// vrq.set(Attr::CreatedOn(1475868702));</span>
+    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&amp;Attr::CreatedOn(1475868702)));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// vrq.set(Attr::CreatedOn(1599086034));</span>
+    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&amp;Attr::CreatedOn(1599086034)));</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">attr</span>: <span class="ident">Attr</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">sdisc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_sid_disc</span>(<span class="ident">attr</span>.<span class="ident">disc</span>()).<span class="ident">unwrap</span>();
+        <span class="self">self</span>.<span class="ident">set_sid</span>(<span class="ident">Sid::try_from</span>((<span class="ident">attr</span>.<span class="ident">into_yang</span>(), <span class="ident">sdisc</span>)).<span class="ident">unwrap</span>());
+
+        <span class="self">self</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_vch_with</span>(<span class="ident">attrs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Attr</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vch</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new_vch</span>();
-        <span class="ident">attrs</span>.<span class="ident">into_iter</span>()
-            .<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> { <span class="ident">vch</span>.<span class="ident">set</span>(<span class="ident">attr</span>); });
+    <span class="kw">fn</span> <span class="ident">set_sid</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">sid</span>: <span class="ident">Sid</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">replace</span>(<span class="ident">sid</span>);
 
-        <span class="ident">vch</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_vrq_with</span>(<span class="ident">attrs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Attr</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vrq</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new_vrq</span>();
-        <span class="ident">attrs</span>.<span class="ident">into_iter</span>()
-            .<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">attr</span><span class="op">|</span> { <span class="ident">vrq</span>.<span class="ident">set</span>(<span class="ident">attr</span>); });
-
-        <span class="ident">vrq</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">CoseData::encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cd</span>).<span class="ident">ok</span>()
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_voucher_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">VoucherType</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">is_vrq</span>() { <span class="ident">VoucherType::Vrq</span> } <span class="kw">else</span> { <span class="ident">VoucherType::Vch</span> }
+        <span class="self">self</span>
     }
 
     <span class="doccomment">/// Removes an attribute from the voucher. Returns whether the attribute was present in the voucher.</span>
@@ -619,7 +740,11 @@
     <span class="doccomment">/// assert_eq!(vrq.remove(ATTR_CREATED_ON), false);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">adisc</span>: <span class="ident">AttrDisc</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">take</span>(<span class="ident">adisc</span>).<span class="ident">is_some</span>()
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sdisc</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_sid_disc</span>(<span class="ident">adisc</span>) {
+            <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">remove</span>(<span class="ident">sdisc</span>)
+        } <span class="kw">else</span> {
+            <span class="bool-val">false</span>
+        }
     }
 
     <span class="doccomment">/// Removes and returns the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.</span>
@@ -641,71 +766,13 @@
     <span class="doccomment">/// assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), None);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">adisc</span>: <span class="ident">AttrDisc</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Attr</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">dummy</span> <span class="op">=</span> <span class="ident">Sid::try_from</span>((
-            <span class="ident">yang::Yang::DateAndTime</span>(<span class="ident">Attr::CreatedOn</span>(<span class="number">0</span>)) <span class="comment">/* dummy */</span>,
-            <span class="ident">Attr::to_sid_disc</span>(<span class="ident">adisc</span>, <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">is_vrq</span>())<span class="question-mark">?</span>)).<span class="ident">unwrap</span>();
-
-        <span class="kw">let</span> <span class="ident">dc</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">dummy</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">removed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">replace</span>(<span class="ident">dummy</span>);
-        <span class="kw">let</span> <span class="ident">dummy_removal</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">remove</span>(<span class="ident">dc</span>);
-        <span class="macro">assert!</span>(<span class="ident">dummy_removal</span>);
-
-        <span class="ident">removed</span>.<span class="ident">and_then</span>(<span class="ident">Attr::from_sid</span>)
+        <span class="self">self</span>.<span class="ident">sd</span>
+            .<span class="ident">take</span>(<span class="self">self</span>.<span class="ident">to_sid_disc</span>(<span class="ident">adisc</span>)<span class="question-mark">?</span>)
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">sid</span><span class="op">|</span> <span class="ident">sid</span>.<span class="ident">into_attr</span>())
     }
 
-    <span class="doccomment">/// Returns a reference to the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use minerva_voucher::{Voucher, attr::*};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut vrq = Voucher::new_vrq();</span>
-    <span class="doccomment">/// vrq.set(Attr::CreatedOn(1475868702));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&amp;Attr::CreatedOn(1475868702)));</span>
-    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_SERIAL_NUMBER), None);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">adisc</span>: <span class="ident">AttrDisc</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Attr</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">get_sid</span>(<span class="ident">adisc</span>).<span class="ident">and_then</span>(<span class="ident">Attr::from_sid_ref</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">get_sid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">adisc</span>: <span class="ident">AttrDisc</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Sid</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">is_vrq</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">is_vrq</span>();
-        <span class="kw">let</span> <span class="ident">sdisc</span> <span class="op">=</span> <span class="ident">Attr::to_sid_disc</span>(<span class="ident">adisc</span>, <span class="ident">is_vrq</span>);
-
-        <span class="kw">if</span> <span class="ident">sdisc</span>.<span class="ident">is_none</span>() { <span class="kw">return</span> <span class="prelude-val">None</span>; }
-        <span class="kw">let</span> <span class="ident">sdisc</span> <span class="op">=</span> <span class="ident">sdisc</span>.<span class="ident">unwrap</span>();
-        <span class="macro">debug_println!</span>(<span class="string">&quot;sdisc: {}&quot;</span>, <span class="ident">sdisc</span>);
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">iter</span>()
-            .<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">sid</span><span class="op">|</span> <span class="kw">if</span> <span class="ident">sid</span>.<span class="ident">disc</span>() <span class="op">==</span> <span class="ident">sdisc</span> { <span class="ident">found</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sid</span>); });
-
-        <span class="ident">found</span>
-    }
-
-    <span class="doccomment">/// Adds an attribute to the voucher, replacing the existing attribute, if any, that corresponds to the given one. Returns a `mut` reference to the voucher.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Examples</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use minerva_voucher::{Voucher, attr::*};</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// let mut vrq = Voucher::new_vrq();</span>
-    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_CREATED_ON), None);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// vrq.set(Attr::CreatedOn(1475868702));</span>
-    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&amp;Attr::CreatedOn(1475868702)));</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// vrq.set(Attr::CreatedOn(1599086034));</span>
-    <span class="doccomment">/// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&amp;Attr::CreatedOn(1599086034)));</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">attr</span>: <span class="ident">Attr</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">sdisc</span> <span class="op">=</span> <span class="ident">Attr::to_sid_disc</span>(<span class="ident">attr</span>.<span class="ident">disc</span>(), <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">is_vrq</span>()).<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">set_sid</span>(<span class="ident">Sid::try_from</span>((<span class="ident">attr</span>.<span class="ident">into_yang</span>(), <span class="ident">sdisc</span>)).<span class="ident">unwrap</span>());
-
-        <span class="self">self</span>
+    <span class="kw">fn</span> <span class="ident">to_sid_disc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">adisc</span>: <span class="ident">AttrDisc</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SidDisc</span><span class="op">&gt;</span> {
+        <span class="ident">Attr::to_sid_disc</span>(<span class="ident">adisc</span>, <span class="self">self</span>.<span class="ident">is_vrq</span>())
     }
 
     <span class="doccomment">/// Returns the number of attributes in the voucher.</span>
@@ -748,66 +815,47 @@
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">attr</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">attr</span>)
     }
 
+    <span class="doccomment">/// todo</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// ;</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">iter_with_sid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> (<span class="kw-2">&amp;</span><span class="ident">Attr</span>, <span class="ident">sid::SidDisc</span>)<span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;_</span> {
         <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">iter</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">sid</span><span class="op">|</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">attr</span>) <span class="op">=</span> <span class="ident">Attr::from_sid_ref</span>(<span class="ident">sid</span>) { <span class="prelude-val">Some</span>((<span class="ident">attr</span>, <span class="ident">sid</span>.<span class="ident">disc</span>())) } <span class="kw">else</span> { <span class="prelude-val">None</span> })
+            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">sid</span><span class="op">|</span> <span class="prelude-val">Some</span>((<span class="ident">sid</span>.<span class="ident">as_attr</span>()<span class="question-mark">?</span>, <span class="ident">sid</span>.<span class="ident">disc</span>())))
     }
 
-    <span class="comment">// pub fn print(&amp;self) -&gt; { // ??</span>
-    <span class="comment">//     self.sd.dump();</span>
-    <span class="comment">//     self.cd.dump();</span>
-    <span class="comment">// }</span>
-    <span class="comment">//----^^^^ Attr layer API</span>
-
-    <span class="kw">fn</span> <span class="ident">set_sid</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">sid</span>: <span class="ident">Sid</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">replace</span>(<span class="ident">sid</span>);
-
-        <span class="self">self</span>
+    <span class="doccomment">/// todo</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// ;</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dump</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="macro">println!</span>(<span class="string">&quot;======== Voucher::dump()&quot;</span>);
+        <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">dump</span>();
+        <span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">dump</span>();
+        <span class="macro">println!</span>(<span class="string">&quot;========&quot;</span>);
     }
 
-    <span class="comment">//----vvvv COSE layer API</span>
-    <span class="comment">// pub fn cose_content() -&gt; Option&lt;Vec&lt;u8&gt;&gt; {} // &lt;&lt;? `pub fn extract_cose_content(&amp;self)`</span>
-    <span class="comment">// pub fn cose_signature() -&gt; xx {} // &lt;&lt;? `pub fn get_signature(&amp;self)`</span>
-
-    <span class="doccomment">/// Interface with meta data to be used in ECDSA based signing</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_sign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; (<span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">SignatureAlgorithm</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
-        <span class="kw">use</span> <span class="ident">core::ops::DerefMut</span>;
-
-        <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">update_cose_content</span>()
-            .<span class="ident">cd</span>.<span class="ident">sig_mut</span>().<span class="ident">deref_mut</span>();
-
-        (<span class="kw-2">&amp;mut</span> <span class="ident">sig</span>.<span class="ident">signature</span>, <span class="kw-2">&amp;mut</span> <span class="ident">sig</span>.<span class="ident">signature_type</span>, <span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">to_verify</span>)
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dump_and_panic</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">dump</span>();
+        <span class="macro">panic!</span>();
     }
 
-    <span class="doccomment">/// Interface with meta data to be used in ECDSA based validation</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_validate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
-        <span class="kw">let</span> (<span class="ident">signature</span>, <span class="ident">alg</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_signature</span>();
-
-        (<span class="self">self</span>.<span class="ident">get_signer_cert</span>(), <span class="ident">signature</span>, <span class="ident">alg</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">sig</span>().<span class="ident">to_verify</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">update_cose_content</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="kw">use</span> <span class="ident">sid::Cbor</span>;
-
-        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cbor</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">serialize</span>() { <span class="ident">cbor</span> } <span class="kw">else</span> {
-            <span class="macro">println!</span>(<span class="string">&quot;update_cose_content(): Failed to generate `content`&quot;</span>);
-
-            <span class="macro">vec!</span>[]
-        };
-
-        <span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">set_content</span>(<span class="kw-2">&amp;</span><span class="ident">content</span>);
-
-        <span class="self">self</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract_cose_content</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="macro">debug_println!</span>(<span class="string">&quot;extract_cose_content(): self.sd: {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">sd</span>);
-
-        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">get_content</span>();
-        <span class="macro">debug_println!</span>(<span class="string">&quot;extract_cose_content(): content: {:?}&quot;</span>, <span class="ident">content</span>);
-
-        <span class="ident">content</span>
+    <span class="doccomment">/// todo</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// ;</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">serialize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">CoseData::encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cd</span>).<span class="ident">ok</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_signature</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>) {
@@ -822,11 +870,75 @@
         <span class="kw">if</span> <span class="ident">signer_cert</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span> { <span class="prelude-val">Some</span>(<span class="ident">signer_cert</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dump</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">dump</span>();
+    <span class="comment">// c.f. `Voucher::try_from(VCH_JADA).unwrap().dump_and_panic();`</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_signer_cert</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_cert</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
+        <span class="macro">unimplemented!</span>();
+
+        <span class="comment">//self</span>
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">get_cose_content</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="macro">println!</span>(<span class="string">&quot;get_cose_content(): self.sd: {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">sd</span>);
+
+        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">get_content</span>();
+        <span class="macro">println!</span>(<span class="string">&quot;get_cose_content(): content: {:?}&quot;</span>, <span class="ident">content</span>);
+
+        <span class="ident">content</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">update_cose_content</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
+        <span class="kw">use</span> <span class="ident">sid::Cbor</span>;
+
+        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cbor</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">serialize</span>() { <span class="ident">cbor</span> } <span class="kw">else</span> {
+            <span class="macro">debug_println!</span>(<span class="string">&quot;update_cose_content(): Failed to generate `content`&quot;</span>);
+
+            <span class="macro">vec!</span>[]
+        };
+
+        <span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">set_content</span>(<span class="kw-2">&amp;</span><span class="ident">content</span>);
+
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Interface with meta data to be used in ECDSA based signing</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// ;</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_sign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; (<span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">SignatureAlgorithm</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
+        <span class="kw">use</span> <span class="ident">core::ops::DerefMut</span>;
+
+        <span class="kw">let</span> <span class="ident">sig</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">update_cose_content</span>()
+            .<span class="ident">cd</span>.<span class="ident">sig_mut</span>().<span class="ident">deref_mut</span>();
+
+        (<span class="kw-2">&amp;mut</span> <span class="ident">sig</span>.<span class="ident">signature</span>, <span class="kw-2">&amp;mut</span> <span class="ident">sig</span>.<span class="ident">signature_type</span>, <span class="kw-2">&amp;</span><span class="ident">sig</span>.<span class="ident">to_verify</span>)
+    }
+
+    <span class="doccomment">/// Interface with meta data to be used in ECDSA based validation</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Examples</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// ;</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_validate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
+        <span class="kw">let</span> (<span class="ident">signature</span>, <span class="ident">alg</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_signature</span>();
+
+        (<span class="self">self</span>.<span class="ident">get_signer_cert</span>(), <span class="ident">signature</span>, <span class="ident">alg</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">sig</span>().<span class="ident">to_verify</span>)
     }
 }
 
+<span class="doccomment">/// todo</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// ;</span>
+<span class="doccomment">/// ```</span>
 <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Voucher</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
 
@@ -857,6 +969,62 @@
             <span class="prelude-val">Err</span>(<span class="string">&quot;Filed to decode `sidhash`&quot;</span>)
         }
     }
+}
+
+<span class="comment">//</span>
+
+<span class="macro">macro_rules!</span> <span class="ident">debug_println</span> {
+    ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; {
+        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">debug_assertions</span>) {
+            <span class="macro">crate::println!</span>( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span> ),<span class="op">*</span> );
+        }
+    };
+}
+
+<span class="kw">use</span> <span class="ident">debug_println</span>;
+
+<span class="comment">//</span>
+
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_macros</span>)]</span>
+<span class="macro">macro_rules!</span> <span class="ident">build_voucher</span> {
+    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">voucher</span>:<span class="ident">expr</span>, $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; {
+        {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">voucher</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">voucher</span>;
+            $(
+                <span class="ident">voucher</span>.<span class="ident">set</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>);
+            )<span class="op">*</span>
+            <span class="ident">voucher</span>
+        }
+    };
+}
+
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
+<span class="kw">use</span> <span class="ident">build_voucher</span>;
+
+<span class="doccomment">/// todo</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// ;</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules!</span> <span class="ident">vch</span> {
+    ( ) =&gt; (<span class="ident">Voucher::new_vch</span>());
+    ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; (<span class="macro">build_voucher!</span>( <span class="ident">Voucher::new_vch</span>(), $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span> ),<span class="op">*</span> ));
+}
+
+<span class="doccomment">/// todo</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// ;</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules!</span> <span class="ident">vrq</span> {
+    ( ) =&gt; (<span class="ident">Voucher::new_vrq</span>());
+    ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; (<span class="macro">build_voucher!</span>( <span class="ident">Voucher::new_vrq</span>(), $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span> ),<span class="op">*</span> ));
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="minerva_voucher" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0-nightly (cfa4ac66c 2022-01-06)" ></div>

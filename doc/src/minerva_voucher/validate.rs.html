@@ -61,10 +61,8 @@
 <span id="59">59</span>
 <span id="60">60</span>
 <span id="61">61</span>
-<span id="62">62</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::println</span>;
-
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::SignatureAlgorithm</span>;
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::SignatureAlgorithm</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug_println</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::utils::minerva_mbedtls_utils</span>::<span class="kw-2">*</span>;
 
 <span class="kw">use</span> <span class="ident">minerva_mbedtls::ifce</span>::<span class="kw-2">*</span>;
@@ -77,7 +75,7 @@
         <span class="kw">match</span> <span class="ident">validate</span>(<span class="ident">pem</span>, <span class="self">self</span>.<span class="ident">to_validate</span>(), <span class="ident">f_rng</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">tf</span>) =&gt; <span class="kw">if</span> <span class="ident">tf</span> { <span class="prelude-val">Ok</span>(<span class="self">self</span>) } <span class="kw">else</span> { <span class="prelude-val">Err</span>(()) },
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;validate(): mbedtls_error: {}&quot;</span>, <span class="ident">err</span>);
+                <span class="macro">debug_println!</span>(<span class="string">&quot;validate(): mbedtls_error: {}&quot;</span>, <span class="ident">err</span>);
 
                 <span class="prelude-val">Err</span>(())
             },
@@ -120,7 +118,7 @@
             .<span class="ident">set_q</span>(<span class="ident">pt</span>)
             .<span class="ident">verify</span>(<span class="ident">md_ty</span>, <span class="ident">hash</span>, <span class="ident">signature</span>)
     } <span class="kw">else</span> {
-        <span class="macro">println!</span>(<span class="string">&quot;validate(): Neither external masa cert nor signer cert is available.&quot;</span>);
+        <span class="macro">debug_println!</span>(<span class="string">&quot;validate(): Neither external masa cert nor signer cert is available.&quot;</span>);
         <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>)
     }
 }

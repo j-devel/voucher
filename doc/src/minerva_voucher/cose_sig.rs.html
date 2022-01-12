@@ -121,7 +121,7 @@
 
 <span class="comment">//</span>
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CoseSig</span>(<span class="ident">CoseSignature</span>);
 
 <span class="kw">impl</span> <span class="ident">core::ops::Deref</span> <span class="kw">for</span> <span class="ident">CoseSig</span> {
@@ -158,12 +158,12 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dump</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="macro">println!</span>(<span class="string">&quot;======== `CoseSignature` dump&quot;</span>);
+        <span class="macro">println!</span>(<span class="string">&quot;==== CoseSig::dump()&quot;</span>);
         <span class="macro">println!</span>(<span class="string">&quot;  signature_type: {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">signature_type</span>);
         <span class="macro">println!</span>(<span class="string">&quot;  signature: [len={}] {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">signature</span>.<span class="ident">len</span>(), <span class="self">self</span>.<span class="ident">signature</span>);
         <span class="macro">println!</span>(<span class="string">&quot;  signer_cert: [len={}] {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">signer_cert</span>.<span class="ident">len</span>(), <span class="self">self</span>.<span class="ident">signer_cert</span>);
         <span class="macro">println!</span>(<span class="string">&quot;  to_verify: [len={}] {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">to_verify</span>.<span class="ident">len</span>(), <span class="self">self</span>.<span class="ident">to_verify</span>);
-        <span class="macro">println!</span>(<span class="string">&quot;  ====&quot;</span>);
+        <span class="macro">println!</span>(<span class="string">&quot;====&quot;</span>);
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_content</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {

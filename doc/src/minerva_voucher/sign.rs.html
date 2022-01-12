@@ -38,9 +38,9 @@
 <span id="36">36</span>
 <span id="37">37</span>
 <span id="38">38</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">println</span>, <span class="ident">vec</span>, <span class="ident">Vec</span>};
-
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">vec</span>, <span class="ident">Vec</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::SignatureAlgorithm</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug_println</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::utils::minerva_mbedtls_utils</span>::<span class="kw-2">*</span>;
 
 <span class="kw">use</span> <span class="ident">minerva_mbedtls::ifce</span>::<span class="kw-2">*</span>;
@@ -51,7 +51,7 @@
         <span class="kw">let</span> <span class="ident">f_rng</span> <span class="op">=</span> <span class="ident">pk_context::test_f_rng_ptr</span>(); <span class="comment">// !! TODO refactor into `self` logic</span>
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">sign</span>(<span class="ident">privkey_pem</span>, <span class="ident">alg</span>, <span class="self">self</span>.<span class="ident">to_sign</span>(), <span class="ident">f_rng</span>) {
-            <span class="macro">println!</span>(<span class="string">&quot;sign(): mbedtls_error: {}&quot;</span>, <span class="ident">err</span>);
+            <span class="macro">debug_println!</span>(<span class="string">&quot;sign(): mbedtls_error: {}&quot;</span>, <span class="ident">err</span>);
             <span class="kw">return</span> <span class="prelude-val">Err</span>(());
         }
 
