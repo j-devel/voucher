@@ -70,6 +70,7 @@ pub enum Sid {
     VrqSerialNumber(Yang) =                  SID_VRQ_SERIAL_NUMBER,
 }
 
+#[allow(dead_code)]
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum TopLevel {
     CwtVoucher,
@@ -79,6 +80,7 @@ pub enum TopLevel {
     VoucherRequestVoucher,
 }
 
+#[allow(dead_code)]
 impl TopLevel {
     const fn value(self) -> &'static str {
         match self {
