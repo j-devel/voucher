@@ -158,51 +158,6 @@ impl Voucher {
         }
     }
 
-    /// Removes an attribute from the voucher. Returns whether the attribute was present in the voucher.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use minerva_voucher::{Voucher, attr::*};
-    ///
-    /// let mut vrq = Voucher::new_vrq();
-    /// vrq.set(Attr::CreatedOn(1475868702));
-    ///
-    /// assert_eq!(vrq.remove(ATTR_CREATED_ON), true);
-    /// assert_eq!(vrq.remove(ATTR_CREATED_ON), false);
-    /// ```
-    pub fn remove(&mut self, adisc: AttrDisc) -> bool {
-        if let Some(sdisc) = self.to_sid_disc(adisc) {
-            self.sd.remove(sdisc)
-        } else {
-            false
-        }
-    }
-
-    /// Removes and returns the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use minerva_voucher::{Voucher, attr::*};
-    ///
-    /// let mut vrq = Voucher::new_vrq();
-    ///
-    /// vrq.set(Attr::CreatedOn(1475868702));
-    /// assert_eq!(vrq.take(ATTR_CREATED_ON), Some(Attr::CreatedOn(1475868702)));
-    /// assert_eq!(vrq.take(ATTR_CREATED_ON), None);
-    ///
-    /// let sn = "00-D0-E5-F2-00-02".as_bytes();
-    /// vrq.set(Attr::SerialNumber(sn.to_vec()));
-    /// assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), Some(Attr::SerialNumber(sn.to_vec())));
-    /// assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), None);
-    /// ```
-    pub fn take(&mut self, adisc: AttrDisc) -> Option<Attr> {
-        self.sd
-            .take(self.to_sid_disc(adisc)?)
-            .and_then(|sid| sid.into_attr())
-    }
-
     /// Returns a reference to the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.
     ///
     /// # Examples
@@ -248,6 +203,57 @@ impl Voucher {
         self.set_sid(Sid::try_from((attr.into_yang(), sdisc)).unwrap());
 
         self
+    }
+
+    fn set_sid(&mut self, sid: Sid) -> &mut Self {
+        self.sd.replace(sid);
+
+        self
+    }
+
+    /// Removes an attribute from the voucher. Returns whether the attribute was present in the voucher.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use minerva_voucher::{Voucher, attr::*};
+    ///
+    /// let mut vrq = Voucher::new_vrq();
+    /// vrq.set(Attr::CreatedOn(1475868702));
+    ///
+    /// assert_eq!(vrq.remove(ATTR_CREATED_ON), true);
+    /// assert_eq!(vrq.remove(ATTR_CREATED_ON), false);
+    /// ```
+    pub fn remove(&mut self, adisc: AttrDisc) -> bool {
+        if let Some(sdisc) = self.to_sid_disc(adisc) {
+            self.sd.remove(sdisc)
+        } else {
+            false
+        }
+    }
+
+    /// Removes and returns the attribute in the voucher, if any, that corresponds to the given attribute discriminant value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use minerva_voucher::{Voucher, attr::*};
+    ///
+    /// let mut vrq = Voucher::new_vrq();
+    ///
+    /// vrq.set(Attr::CreatedOn(1475868702));
+    /// assert_eq!(vrq.take(ATTR_CREATED_ON), Some(Attr::CreatedOn(1475868702)));
+    /// assert_eq!(vrq.take(ATTR_CREATED_ON), None);
+    ///
+    /// let sn = "00-D0-E5-F2-00-02".as_bytes();
+    /// vrq.set(Attr::SerialNumber(sn.to_vec()));
+    /// assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), Some(Attr::SerialNumber(sn.to_vec())));
+    /// assert_eq!(vrq.take(ATTR_SERIAL_NUMBER), None);
+    /// ```
+    pub fn take(&mut self, adisc: AttrDisc) -> Option<Attr> {
+        self.sd
+            .take(self.to_sid_disc(adisc)?)
+            .and_then(|sid| sid.into_attr())
     }
 
     fn to_sid_disc(&self, adisc: AttrDisc) -> Option<SidDisc> {
@@ -306,12 +312,6 @@ impl Voucher {
             .filter_map(|sid| Some((sid.as_attr()?, sid.disc())))
     }
 
-    fn set_sid(&mut self, sid: Sid) -> &mut Self {
-        self.sd.replace(sid);
-
-        self
-    }
-
     /// todo
     ///
     /// # Examples
@@ -343,26 +343,31 @@ impl Voucher {
         CoseData::encode(&self.cd).ok()
     }
 
-    pub fn get_cose_signature(&self) -> (&[u8], &SignatureAlgorithm) {
+    pub fn get_signature(&self) -> (&[u8], &SignatureAlgorithm) {
         let sig = self.cd.sig();
 
         (&sig.signature, &sig.signature_type)
     }
 
-    // c.f. `Voucher::try_from(VCH_JADA).unwrap().dump_and_panic();`
-    // pub fn set_cose_signer_cert(&mut self, &[u8]) -> &mut Self {
-
-    pub fn get_cose_signer_cert(&self) -> Option<&[u8]> {
+    pub fn get_signer_cert(&self) -> Option<&[u8]> {
         let signer_cert = &self.cd.sig().signer_cert;
 
         if signer_cert.len() > 0 { Some(signer_cert) } else { None }
     }
 
-    pub fn get_cose_content(&self) -> Option<Vec<u8>> {
-        debug_println!("get_cose_content(): self.sd: {:?}", self.sd);
+    // c.f. `Voucher::try_from(VCH_JADA).unwrap().dump_and_panic();`
+    pub fn set_signer_cert(&mut self, _cert: &[u8]) -> &mut Self {
+        unimplemented!();
+
+        //self
+    }
+
+    #[cfg(test)]
+    fn get_cose_content(&self) -> Option<Vec<u8>> {
+        println!("get_cose_content(): self.sd: {:?}", self.sd);
 
         let content = self.cd.get_content();
-        debug_println!("get_cose_content(): content: {:?}", content);
+        println!("get_cose_content(): content: {:?}", content);
 
         content
     }
@@ -406,9 +411,9 @@ impl Voucher {
     /// ;
     /// ```
     pub fn to_validate(&self) -> (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]) {
-        let (signature, alg) = self.get_cose_signature();
+        let (signature, alg) = self.get_signature();
 
-        (self.get_cose_signer_cert(), signature, alg, &self.cd.sig().to_verify)
+        (self.get_signer_cert(), signature, alg, &self.cd.sig().to_verify)
     }
 }
 
@@ -456,7 +461,7 @@ impl TryFrom<&[u8]> for Voucher {
 macro_rules! debug_println {
     ( $( $x:expr ),* ) => {
         if cfg!(debug_assertions) {
-            println!( $( $x ),* );
+            crate::println!( $( $x ),* );
         }
     };
 }
