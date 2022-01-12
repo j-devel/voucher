@@ -1,18 +1,5 @@
 use crate::{Vec, SignatureAlgorithm};
 
-//
-
-#[macro_export]
-macro_rules! debug_println {
-    ( $( $x:expr ),* ) => {
-        if cfg!(debug_assertions) {
-            println!( $( $x ),* );
-        }
-    };
-}
-
-//
-
 #[cfg(any(feature = "sign", feature = "sign-lts", feature = "validate", feature = "validate-lts"))]
 pub mod minerva_mbedtls_utils {
     use super::*;

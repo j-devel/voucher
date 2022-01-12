@@ -131,45 +131,6 @@ enum VoucherType {
     Vrq, // 'voucher request'
 }
 
-macro_rules! voucher_build {
-    ( $voucher:expr, $( $attr:expr ),* ) => {
-        {
-            let mut voucher = $voucher;
-            $(
-                voucher.set($attr);
-            )*
-            voucher
-        }
-    };
-}
-use voucher_build;
-
-/// todo
-///
-/// # Examples
-///
-/// ```
-/// ;
-/// ```
-#[macro_export]
-macro_rules! vch {
-    ( ) => (Voucher::new_vch());
-    ( $( $attr:expr ),* ) => (voucher_build!( Voucher::new_vch(), $( $attr ),* ));
-}
-
-/// todo
-///
-/// # Examples
-///
-/// ```
-/// ;
-/// ```
-#[macro_export]
-macro_rules! vrq {
-    ( ) => (Voucher::new_vrq());
-    ( $( $attr:expr ),* ) => (voucher_build!( Voucher::new_vrq(), $( $attr ),* ));
-}
-
 impl Voucher {
     pub fn new_vch() -> Self {
         Self::new(VoucherType::Vch)
@@ -475,4 +436,60 @@ impl TryFrom<&[u8]> for Voucher {
             Err("Filed to decode `sidhash`")
         }
     }
+}
+
+//
+
+macro_rules! debug_println {
+    ( $( $x:expr ),* ) => {
+        if cfg!(debug_assertions) {
+            println!( $( $x ),* );
+        }
+    };
+}
+
+use debug_println;
+
+//
+
+#[allow(unused_macros)]
+macro_rules! build_voucher {
+    ( $voucher:expr, $( $attr:expr ),* ) => {
+        {
+            let mut voucher = $voucher;
+            $(
+                voucher.set($attr);
+            )*
+            voucher
+        }
+    };
+}
+
+#[allow(unused_imports)]
+use build_voucher;
+
+/// todo
+///
+/// # Examples
+///
+/// ```
+/// ;
+/// ```
+#[macro_export]
+macro_rules! vch {
+    ( ) => (Voucher::new_vch());
+    ( $( $attr:expr ),* ) => (build_voucher!( Voucher::new_vch(), $( $attr ),* ));
+}
+
+/// todo
+///
+/// # Examples
+///
+/// ```
+/// ;
+/// ```
+#[macro_export]
+macro_rules! vrq {
+    ( ) => (Voucher::new_vrq());
+    ( $( $attr:expr ),* ) => (build_voucher!( Voucher::new_vrq(), $( $attr ),* ));
 }
