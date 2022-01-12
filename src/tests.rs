@@ -22,7 +22,7 @@ static KEY_PEM_F2_00_02: &[u8] = core::include_bytes!(
 //
 
 fn content_from_voucher(raw: &[u8]) -> Vec<u8> {
-    Voucher::try_from(raw).unwrap().extract_cose_content().unwrap()
+    Voucher::try_from(raw).unwrap().get_cose_content().unwrap()
 }
 
 pub fn content_vch_jada() -> Vec<u8> { content_from_voucher(VCH_JADA) }
@@ -54,7 +54,7 @@ fn test_voucher_conversion() {
 
     let vch: Voucher = VCH_JADA.try_into().unwrap();
     assert_eq!(vch.len(), 6);
-    if 0 == 1 { vch.dump_and_panic(); }
+    //vch.dump_and_panic();
 
     vch.iter().for_each(|attr| {
         println!("attr: {:?}", attr);
@@ -73,6 +73,7 @@ fn test_voucher_conversion() {
 
     let vch: Voucher = VCH_F2_00_02.try_into().unwrap();
     assert_eq!(vch.len(), 5);
+    //vch.dump_and_panic();
 
     vch.iter().for_each(|attr| {
         println!("attr: {:?}", attr);
@@ -90,6 +91,7 @@ fn test_voucher_conversion() {
 
     let vrq: Voucher = VRQ_F2_00_02.try_into().unwrap();
     assert_eq!(vrq.len(), 5);
+    //vch.dump_and_panic();
 
     vrq.iter().for_each(|attr| {
         println!("attr: {:?}", attr);
@@ -116,12 +118,12 @@ fn test_decode_vch_jada() {
 
     let vch = Voucher::try_from(VCH_JADA).unwrap();
 
-    let (sig, alg) = vch.get_signature();
+    let (sig, alg) = vch.get_cose_signature();
     assert_eq!(sig.len(), 64);
     assert_eq!(*alg, SignatureAlgorithm::ES256);
 
-    assert_eq!(vch.get_signer_cert().unwrap().len(), 65);
-    assert!(vch.extract_cose_content().unwrap().len() > 0);
+    assert_eq!(vch.get_cose_signer_cert().unwrap().len(), 65);
+    assert!(vch.get_cose_content().unwrap().len() > 0);
 }
 
 #[test]
@@ -153,12 +155,12 @@ fn test_decode_vch_f2_00_02() {
 
     let vch = Voucher::try_from(VCH_F2_00_02).unwrap();
 
-    let (sig, alg) = vch.get_signature();
+    let (sig, alg) = vch.get_cose_signature();
     assert_eq!(sig.len(), 64);
     assert_eq!(*alg, SignatureAlgorithm::ES256);
 
-    assert_eq!(vch.get_signer_cert(), None);
-    assert!(vch.extract_cose_content().unwrap().len() > 0);
+    assert_eq!(vch.get_cose_signer_cert(), None);
+    assert!(vch.get_cose_content().unwrap().len() > 0);
 }
 
 #[test]
@@ -239,9 +241,9 @@ fn test_sign_vrq_f2_00_02() {
     assert!(vrq.validate(Some(KEY_PEM_F2_00_02)).is_ok()); // via private key
 
     assert!(debug::content_comp_permissive(
-        &vrq.extract_cose_content().unwrap(), &content_vrq_f2_00_02()));
+        &vrq.get_cose_content().unwrap(), &content_vrq_f2_00_02()));
 
-    let (sig, ty) = vrq.get_signature();
+    let (sig, ty) = vrq.get_cose_signature();
     assert!(sig.len() > 0);
     assert_eq!(ty, &SignatureAlgorithm::ES256);
 }
@@ -253,7 +255,7 @@ fn test_serialize_vrq_f2_00_02() {
 
     let vrq = Voucher::try_from(VRQ_F2_00_02).unwrap();
 
-    assert_eq!(vrq.extract_cose_content().unwrap(), hex_literal::hex!("
+    assert_eq!(vrq.get_cose_content().unwrap(), hex_literal::hex!("
 A1                                      # map(1)
    19 09C5                              # unsigned(2501)
    A5                                   # map(5)
@@ -274,7 +276,7 @@ A1                                      # map(1)
          308201D83082015EA003020102020101300A06082A8648CE3D040302307331123010060A0992268993F22C6401191602636131193017060A0992268993F22C640119160973616E64656C6D616E3142304006035504030C39233C53797374656D5661726961626C653A3078303030303535623832353063306462383E20556E737472756E6720466F756E7461696E204341301E170D3230303832393034303031365A170D3232303832393034303031365A304631123010060A0992268993F22C6401191602636131193017060A0992268993F22C640119160973616E64656C6D616E3115301306035504030C0C556E737472756E67204A52433059301306072A8648CE3D020106082A8648CE3D030107034200049665507234BA9FE5DDE65FF6F0816FE9489E810C12073B468F97642B63008D020F57C97C947F848CB20E61D6C9888D15B4421FD7F26AB7E4CE05F8A74CD38B3AA310300E300C0603551D130101FF04023000300A06082A8648CE3D0403020368003065023100879ECDE38A05122EB6F72CB21BC3D25CBEE6573770569CEC230CA48C39F1404D72D4D755059B8082020ED41D4F119FE702303C14D88A0AFC4047CF1F87B873C16A28BFB83C0F88434D9DF3F7A86E2DC6BD8895442F2037EDCCE4855B11DA9A19E4E8 #
 # python3: `bytes([161, 25, ... 228, 232]).hex()` > https://cbor.me/
 "));
-    assert_eq!(vrq.get_signature().0, /* bare */ [242, 113, 238, 15, 125, 71, 169, 233, 252, 219, 95, 74, 88, 238, 47, 97, 183, 138, 84, 131, 159, 203, 164, 31, 34, 135, 174, 129, 228, 47, 180, 129, 171, 146, 165, 162, 167, 222, 82, 112, 125, 198, 7, 254, 142, 250, 108, 214, 194, 253, 235, 104, 154, 68, 171, 179, 127, 93, 192, 158, 174, 24, 23, 8]);
+    assert_eq!(vrq.get_cose_signature().0, /* bare */ [242, 113, 238, 15, 125, 71, 169, 233, 252, 219, 95, 74, 88, 238, 47, 97, 183, 138, 84, 131, 159, 203, 164, 31, 34, 135, 174, 129, 228, 47, 180, 129, 171, 146, 165, 162, 167, 222, 82, 112, 125, 198, 7, 254, 142, 250, 108, 214, 194, 253, 235, 104, 154, 68, 171, 179, 127, 93, 192, 158, 174, 24, 23, 8]);
     assert_eq!(vrq.serialize().unwrap(), VRQ_F2_00_02);
 }
 
@@ -299,11 +301,10 @@ fn test_highlevel_interface() {
         .is_ok());
 
     assert!(debug::content_comp_permissive(
-        &vrq.extract_cose_content().unwrap(), &content_vrq_f2_00_02()));
+        &vrq.get_cose_content().unwrap(), &content_vrq_f2_00_02()));
 
-    assert_eq!(vrq.get_signature().0, /* asn1 */ [48, 70, 2, 33, 0, 164, 97, 9, 44, 103, 141, 55, 95, 230, 60, 165, 83, 63, 61, 81, 133, 98, 207, 213, 159, 74, 67, 180, 113, 158, 8, 220, 210, 48, 177, 185, 211, 2, 33, 0, 161, 49, 250, 154, 96, 186, 186, 87, 188, 188, 67, 249, 31, 177, 104, 160, 65, 12, 62, 87, 233, 231, 105, 58, 29, 215, 16, 227, 162, 179, 209, 110]);
+    assert_eq!(vrq.get_cose_signature().0, /* asn1 */ [48, 70, 2, 33, 0, 164, 97, 9, 44, 103, 141, 55, 95, 230, 60, 165, 83, 63, 61, 81, 133, 98, 207, 213, 159, 74, 67, 180, 113, 158, 8, 220, 210, 48, 177, 185, 211, 2, 33, 0, 161, 49, 250, 154, 96, 186, 186, 87, 188, 188, 67, 249, 31, 177, 104, 160, 65, 12, 62, 87, 233, 231, 105, 58, 29, 215, 16, 227, 162, 179, 209, 110]);
     assert_eq!(vrq.serialize().unwrap().len(), 628);
-
 
     assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&Attr::CreatedOn(1599086034)));
     assert_eq!(vrq.get(ATTR_EXPIRES_ON), None);

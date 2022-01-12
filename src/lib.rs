@@ -294,6 +294,13 @@ impl Voucher {
             .map(|(attr, _)| attr)
     }
 
+    /// todo
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// ;
+    /// ```
     pub fn iter_with_sid(&self) -> impl Iterator<Item = (&Attr, sid::SidDisc)> + '_ {
         self.sd.iter()
             .filter_map(|sid| Some((sid.as_attr()?, sid.disc())))
@@ -305,6 +312,13 @@ impl Voucher {
         self
     }
 
+    /// todo
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// ;
+    /// ```
     pub fn dump(&self) {
         println!("======== Voucher::dump()");
         self.sd.dump();
@@ -318,10 +332,6 @@ impl Voucher {
         panic!();
     }
 
-    // todo ---- clean up COSE layer API
-    // pub fn cose_content() -> Option<Vec<u8>> {} // <<? `pub fn extract_cose_content(&self)`
-    // pub fn cose_signature() -> xx {} // <<? `pub fn get_signature(&self)`
-
     /// todo
     ///
     /// # Examples
@@ -331,6 +341,27 @@ impl Voucher {
     /// ```
     pub fn serialize(&self) -> Option<Vec<u8>> {
         CoseData::encode(&self.cd).ok()
+    }
+
+    pub fn get_cose_signature(&self) -> (&[u8], &SignatureAlgorithm) {
+        let sig = self.cd.sig();
+
+        (&sig.signature, &sig.signature_type)
+    }
+
+    pub fn get_cose_signer_cert(&self) -> Option<&[u8]> {
+        let signer_cert = &self.cd.sig().signer_cert;
+
+        if signer_cert.len() > 0 { Some(signer_cert) } else { None }
+    }
+
+    pub fn get_cose_content(&self) -> Option<Vec<u8>> {
+        debug_println!("get_cose_content(): self.sd: {:?}", self.sd);
+
+        let content = self.cd.get_content();
+        debug_println!("get_cose_content(): content: {:?}", content);
+
+        content
     }
 
     fn update_cose_content(&mut self) -> &mut Self {
@@ -345,27 +376,6 @@ impl Voucher {
         self.cd.set_content(&content);
 
         self
-    }
-
-    pub fn extract_cose_content(&self) -> Option<Vec<u8>> {
-        debug_println!("extract_cose_content(): self.sd: {:?}", self.sd);
-
-        let content = self.cd.get_content();
-        debug_println!("extract_cose_content(): content: {:?}", content);
-
-        content
-    }
-
-    pub fn get_signature(&self) -> (&[u8], &SignatureAlgorithm) {
-        let sig = self.cd.sig();
-
-        (&sig.signature, &sig.signature_type)
-    }
-
-    pub fn get_signer_cert(&self) -> Option<&[u8]> {
-        let signer_cert = &self.cd.sig().signer_cert;
-
-        if signer_cert.len() > 0 { Some(signer_cert) } else { None }
     }
 
     /// Interface with meta data to be used in ECDSA based signing
@@ -393,9 +403,9 @@ impl Voucher {
     /// ;
     /// ```
     pub fn to_validate(&self) -> (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]) {
-        let (signature, alg) = self.get_signature();
+        let (signature, alg) = self.get_cose_signature();
 
-        (self.get_signer_cert(), signature, alg, &self.cd.sig().to_verify)
+        (self.get_cose_signer_cert(), signature, alg, &self.cd.sig().to_verify)
     }
 }
 
