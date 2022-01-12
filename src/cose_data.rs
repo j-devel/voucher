@@ -1,4 +1,5 @@
-use crate::{println, vec, Vec, BTreeMap};
+use crate::{vec, Vec, BTreeMap};
+use crate::debug_println;
 
 use cose::{decoder::*, unpack};
 pub use cose::decoder::{SignatureAlgorithm, COSE_SIGN_ONE_TAG};
@@ -114,7 +115,7 @@ impl CoseData {
 
     fn dump_cose_sign_array(array: &[CborType]) {
         array.iter().enumerate().for_each(|(i, cbor)| {
-            println!("  array[{}]: {:?}", i, cbor);
+            debug_println!("  array[{}]: {:?}", i, cbor);
         });
     }
 
@@ -150,7 +151,7 @@ impl CoseData {
             if let Ok(alg) = map_value_from(pb_cbor, &CborType::Integer(COSE_HEADER_ALG)) {
                 ty.replace(resolve_alg(&alg)?);
             } else if is_permissive {
-                println!("⚠️ missing `signature_type`; ES256 is assumed");
+                debug_println!("⚠️ missing `signature_type`; ES256 is assumed");
                 ty.replace(SignatureAlgorithm::ES256);
             } else {
                 return Err(CoseError::MissingHeader);

@@ -349,6 +349,9 @@ impl Voucher {
         (&sig.signature, &sig.signature_type)
     }
 
+    // c.f. `Voucher::try_from(VCH_JADA).unwrap().dump_and_panic();`
+    // pub fn set_cose_signer_cert(&mut self, &[u8]) -> &mut Self {
+
     pub fn get_cose_signer_cert(&self) -> Option<&[u8]> {
         let signer_cert = &self.cd.sig().signer_cert;
 
@@ -368,7 +371,7 @@ impl Voucher {
         use sid::Cbor;
 
         let content = if let Some(cbor) = self.sd.serialize() { cbor } else {
-            println!("update_cose_content(): Failed to generate `content`");
+            debug_println!("update_cose_content(): Failed to generate `content`");
 
             vec![]
         };

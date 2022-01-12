@@ -1,6 +1,5 @@
-use crate::println;
-
 use crate::SignatureAlgorithm;
+use crate::debug_println;
 use super::utils::minerva_mbedtls_utils::*;
 
 use minerva_mbedtls::ifce::*;
@@ -13,7 +12,7 @@ impl crate::Validate for crate::Voucher {
         match validate(pem, self.to_validate(), f_rng) {
             Ok(tf) => if tf { Ok(self) } else { Err(()) },
             Err(err) => {
-                println!("validate(): mbedtls_error: {}", err);
+                debug_println!("validate(): mbedtls_error: {}", err);
 
                 Err(())
             },
@@ -56,7 +55,7 @@ fn validate(
             .set_q(pt)
             .verify(md_ty, hash, signature)
     } else {
-        println!("validate(): Neither external masa cert nor signer cert is available.");
+        debug_println!("validate(): Neither external masa cert nor signer cert is available.");
         Ok(false)
     }
 }

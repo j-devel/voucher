@@ -1,6 +1,7 @@
 use crate::{println, vec, Vec};
 
 use crate::SignatureAlgorithm;
+use crate::debug_println;
 use super::utils::minerva_mbedtls_utils::*;
 
 use minerva_mbedtls::ifce::*;
@@ -11,7 +12,7 @@ impl crate::Sign for crate::Voucher {
         let f_rng = pk_context::test_f_rng_ptr(); // !! TODO refactor into `self` logic
 
         if let Err(err) = sign(privkey_pem, alg, self.to_sign(), f_rng) {
-            println!("sign(): mbedtls_error: {}", err);
+            debug_println!("sign(): mbedtls_error: {}", err);
             return Err(());
         }
 

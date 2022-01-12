@@ -108,7 +108,7 @@ impl Cbor for SidData {
                 Map(attrs)
             })])))
         } else {
-            println!("to_cbor(): not a CBOR vch/vrq instance");
+            debug_println!("to_cbor(): not a CBOR vch/vrq instance");
 
             None
         }
