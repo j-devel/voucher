@@ -1,3 +1,60 @@
+//! A compact CBOR-encoded voucher defined by [Constrained BRSKI].
+//!
+//!
+//! # Examples (!! WIP !!)
+//!
+//! ```ignore
+//! use minerva_voucher::{Voucher, Sign, Validate};
+//!
+//! // (Add notes on the PSA crypto context ...)
+//! #[cfg(feature = "v3")]
+//! init_psa_crypto();
+//!
+//! let mut vrq = Voucher::new_vrq();
+//!
+//! // ...
+//!
+//! ```
+//!
+//! A `Voucher` with a known list of attributes can be initialized using macros:
+//!
+//! ```ignore
+//! use minerva_voucher::{vch, vrq};
+//!
+//! let vch = vch![
+//!     Attr::Assertion(Assertion::Logged),
+//!     Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())];
+//!
+//! let vrq = vrq![
+//!     Attr::Assertion(Assertion::Proximity),
+//!     Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())];
+//! ```
+//!
+//! A raw CBOR-encoded voucher can be decoded into a [`Voucher`] through the `TryFrom` and/or `TryInto`
+//! traits.
+//!
+//! ```ignore
+//! use core::convert::{TryFrom, TryInto};
+//!
+//! assert!(Voucher::try_from(VCH_JADA).is_ok());
+//!
+//! let vch: Voucher = VCH_JADA.try_into().unwrap();
+//!
+//! vch.iter().for_each(|attr| {
+//!     println!("attr: {:?}", attr);
+//!     match attr {
+//!         Attr::Assertion(x) => assert_eq!(x, &Assertion::Proximity),
+//!         Attr::CreatedOn(x) => assert_eq!(x, &1475868702),
+//!         Attr::ExpiresOn(x) => assert_eq!(x, &1506816000),
+//!         Attr::Nonce(x) => assert_eq!(x, &[97, 98, 99, 100, 49, 50, 51, 52, 53]),
+//!         Attr::PinnedDomainPubk(x) => assert_eq!(x[0..4], [77, 70, 107, 119]),
+//!         Attr::SerialNumber(x) => assert_eq!(x, "JADA123456789".as_bytes()),
+//!         _ => panic!(),
+//!     }
+//! });
+//! ```
+//!
+//! [Constrained BRSKI]: https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html
 #![no_std]
 
 #![feature(arbitrary_enum_discriminant)]
@@ -60,64 +117,6 @@ mod sign;
 mod validate;
 
 //
-
-/// A compact CBOR-encoded voucher defined by [Constrained BRSKI].
-///
-///
-/// # Examples (!! WIP !!)
-///
-/// ```ignore
-/// use minerva_voucher::{Voucher, Sign, Validate};
-///
-/// // (Add notes on the PSA crypto context ...)
-/// #[cfg(feature = "v3")]
-/// init_psa_crypto();
-///
-/// let mut vrq = Voucher::new_vrq();
-///
-/// // ...
-///
-/// ```
-///
-/// A `Voucher` with a known list of attributes can be initialized using macros:
-///
-/// ```ignore
-/// use minerva_voucher::{vch, vrq};
-///
-/// let vch = vch![
-///     Attr::Assertion(Assertion::Logged),
-///     Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())];
-///
-/// let vrq = vrq![
-///     Attr::Assertion(Assertion::Proximity),
-///     Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())];
-/// ```
-///
-/// A raw CBOR-encoded voucher can be decoded into a [`Voucher`] through the `TryFrom` and/or `TryInto`
-/// traits.
-///
-/// ```ignore
-/// use core::convert::{TryFrom, TryInto};
-///
-/// assert!(Voucher::try_from(VCH_JADA).is_ok());
-///
-/// let vch: Voucher = VCH_JADA.try_into().unwrap();
-///
-/// vch.iter().for_each(|attr| {
-///     println!("attr: {:?}", attr);
-///     match attr {
-///         Attr::Assertion(x) => assert_eq!(x, &Assertion::Proximity),
-///         Attr::CreatedOn(x) => assert_eq!(x, &1475868702),
-///         Attr::ExpiresOn(x) => assert_eq!(x, &1506816000),
-///         Attr::Nonce(x) => assert_eq!(x, &[97, 98, 99, 100, 49, 50, 51, 52, 53]),
-///         Attr::PinnedDomainPubk(x) => assert_eq!(x[0..4], [77, 70, 107, 119]),
-///         Attr::SerialNumber(x) => assert_eq!(x, "JADA123456789".as_bytes()),
-///         _ => panic!(),
-///     }
-/// });
-/// ```
-///
-/// [Constrained BRSKI]: https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html
 
 #[derive(PartialEq, Debug)]
 pub enum VoucherError {

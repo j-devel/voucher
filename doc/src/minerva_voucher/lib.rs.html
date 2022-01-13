@@ -537,8 +537,64 @@
 <span id="534">534</span>
 <span id="535">535</span>
 <span id="536">536</span>
-<span id="537">537</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">no_std</span>]</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A compact CBOR-encoded voucher defined by [Constrained BRSKI].</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Examples (!! WIP !!)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```ignore</span>
+<span class="doccomment">//! use minerva_voucher::{Voucher, Sign, Validate};</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // (Add notes on the PSA crypto context ...)</span>
+<span class="doccomment">//! #[cfg(feature = &quot;v3&quot;)]</span>
+<span class="doccomment">//! init_psa_crypto();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let mut vrq = Voucher::new_vrq();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // ...</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! A `Voucher` with a known list of attributes can be initialized using macros:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```ignore</span>
+<span class="doccomment">//! use minerva_voucher::{vch, vrq};</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let vch = vch![</span>
+<span class="doccomment">//!     Attr::Assertion(Assertion::Logged),</span>
+<span class="doccomment">//!     Attr::SerialNumber(&quot;00-11-22-33-44-55&quot;.as_bytes().to_vec())];</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let vrq = vrq![</span>
+<span class="doccomment">//!     Attr::Assertion(Assertion::Proximity),</span>
+<span class="doccomment">//!     Attr::SerialNumber(&quot;00-11-22-33-44-55&quot;.as_bytes().to_vec())];</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! A raw CBOR-encoded voucher can be decoded into a [`Voucher`] through the `TryFrom` and/or `TryInto`</span>
+<span class="doccomment">//! traits.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```ignore</span>
+<span class="doccomment">//! use core::convert::{TryFrom, TryInto};</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! assert!(Voucher::try_from(VCH_JADA).is_ok());</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let vch: Voucher = VCH_JADA.try_into().unwrap();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! vch.iter().for_each(|attr| {</span>
+<span class="doccomment">//!     println!(&quot;attr: {:?}&quot;, attr);</span>
+<span class="doccomment">//!     match attr {</span>
+<span class="doccomment">//!         Attr::Assertion(x) =&gt; assert_eq!(x, &amp;Assertion::Proximity),</span>
+<span class="doccomment">//!         Attr::CreatedOn(x) =&gt; assert_eq!(x, &amp;1475868702),</span>
+<span class="doccomment">//!         Attr::ExpiresOn(x) =&gt; assert_eq!(x, &amp;1506816000),</span>
+<span class="doccomment">//!         Attr::Nonce(x) =&gt; assert_eq!(x, &amp;[97, 98, 99, 100, 49, 50, 51, 52, 53]),</span>
+<span class="doccomment">//!         Attr::PinnedDomainPubk(x) =&gt; assert_eq!(x[0..4], [77, 70, 107, 119]),</span>
+<span class="doccomment">//!         Attr::SerialNumber(x) =&gt; assert_eq!(x, &quot;JADA123456789&quot;.as_bytes()),</span>
+<span class="doccomment">//!         _ =&gt; panic!(),</span>
+<span class="doccomment">//!     }</span>
+<span class="doccomment">//! });</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! [Constrained BRSKI]: https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html</span>
+<span class="attribute">#![<span class="ident">no_std</span>]</span>
 
 <span class="attribute">#![<span class="ident">feature</span>(<span class="ident">arbitrary_enum_discriminant</span>)]</span>
 <span class="attribute">#![<span class="ident">feature</span>(<span class="ident">core_intrinsics</span>)]</span>
@@ -600,64 +656,6 @@
 <span class="kw">mod</span> <span class="ident">validate</span>;
 
 <span class="comment">//</span>
-
-<span class="doccomment">/// A compact CBOR-encoded voucher defined by [Constrained BRSKI].</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples (!! WIP !!)</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// use minerva_voucher::{Voucher, Sign, Validate};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // (Add notes on the PSA crypto context ...)</span>
-<span class="doccomment">/// #[cfg(feature = &quot;v3&quot;)]</span>
-<span class="doccomment">/// init_psa_crypto();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let mut vrq = Voucher::new_vrq();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// // ...</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A `Voucher` with a known list of attributes can be initialized using macros:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// use minerva_voucher::{vch, vrq};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let vch = vch![</span>
-<span class="doccomment">///     Attr::Assertion(Assertion::Logged),</span>
-<span class="doccomment">///     Attr::SerialNumber(&quot;00-11-22-33-44-55&quot;.as_bytes().to_vec())];</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let vrq = vrq![</span>
-<span class="doccomment">///     Attr::Assertion(Assertion::Proximity),</span>
-<span class="doccomment">///     Attr::SerialNumber(&quot;00-11-22-33-44-55&quot;.as_bytes().to_vec())];</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// A raw CBOR-encoded voucher can be decoded into a [`Voucher`] through the `TryFrom` and/or `TryInto`</span>
-<span class="doccomment">/// traits.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```ignore</span>
-<span class="doccomment">/// use core::convert::{TryFrom, TryInto};</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// assert!(Voucher::try_from(VCH_JADA).is_ok());</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let vch: Voucher = VCH_JADA.try_into().unwrap();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// vch.iter().for_each(|attr| {</span>
-<span class="doccomment">///     println!(&quot;attr: {:?}&quot;, attr);</span>
-<span class="doccomment">///     match attr {</span>
-<span class="doccomment">///         Attr::Assertion(x) =&gt; assert_eq!(x, &amp;Assertion::Proximity),</span>
-<span class="doccomment">///         Attr::CreatedOn(x) =&gt; assert_eq!(x, &amp;1475868702),</span>
-<span class="doccomment">///         Attr::ExpiresOn(x) =&gt; assert_eq!(x, &amp;1506816000),</span>
-<span class="doccomment">///         Attr::Nonce(x) =&gt; assert_eq!(x, &amp;[97, 98, 99, 100, 49, 50, 51, 52, 53]),</span>
-<span class="doccomment">///         Attr::PinnedDomainPubk(x) =&gt; assert_eq!(x[0..4], [77, 70, 107, 119]),</span>
-<span class="doccomment">///         Attr::SerialNumber(x) =&gt; assert_eq!(x, &quot;JADA123456789&quot;.as_bytes()),</span>
-<span class="doccomment">///         _ =&gt; panic!(),</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// });</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// [Constrained BRSKI]: https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html</span>
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">VoucherError</span> {
