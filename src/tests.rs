@@ -287,8 +287,9 @@ fn test_highlevel_interface() {
     #[cfg(feature = "v3")]
     init_psa_crypto();
 
-    let mut vrq = Voucher::new_vrq();
+    //
 
+    let mut vrq = Voucher::new_vrq();
     assert!(vrq
         .set(Attr::Assertion(Assertion::Proximity))
         .set(Attr::CreatedOn(1599086034))
@@ -311,6 +312,9 @@ fn test_highlevel_interface() {
 
     //
 
+    assert_eq!(vch![].len(), 0);
+    assert_eq!(vrq![].len(), 0);
+
     let vch = vch![
         Attr::Assertion(Assertion::Logged),
         Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())];
@@ -325,8 +329,23 @@ fn test_highlevel_interface() {
 
     //
 
-    assert_eq!(vch![].len(), 0);
-    assert_eq!(vrq![].len(), 0);
+    assert_eq!(vrq![].serialize(), Err(VoucherError::MissingAttributes));
+    assert_eq!(vrq![Attr::Assertion(Assertion::Proximity)].serialize(),
+               Err(VoucherError::MissingAttributes));
+    assert_eq!(vrq![Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())].serialize(),
+               Err(VoucherError::MissingAttributes));
+
+    //
+
+    let mut vrq = vrq![
+        Attr::Assertion(Assertion::Proximity),
+        Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())];
+    assert_eq!(vrq.serialize(), // serializing unsigned vouchers should fail
+               Err(VoucherError::CoseFailure(CoseError::DecodingFailure)));
+
+    let vrq = &mut vrq;
+    assert!(vrq.sign(KEY_PEM_F2_00_02, SignatureAlgorithm::ES256).unwrap()
+        .serialize().is_ok());
 }
 
 #[test]
