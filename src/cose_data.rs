@@ -2,11 +2,9 @@ use crate::{vec, Vec, BTreeMap};
 use crate::debug_println;
 
 use cose::{decoder::*, unpack};
-pub use cose::decoder::{SignatureAlgorithm, COSE_SIGN_ONE_TAG};
+pub use cose::{CoseError, decoder::{CborError, SignatureAlgorithm, COSE_SIGN_ONE_TAG}};
 
 use super::cose_sig::{CoseSig, bytes_from, map_value_from};
-
-//
 
 pub const COSE_HEADER_VOUCHER_PUBKEY: u64 = 60299;
 
@@ -98,9 +96,9 @@ impl CoseData {
         }
     }
 
-    pub fn get_content(&self) -> Option<Vec<u8>>{
+    pub fn get_content(&self) -> Result<Vec<u8>, CoseError> {
         match &self.inner {
-            CoseDataInner::CoseSignOne(sig) => CoseSig::get_content(sig),
+            CoseDataInner::CoseSignOne(sig) => CoseSig::extract_content(sig),
             CoseDataInner::CoseSign(_) => unimplemented!(),
         }
     }

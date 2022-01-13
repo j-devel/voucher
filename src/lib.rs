@@ -34,7 +34,7 @@ use sid_data::SidData;
 
 mod cose_sig;
 mod cose_data;
-use cose_data::{CoseData, COSE_SIGN_ONE_TAG};
+use cose_data::{CoseError, CborError, CoseData, COSE_SIGN_ONE_TAG};
 pub use cose_data::SignatureAlgorithm;
 
 #[cfg(debug_assertions)]
@@ -46,11 +46,11 @@ pub mod debug {
 //
 
 pub trait Sign {
-    fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm) -> Result<&mut Self, ()>;
+    fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm) -> Result<&mut Self, VoucherError>;
 }
 
 pub trait Validate {
-    fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, ()>;
+    fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, VoucherError>;
 }
 
 #[cfg(any(feature = "sign", feature = "sign-lts"))]
@@ -118,6 +118,18 @@ mod validate;
 /// ```
 ///
 /// [Constrained BRSKI]: https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html
+
+#[derive(PartialEq, Debug)]
+pub enum VoucherError {
+    CborFailure(CborError),
+    CoseFailure(CoseError),
+    InvalidArgument,
+    MalformedInput,
+    MissingAttributes,
+    SigningFailed,
+    UnexpectedCborType,
+    ValidationFailed,
+}
 
 #[derive(PartialEq, Debug)]
 pub struct Voucher {
@@ -339,8 +351,22 @@ impl Voucher {
     /// ```
     /// ;
     /// ```
-    pub fn serialize(&self) -> Option<Vec<u8>> {
-        CoseData::encode(&self.cd).ok()
+    pub fn serialize(&self) -> Result<Vec<u8>, VoucherError> {
+        if self.get(ATTR_ASSERTION).is_none() {
+            debug_println!("serialize(): `Attr::Assertion` is mandatory; but missing");
+            return Err(VoucherError::MissingAttributes);
+        }
+
+        if self.get(ATTR_SERIAL_NUMBER).is_none() {
+            debug_println!("serialize(): `Attr::SerialNumber` is mandatory; but missing");
+            return Err(VoucherError::MissingAttributes);
+        }
+
+        CoseData::encode(&self.cd).or_else(|ce| {
+            debug_println!("serialize(): `CoseData::encode()` failed.  (Maybe, voucher not signed yet?)");
+
+            Err(VoucherError::CoseFailure(ce))
+        })
     }
 
     pub fn get_signature(&self) -> (&[u8], &SignatureAlgorithm) {
@@ -366,7 +392,7 @@ impl Voucher {
     fn get_cose_content(&self) -> Option<Vec<u8>> {
         println!("get_cose_content(): self.sd: {:?}", self.sd);
 
-        let content = self.cd.get_content();
+        let content = self.cd.get_content().ok();
         println!("get_cose_content(): content: {:?}", content);
 
         content
@@ -425,34 +451,32 @@ impl Voucher {
 /// ;
 /// ```
 impl TryFrom<&[u8]> for Voucher {
-    type Error = &'static str;
+    type Error = VoucherError;
 
     fn try_from(raw: &[u8]) -> Result<Self, Self::Error> {
-        let (tag, cd) = if let Ok(x) = CoseData::decode(raw) { x } else {
-            return Err("Failed to decode raw voucher");
-        };
+        let (tag, cd) = CoseData::decode(raw).or_else(|ce| {
+            debug_println!("Failed to decode raw voucher");
+            Err(VoucherError::CoseFailure(ce))
+        })?;
 
         if tag != COSE_SIGN_ONE_TAG {
-            return Err("Only `CoseSign1` vouchers are supported");
+            debug_println!("Only `CoseSign1` vouchers are supported");
+            return Err(VoucherError::CoseFailure(CoseError::UnexpectedTag));
         }
 
-        let content = if let Some(x) = cd.get_content() { x } else {
-            return Err("Invalid `content`");
-        };
+        let content = cd.get_content().or_else(|ce| {
+            debug_println!("Failed to get `content`");
+            Err(VoucherError::CoseFailure(ce))
+        })?;
 
-        let sidhash = if let Ok(x) = cose_sig::decode(&content) { x } else {
-            return Err("Failed to decode `content`");
-        };
-
+        let sidhash = cose_sig::decode(&content).or_else(|ce| {
+            debug_println!("Failed to decode `content`");
+            Err(VoucherError::CborFailure(ce))
+        })?;
         debug_println!("sidhash: {:?}", sidhash);
 
-        if let Ok(sd) = SidData::try_from(sidhash) {
-            debug_println!("sd: {:?}", sd);
-
-            Ok(Self { sd, cd })
-        } else {
-            Err("Filed to decode `sidhash`")
-        }
+        SidData::try_from(sidhash)
+            .and_then(|sd| Ok(Self { sd, cd }))
     }
 }
 

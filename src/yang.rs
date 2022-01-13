@@ -1,4 +1,5 @@
 use crate::{Box, Vec};
+use crate::VoucherError;
 use super::sid::{self, CborType, Cbor, SidDisc};
 use core::convert::TryFrom;
 
@@ -26,7 +27,7 @@ impl Yang {
         core::intrinsics::discriminant_value(self)
     }
 
-    fn raw_enumeration(cbor: &CborType) -> Result<attr::Assertion, ()> {
+    fn raw_enumeration(cbor: &CborType) -> Result<attr::Assertion, VoucherError> {
         if let CborType::StringAsBytes(x) = cbor {
             for a in [
                 attr::Assertion::Verified,
@@ -34,34 +35,46 @@ impl Yang {
                 attr::Assertion::Proximity,
             ] { if a.value().as_bytes() == x { return Ok(a); } }
 
-            Err(())
-        } else { Err(()) }
+            Err(VoucherError::MalformedInput)
+        } else { Err(VoucherError::UnexpectedCborType) }
     }
 
-    fn raw_dat(cbor: &CborType) -> Result<u64, ()> {
+    fn raw_dat(cbor: &CborType) -> Result<u64, VoucherError> {
         if let CborType::Tag(tag, bx) = cbor {
-            if *tag != CBOR_TAG_UNIX_TIME { return Err(()) }
-            if let CborType::Integer(dat) = **bx { Ok(dat) } else { Err(()) }
-        } else { Err(()) }
-    }
+            if *tag != CBOR_TAG_UNIX_TIME { return Err(VoucherError::MalformedInput) }
 
-    fn raw_boolean(cbor: &CborType) -> Result<bool, ()> {
-        match cbor {
-            CborType::True => Ok(true),
-            CborType::False => Ok(false),
-            _ => Err(()),
+            if let CborType::Integer(dat) = **bx {
+                Ok(dat)
+            } else {
+                Err(VoucherError::UnexpectedCborType)
+            }
+        } else {
+            Err(VoucherError::UnexpectedCborType)
         }
     }
 
-    fn raw_binary(cbor: &CborType) -> Result<Vec<u8>, ()> {
-        if let CborType::Bytes(x) | CborType::StringAsBytes(x) /* permissive */ = cbor {
-            Ok(x.to_vec()) } else { Err(()) }
-
+    fn raw_boolean(cbor: &CborType) -> Result<bool, VoucherError> {
+        match cbor {
+            CborType::True => Ok(true),
+            CborType::False => Ok(false),
+            _ => Err(VoucherError::UnexpectedCborType),
+        }
     }
 
-    fn raw_string(cbor: &CborType) -> Result<Vec<u8>, ()> {
+    fn raw_binary(cbor: &CborType) -> Result<Vec<u8>, VoucherError> {
+        if let CborType::Bytes(x) | CborType::StringAsBytes(x) /* permissive */ = cbor {
+            Ok(x.to_vec())
+        } else {
+            Err(VoucherError::UnexpectedCborType)
+        }
+    }
+
+    fn raw_string(cbor: &CborType) -> Result<Vec<u8>, VoucherError> {
         if let CborType::StringAsBytes(x) | CborType::Bytes(x) /* permissive */ = cbor {
-            Ok(x.to_vec()) } else { Err(()) }
+            Ok(x.to_vec())
+        } else {
+            Err(VoucherError::UnexpectedCborType)
+        }
     }
 }
 
@@ -101,7 +114,7 @@ impl Cbor for Yang {
 }
 
 impl TryFrom<(&CborType, SidDisc)> for Yang {
-    type Error = ();
+    type Error = VoucherError;
 
     fn try_from(input: (&CborType, SidDisc)) -> Result<Self, Self::Error> {
         use sid::*;

@@ -1,4 +1,5 @@
 use crate::Vec;
+use crate::VoucherError;
 use super::yang::{self, Yang};
 use core::convert::TryFrom;
 
@@ -212,12 +213,12 @@ impl Cbor for Sid {
 }
 
 impl TryFrom<(Yang, SidDisc)> for Sid {
-    type Error = ();
+    type Error = VoucherError;
 
     fn try_from(input: (Yang, SidDisc)) -> Result<Self, Self::Error> {
         let (yg, sid_disc) = input;
         match sid_disc {
-            SID_VCH_TOP_LEVEL => Err(()),
+            SID_VCH_TOP_LEVEL => Err(VoucherError::InvalidArgument),
             SID_VCH_ASSERTION => Ok(Sid::VchAssertion(yg)),
             SID_VCH_CREATED_ON => Ok(Sid::VchCreatedOn(yg)),
             SID_VCH_DOMAIN_CERT_REVOCATION_CHECKS => Ok(Sid::VchDomainCertRevocationChecks(yg)),
@@ -229,7 +230,7 @@ impl TryFrom<(Yang, SidDisc)> for Sid {
             SID_VCH_PINNED_DOMAIN_PUBK => Ok(Sid::VchPinnedDomainPubk(yg)),
             SID_VCH_PINNED_DOMAIN_PUBK_SHA256 => Ok(Sid::VchPinnedDomainPubkSha256(yg)),
             SID_VCH_SERIAL_NUMBER => Ok(Sid::VchSerialNumber(yg)),
-            SID_VRQ_TOP_LEVEL => Err(()),
+            SID_VRQ_TOP_LEVEL => Err(VoucherError::InvalidArgument),
             SID_VRQ_ASSERTION => Ok(Sid::VrqAssertion(yg)),
             SID_VRQ_CREATED_ON => Ok(Sid::VrqCreatedOn(yg)),
             SID_VRQ_DOMAIN_CERT_REVOCATION_CHECKS => Ok(Sid::VrqDomainCertRevocationChecks(yg)),

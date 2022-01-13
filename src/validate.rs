@@ -1,4 +1,4 @@
-use crate::SignatureAlgorithm;
+use crate::{VoucherError, SignatureAlgorithm};
 use crate::debug_println;
 use super::utils::minerva_mbedtls_utils::*;
 
@@ -6,15 +6,15 @@ use minerva_mbedtls::ifce::*;
 use core::ffi::c_void;
 
 impl crate::Validate for crate::Voucher {
-    fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, ()> {
-        let f_rng = pk_context::test_f_rng_ptr(); // !! TODO refactor into `self` logic
+    fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, VoucherError> {
+        let f_rng = pk_context::test_f_rng_ptr(); // TODO refactor
 
         match validate(pem, self.to_validate(), f_rng) {
-            Ok(tf) => if tf { Ok(self) } else { Err(()) },
+            Ok(true) => Ok(self),
+            Ok(false) => Err(VoucherError::ValidationFailed),
             Err(err) => {
                 debug_println!("validate(): mbedtls_error: {}", err);
-
-                Err(())
+                Err(VoucherError::ValidationFailed)
             },
         }
     }

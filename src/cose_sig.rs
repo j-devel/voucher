@@ -1,7 +1,7 @@
 use crate::{println, Box, vec, Vec, BTreeMap};
-
+use crate::debug_println;
 use cose::{decoder::*, unpack};
-pub use cose::decoder::{CborType, decode}; // debug
+pub use cose::decoder::{CborType, decode};
 
 //
 
@@ -50,15 +50,14 @@ impl CoseSig {
         CoseSig(inner)
     }
 
-    pub fn encode(
-        &self,
+    pub fn encode(&self,
         protected_bucket: &BTreeMap<CborType, CborType>,
         unprotected_bucket: &BTreeMap<CborType, CborType>
     ) -> Result<Vec<u8>, CoseError> {
         let array = vec![
             CborType::Bytes(CborType::Map(protected_bucket.clone()).serialize()),
             CborType::Map(unprotected_bucket.clone()),
-            CborType::Bytes(self.get_content().unwrap()),
+            CborType::Bytes(self.extract_content()?),
             CborType::Bytes(self.signature.clone())];
 
         Ok(CborType::Tag(COSE_SIGN_ONE_TAG, Box::new(CborType::Array(array))).serialize())
@@ -73,15 +72,19 @@ impl CoseSig {
         println!("====");
     }
 
-    pub fn get_content(&self) -> Option<Vec<u8>> {
+    pub fn extract_content(&self) -> Result<Vec<u8>, CoseError> {
         if let Ok(CborType::Array(values)) = decode(&self.to_verify) {
             if values.len() != 4 {
-                return None;
+                return Err(CoseError::MalformedInput);
             }
 
-            bytes_from(&values[3]).ok()
+            bytes_from(&values[3]).or_else(|ce| {
+                debug_println!("extract_content(): ce: {:?}", ce);
+                Err(ce)
+            })
         } else {
-            None
+            debug_println!("extract_content(): failed to decode content");
+            Err(CoseError::DecodingFailure)
         }
     }
 

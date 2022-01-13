@@ -1,5 +1,5 @@
 use crate::{println, Vec, BTreeMap, BTreeSet};
-use crate::debug_println;
+use crate::{VoucherError, debug_println};
 use super::sid::{CborType, Cbor, Sid, SidDisc, TopLevel, SID_VCH_TOP_LEVEL, SID_VRQ_TOP_LEVEL};
 use super::yang::Yang;
 use core::convert::TryFrom;
@@ -10,19 +10,6 @@ pub enum SidData {
     VoucherRequest(BTreeSet<Sid>),
 }
 
-// TODO - checker on serialize/sign/****
-// #   +---- voucher
-// #      +---- created-on?                      yang:date-and-time
-// #      +---- expires-on?                      yang:date-and-time
-// #      +---- assertion                        enumeration
-// #      +---- serial-number                    string
-// #      +---- idevid-issuer?                   binary
-// #      +---- pinned-domain-cert?              binary
-// #      +---- domain-cert-revocation-checks?   boolean
-// #      +---- nonce?                           binary
-// #      +---- last-renewal-date?               yang:date-and-time
-// #      +---- prior-signed-voucher-request?    binary
-// #      +---- proximity-registrar-cert?        binary
 impl SidData {
     pub fn new_vch() -> Self {
         Self::Voucher(BTreeSet::new())
@@ -116,36 +103,32 @@ impl Cbor for SidData {
 }
 
 impl TryFrom<CborType> for SidData {
-    type Error = ();
+    type Error = VoucherError;
 
     fn try_from(sidhash: CborType) -> Result<Self, Self::Error> {
-        from_sidhash(sidhash).ok_or(())
+        use super::cose_sig::map_value_from;
+        use CborType::*;
+
+        let (is_vrq, btmap, sid_tl_disc, sid_tl) =
+            if let Ok(Map(btmap)) = map_value_from(&sidhash, &Integer(SID_VCH_TOP_LEVEL)) {
+                (false, btmap, SID_VCH_TOP_LEVEL, Sid::VchTopLevel(TopLevel::VoucherVoucher))
+            } else if let Ok(Map(btmap)) = map_value_from(&sidhash, &Integer(SID_VRQ_TOP_LEVEL)) {
+                (true, btmap, SID_VRQ_TOP_LEVEL, Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher))
+            } else {
+                debug_println!("try_from(): Failed to resolve SID top level");
+                return Err(VoucherError::MalformedInput);
+            };
+
+        let mut sd = if is_vrq { SidData::new_vrq() } else { SidData::new_vch() };
+        sd.replace(sid_tl);
+
+        let sid_iter = btmap.iter()
+            .filter_map(|(k, v)| if let Integer(delta) = k { Some((sid_tl_disc + delta, v)) } else { None })
+            .map(|(sid_disc, v)| Sid::try_from((Yang::try_from((v, sid_disc))?, sid_disc)));
+        for sid in sid_iter { sd.replace(sid?); }
+
+        Ok(sd)
     }
-}
-
-fn from_sidhash(sidhash: CborType) -> Option<SidData> {
-    use super::cose_sig::map_value_from;
-    use CborType::*;
-
-    let (is_vrq, btmap, sid_tl_disc, sid_tl) =
-        if let Ok(Map(btmap)) = map_value_from(&sidhash, &Integer(SID_VCH_TOP_LEVEL)) {
-            (false, btmap, SID_VCH_TOP_LEVEL, Sid::VchTopLevel(TopLevel::VoucherVoucher))
-        } else if let Ok(Map(btmap)) = map_value_from(&sidhash, &Integer(SID_VRQ_TOP_LEVEL)) {
-            (true, btmap, SID_VRQ_TOP_LEVEL, Sid::VrqTopLevel(TopLevel::VoucherRequestVoucher))
-        } else {
-            return None;
-        };
-
-    let mut sd = if is_vrq { SidData::new_vrq() } else { SidData::new_vch() };
-    sd.replace(sid_tl);
-
-    btmap.iter()
-        .filter_map(|(k, v)| if let Integer(delta) = k { Some((sid_tl_disc + delta, v)) } else { None })
-        .map(|(sid_disc, v)| Sid::try_from(
-            (Yang::try_from((v, sid_disc)).unwrap(), sid_disc)).unwrap())
-        .for_each(|sid| { sd.replace(sid); });
-
-    Some(sd)
 }
 
 pub fn content_comp(a: &[u8], b: &[u8]) -> bool {
