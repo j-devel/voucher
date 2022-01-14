@@ -8,7 +8,12 @@
 [actions-badge]: https://github.com/AnimaGUS-minerva/voucher/workflows/CI/badge.svg
 [actions-url]: https://github.com/AnimaGUS-minerva/voucher/actions
 
-Library to use [BRSKI](https://datatracker.ietf.org/doc/html/rfc8995) Voucher in Rust.
+This crate implements a compact CBOR-encoded voucher defined by [Constrained BRSKI](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html).
 
-(WIP) Docs and examples: https://AnimaGUS-minerva.github.io/voucher/doc/minerva_voucher/struct.Voucher.html
+### Examples:
+1) [Using the `Voucher` struct](https://animagus-minerva.github.io/voucher/doc/minerva_voucher/index.html#1-using-the-voucher-struct)
+2) [Encoding a `Voucher` into CBOR](https://animagus-minerva.github.io/voucher/doc/minerva_voucher/index.html#2-encoding-a-voucher-into-cbor)
+3) [Decoding a CBOR-encoded voucher into a `Voucher`](https://animagus-minerva.github.io/voucher/doc/minerva_voucher/index.html#3-decoding-a-cbor-encoded-voucher-into-a-voucher)
 
+### Docs
+- [Struct `Voucher`](https://AnimaGUS-minerva.github.io/voucher/doc/minerva_voucher/struct.Voucher.html)
