@@ -399,14 +399,7 @@ impl Voucher {
 
     fn update_cose_content(&mut self) -> &mut Self {
         use sid::Cbor;
-
-        let content = if let Some(cbor) = self.sd.serialize() { cbor } else {
-            debug_println!("update_cose_content(): Failed to generate `content`");
-
-            vec![]
-        };
-
-        self.cd.set_content(&content);
+        self.cd.set_content(&self.sd.serialize().unwrap());
 
         self
     }
