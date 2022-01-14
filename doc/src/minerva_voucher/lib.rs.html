@@ -623,17 +623,26 @@
 <span id="620">620</span>
 <span id="621">621</span>
 <span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This crate implements a compact CBOR-encoded voucher defined by [Constrained BRSKI].</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! *** Refer to the `Attr` enum and `ATTR_*` discriminants. ***</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Examples</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## 1. Using the `Voucher` struct</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! *** Refer to the `Attr` enum and `ATTR_*` discriminants. ***</span>
+<span class="doccomment">//! To demonstrate how to use the [`Voucher`] struct, we are using a &quot;voucher request&quot; instance</span>
+<span class="doccomment">//! created by `Voucher::new_vrq()`.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! To demonstrate how to use the `Voucher` struct, in this example, we are using a</span>
-<span class="doccomment">//! &quot;voucher request&quot; instance created by `Voucher::new_vrq()`.</span>
-<span class="doccomment">//! Note, however, that the same API methods shown here can also be called by a &quot;voucher&quot; instance</span>
+<span class="doccomment">//! #### Notes</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The `Voucher` methods shown below can also be called by a &quot;voucher&quot; instance</span>
 <span class="doccomment">//! created by `Voucher::new_vch()`.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
@@ -666,8 +675,8 @@
 <span class="doccomment">//! }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! Using the [`vrq`]/[`vch`] macros, a [`Voucher`] with a known list of attributes can be</span>
-<span class="doccomment">//! created from an array:</span>
+<span class="doccomment">//! Using the [`vrq`]/[`vch`] declarative macros, a [`Voucher`] with a known list of attributes can be</span>
+<span class="doccomment">//! conveniently created as:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```rust</span>
 <span class="doccomment">//! use minerva_voucher::{Voucher, attr::*, vrq, vch};</span>
@@ -700,7 +709,7 @@
 <span class="doccomment">//!     concat!(env!(&quot;CARGO_MANIFEST_DIR&quot;), &quot;/data/00-D0-E5-F2-00-02/key.pem&quot;));</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! #[cfg(feature = &quot;v3&quot;)]</span>
-<span class="doccomment">//! init_psa_crypto(); // This is required when the `Sign` trait is backed by mbedtls v3.</span>
+<span class="doccomment">//! minerva_voucher::init_psa_crypto(); // This is required when the `Sign` trait is backed by mbedtls v3.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! // Create a voucher request with five attributes and COSE-sign it.</span>
 <span class="doccomment">//! let mut vrq = Voucher::new_vrq();</span>
@@ -737,7 +746,7 @@
 <span class="doccomment">//!     concat!(env!(&quot;CARGO_MANIFEST_DIR&quot;), &quot;/data/00-D0-E5-F2-00-02/masa.crt&quot;));</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! #[cfg(feature = &quot;v3&quot;)]</span>
-<span class="doccomment">//! init_psa_crypto(); // This is required when the `Validate` trait is backed by mbedtls v3.</span>
+<span class="doccomment">//! minerva_voucher::init_psa_crypto(); // This is required when the `Sign` trait is backed by mbedtls v3.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! // Decode the voucher.</span>
 <span class="doccomment">//! let vch = Voucher::try_from(VCH_F2_00_02).unwrap();</span>
@@ -762,7 +771,7 @@
 <span class="doccomment">//!     }</span>
 <span class="doccomment">//! }</span>
 <span class="doccomment">//! ```</span>
-<span class="doccomment">//! #### Note</span>
+<span class="doccomment">//! #### Notes</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Instead of `TryFrom`, we could use `TryInto` (via `use core::convert::TryInto;`) to</span>
 <span class="doccomment">//! decode the same voucher as</span>
@@ -795,6 +804,9 @@
 <span class="kw">mod</span> <span class="ident">tests</span>;
 
 <span class="kw">mod</span> <span class="ident">utils</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;v3&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">utils::minerva_mbedtls_utils::init_psa_crypto</span>;
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">attr</span>;
 <span class="kw">use</span> <span class="ident">attr</span>::<span class="kw-2">*</span>;

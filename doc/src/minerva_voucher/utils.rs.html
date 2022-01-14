@@ -36,6 +36,14 @@
 <span id="33">33</span>
 <span id="34">34</span>
 <span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Vec</span>, <span class="ident">SignatureAlgorithm</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sign&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sign-lts&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate-lts&quot;</span>))]</span>
@@ -43,6 +51,14 @@
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="ident">minerva_mbedtls::ifce</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="ident">core::ffi::c_void</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;v3&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">init_psa_crypto</span>() {
+        <span class="kw">use</span> <span class="ident">minerva_mbedtls::psa_crypto</span>;
+
+        <span class="ident">psa_crypto::init</span>().<span class="ident">unwrap</span>();
+        <span class="ident">psa_crypto::initialized</span>().<span class="ident">unwrap</span>();
+    }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compute_digest</span>(<span class="ident">msg</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">alg</span>: <span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>) -&gt; (<span class="ident">md_type</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="ident">ty</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">alg</span> {
