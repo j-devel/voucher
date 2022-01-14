@@ -166,8 +166,10 @@ impl CoseData {
         let upb_cbor = &cose_sign_array[1];
         let upb = unpack!(Map, upb_cbor).clone();
 
-        let val = map_value_from(upb_cbor, &CborType::Integer(COSE_HEADER_VOUCHER_PUBKEY));
-        let signer_cert = if let Ok(val) = val { bytes_from(&val)? } else { Vec::new() };
+        let signer_cert = map_value_from(upb_cbor, &CborType::Integer(COSE_HEADER_VOUCHER_PUBKEY))
+            .and_then(|val| bytes_from(&val))
+            .or::<Vec<u8>>(Ok(vec![]))
+            .unwrap();
 
         //
 
