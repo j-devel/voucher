@@ -537,61 +537,240 @@
 <span id="534">534</span>
 <span id="535">535</span>
 <span id="536">536</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A compact CBOR-encoded voucher defined by [Constrained BRSKI].</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+</pre><pre class="rust"><code><span class="doccomment">//! This crate implements a compact CBOR-encoded voucher defined by [Constrained BRSKI].</span>
 <span class="doccomment">//!</span>
+<span class="doccomment">//! # Examples</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! # Examples (!! WIP !!)</span>
+<span class="doccomment">//! ## 1. Using the `Voucher` struct</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```ignore</span>
-<span class="doccomment">//! use minerva_voucher::{Voucher, Sign, Validate};</span>
+<span class="doccomment">//! *** Refer to the `Attr` enum and `ATTR_*` discriminants. ***</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! // (Add notes on the PSA crypto context ...)</span>
-<span class="doccomment">//! #[cfg(feature = &quot;v3&quot;)]</span>
-<span class="doccomment">//! init_psa_crypto();</span>
+<span class="doccomment">//! To demonstrate how to use the `Voucher` struct, in this example, we are using a</span>
+<span class="doccomment">//! &quot;voucher request&quot; instance created by `Voucher::new_vrq()`.</span>
+<span class="doccomment">//! Note, however, that the same API methods shown here can also be called by a &quot;voucher&quot; instance</span>
+<span class="doccomment">//! created by `Voucher::new_vch()`.</span>
 <span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! use minerva_voucher::{Voucher, attr::*};</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Create an empty voucher request.</span>
 <span class="doccomment">//! let mut vrq = Voucher::new_vrq();</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! // ...</span>
+<span class="doccomment">//! // Add some attributes.</span>
+<span class="doccomment">//! vrq.set(Attr::Assertion(Assertion::Proximity))</span>
+<span class="doccomment">//!     .set(Attr::CreatedOn(1599086034))</span>
+<span class="doccomment">//!     .set(Attr::SerialNumber(&quot;00-D0-E5-F2-00-02&quot;.as_bytes().to_vec()));</span>
 <span class="doccomment">//!</span>
+<span class="doccomment">//! // Count attributes.</span>
+<span class="doccomment">//! assert_eq!(vrq.len(), 3);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Check for specific ones.</span>
+<span class="doccomment">//! assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&amp;Attr::CreatedOn(1599086034)));</span>
+<span class="doccomment">//! assert_eq!(vrq.get(ATTR_EXPIRES_ON), None);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Remove a specific one.</span>
+<span class="doccomment">//! assert_eq!(vrq.remove(ATTR_CREATED_ON), true);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Count attributes again.</span>
+<span class="doccomment">//! assert_eq!(vrq.len(), 2);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Iterate over everything.</span>
+<span class="doccomment">//! for attr in vrq.iter() {</span>
+<span class="doccomment">//!     println!(&quot;attr: {:?}&quot;, attr);</span>
+<span class="doccomment">//! }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! A `Voucher` with a known list of attributes can be initialized using macros:</span>
+<span class="doccomment">//! Using the [`vrq`]/[`vch`] macros, a [`Voucher`] with a known list of attributes can be</span>
+<span class="doccomment">//! created from an array:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```ignore</span>
-<span class="doccomment">//! use minerva_voucher::{vch, vrq};</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! let vch = vch![</span>
-<span class="doccomment">//!     Attr::Assertion(Assertion::Logged),</span>
-<span class="doccomment">//!     Attr::SerialNumber(&quot;00-11-22-33-44-55&quot;.as_bytes().to_vec())];</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! use minerva_voucher::{Voucher, attr::*, vrq, vch};</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! let vrq = vrq![</span>
 <span class="doccomment">//!     Attr::Assertion(Assertion::Proximity),</span>
 <span class="doccomment">//!     Attr::SerialNumber(&quot;00-11-22-33-44-55&quot;.as_bytes().to_vec())];</span>
+<span class="doccomment">//! assert!(vrq.is_vrq());</span>
+<span class="doccomment">//! assert_eq!(vrq.len(), 2);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let vch = vch![</span>
+<span class="doccomment">//!     Attr::Assertion(Assertion::Logged),</span>
+<span class="doccomment">//!     Attr::SerialNumber(&quot;00-11-22-33-44-55&quot;.as_bytes().to_vec())];</span>
+<span class="doccomment">//! assert!(vch.is_vch());</span>
+<span class="doccomment">//! assert_eq!(vch.len(), 2);</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! A raw CBOR-encoded voucher can be decoded into a [`Voucher`] through the `TryFrom` and/or `TryInto`</span>
-<span class="doccomment">//! traits.</span>
+<span class="doccomment">//! ## 2. Encoding a `Voucher` into CBOR</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ```ignore</span>
-<span class="doccomment">//! use core::convert::{TryFrom, TryInto};</span>
+<span class="doccomment">//! To encode a [`Voucher`] into a compact CBOR-encoded voucher, use the `serialize()` method.</span>
+<span class="doccomment">//! Before calling `serialize()`, however, the `Voucher` must be COSE-signed using its `sign()` method.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! assert!(Voucher::try_from(VCH_JADA).is_ok());</span>
+<span class="doccomment">//! In this example, we instantiate a new voucher request, populate it with some attributes,</span>
+<span class="doccomment">//! COSE-sign it, and finally encode it into a CBOR byte string.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! let vch: Voucher = VCH_JADA.try_into().unwrap();</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! use minerva_voucher::{Voucher, attr::*, SignatureAlgorithm, Sign};</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! vch.iter().for_each(|attr| {</span>
+<span class="doccomment">//! static KEY_PEM_F2_00_02: &amp;[u8] = core::include_bytes!(</span>
+<span class="doccomment">//!     concat!(env!(&quot;CARGO_MANIFEST_DIR&quot;), &quot;/data/00-D0-E5-F2-00-02/key.pem&quot;));</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! #[cfg(feature = &quot;v3&quot;)]</span>
+<span class="doccomment">//! init_psa_crypto(); // This is required when the `Sign` trait is backed by mbedtls v3.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Create a voucher request with five attributes and COSE-sign it.</span>
+<span class="doccomment">//! let mut vrq = Voucher::new_vrq();</span>
+<span class="doccomment">//! assert!(vrq</span>
+<span class="doccomment">//!     .set(Attr::Assertion(Assertion::Proximity))</span>
+<span class="doccomment">//!     .set(Attr::CreatedOn(1599086034))</span>
+<span class="doccomment">//!     .set(Attr::Nonce(vec![48, 130, 1, 216, 48, 130, 1, 94, 160, 3, 2, 1, 2, 2, 1, 1, 48, 10, 6, 8, 42, 134, 72, 206, 61, 4, 3, 2, 48, 115, 49, 18, 48, 16, 6, 10, 9, 146, 38, 137, 147, 242, 44, 100, 1, 25, 22, 2, 99, 97, 49, 25, 48, 23, 6, 10, 9, 146, 38, 137, 147, 242, 44, 100, 1, 25, 22, 9, 115, 97, 110, 100, 101, 108, 109, 97, 110, 49, 66, 48, 64, 6, 3, 85, 4, 3, 12, 57, 35, 60, 83, 121, 115, 116, 101, 109, 86, 97, 114, 105, 97, 98, 108, 101, 58, 48, 120, 48, 48, 48, 48, 53, 53, 98, 56, 50, 53, 48, 99, 48, 100, 98, 56, 62, 32, 85, 110, 115, 116, 114, 117, 110, 103, 32, 70, 111, 117, 110, 116, 97, 105, 110, 32, 67, 65, 48, 30, 23, 13, 50, 48, 48, 56, 50, 57, 48, 52, 48, 48, 49, 54, 90, 23, 13, 50, 50, 48, 56, 50, 57, 48, 52, 48, 48, 49, 54, 90, 48, 70, 49, 18, 48, 16, 6, 10, 9, 146, 38, 137, 147, 242, 44, 100, 1, 25, 22, 2, 99, 97, 49, 25, 48, 23, 6, 10, 9, 146, 38, 137, 147, 242, 44, 100, 1, 25, 22, 9, 115, 97, 110, 100, 101, 108, 109, 97, 110, 49, 21, 48, 19, 6, 3, 85, 4, 3, 12, 12, 85, 110, 115, 116, 114, 117, 110, 103, 32, 74, 82, 67, 48, 89, 48, 19, 6, 7, 42, 134, 72, 206, 61, 2, 1, 6, 8, 42, 134, 72, 206, 61, 3, 1, 7, 3, 66, 0, 4, 150, 101, 80, 114, 52, 186, 159, 229, 221, 230, 95, 246, 240, 129, 111, 233, 72, 158, 129, 12, 18, 7, 59, 70, 143, 151, 100, 43, 99, 0, 141, 2, 15, 87, 201, 124, 148, 127, 132, 140, 178, 14, 97, 214, 201, 136, 141, 21, 180, 66, 31, 215, 242, 106, 183, 228, 206, 5, 248, 167, 76, 211, 139, 58, 163, 16, 48, 14, 48, 12, 6, 3, 85, 29, 19, 1, 1, 255, 4, 2, 48, 0, 48, 10, 6, 8, 42, 134, 72, 206, 61, 4, 3, 2, 3, 104, 0, 48, 101, 2, 49, 0, 135, 158, 205, 227, 138, 5, 18, 46, 182, 247, 44, 178, 27, 195, 210, 92, 190, 230, 87, 55, 112, 86, 156, 236, 35, 12, 164, 140, 57, 241, 64, 77, 114, 212, 215, 85, 5, 155, 128, 130, 2, 14, 212, 29, 79, 17, 159, 231, 2, 48, 60, 20, 216, 138, 10, 252, 64, 71, 207, 31, 135, 184, 115, 193, 106, 40, 191, 184, 60, 15, 136, 67, 77, 157, 243, 247, 168, 110, 45, 198, 189, 136, 149, 68, 47, 32, 55, 237, 204, 228, 133, 91, 17, 218, 154, 25, 228, 232]))</span>
+<span class="doccomment">//!     .set(Attr::ProximityRegistrarCert(vec![102, 114, 118, 85, 105, 90, 104, 89, 56, 80, 110, 86, 108, 82, 75, 67, 73, 83, 51, 113, 77, 81]))</span>
+<span class="doccomment">//!     .set(Attr::SerialNumber(&quot;00-D0-E5-F2-00-02&quot;.as_bytes().to_vec()))</span>
+<span class="doccomment">//!     .sign(KEY_PEM_F2_00_02, SignatureAlgorithm::ES256)</span>
+<span class="doccomment">//!     .is_ok());</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Encode the voucher request.</span>
+<span class="doccomment">//! let cbor = vrq.serialize().unwrap();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! assert_eq!(cbor.len(), 628);</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## 3. Decoding a CBOR-encoded voucher into a `Voucher`</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! To decode a COSE-signed CBOR-encoded voucher, use the `TryFrom` trait that is implemented</span>
+<span class="doccomment">//! for the [`Voucher`] struct.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! In this example, we decode the `VCH_F2_00_02` constrained voucher sample into a `Voucher` instance,</span>
+<span class="doccomment">//! COSE-validate it, and iterate through each attribute in the voucher.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```rust</span>
+<span class="doccomment">//! use minerva_voucher::{Voucher, attr::*, Validate};</span>
+<span class="doccomment">//! use core::convert::TryFrom;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! static VCH_F2_00_02: &amp;[u8] = core::include_bytes!(</span>
+<span class="doccomment">//!     concat!(env!(&quot;CARGO_MANIFEST_DIR&quot;), &quot;/data/00-D0-E5-F2-00-02/voucher_00-D0-E5-F2-00-02.vch&quot;));</span>
+<span class="doccomment">//! static MASA_CRT_F2_00_02: &amp;[u8] = core::include_bytes!(</span>
+<span class="doccomment">//!     concat!(env!(&quot;CARGO_MANIFEST_DIR&quot;), &quot;/data/00-D0-E5-F2-00-02/masa.crt&quot;));</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! #[cfg(feature = &quot;v3&quot;)]</span>
+<span class="doccomment">//! init_psa_crypto(); // This is required when the `Validate` trait is backed by mbedtls v3.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // Decode the voucher.</span>
+<span class="doccomment">//! let vch = Voucher::try_from(VCH_F2_00_02).unwrap();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // COSE-validate the voucher.</span>
+<span class="doccomment">//! assert!(vch.validate(Some(MASA_CRT_F2_00_02)).is_ok());</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // This voucher has five attributes.</span>
+<span class="doccomment">//! assert_eq!(vch.len(), 5);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! for attr in vch.iter() {</span>
 <span class="doccomment">//!     println!(&quot;attr: {:?}&quot;, attr);</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!     // Check data belonging to the attribute.</span>
 <span class="doccomment">//!     match attr {</span>
-<span class="doccomment">//!         Attr::Assertion(x) =&gt; assert_eq!(x, &amp;Assertion::Proximity),</span>
-<span class="doccomment">//!         Attr::CreatedOn(x) =&gt; assert_eq!(x, &amp;1475868702),</span>
-<span class="doccomment">//!         Attr::ExpiresOn(x) =&gt; assert_eq!(x, &amp;1506816000),</span>
-<span class="doccomment">//!         Attr::Nonce(x) =&gt; assert_eq!(x, &amp;[97, 98, 99, 100, 49, 50, 51, 52, 53]),</span>
-<span class="doccomment">//!         Attr::PinnedDomainPubk(x) =&gt; assert_eq!(x[0..4], [77, 70, 107, 119]),</span>
-<span class="doccomment">//!         Attr::SerialNumber(x) =&gt; assert_eq!(x, &quot;JADA123456789&quot;.as_bytes()),</span>
+<span class="doccomment">//!         Attr::Assertion(x) =&gt; assert_eq!(x, &amp;Assertion::Logged),</span>
+<span class="doccomment">//!         Attr::CreatedOn(x) =&gt; assert_eq!(x, &amp;1599525239),</span>
+<span class="doccomment">//!         Attr::Nonce(x) =&gt; assert_eq!(x, &amp;[88, 83, 121, 70, 52, 76, 76, 73, 105, 113, 85, 50, 45, 79, 71, 107, 54, 108, 70, 67, 65, 103]),</span>
+<span class="doccomment">//!         Attr::PinnedDomainCert(x) =&gt; assert_eq!(x[0..4], [77, 73, 73, 66]),</span>
+<span class="doccomment">//!         Attr::SerialNumber(x) =&gt; assert_eq!(x, &quot;00-D0-E5-F2-00-02&quot;.as_bytes()),</span>
 <span class="doccomment">//!         _ =&gt; panic!(),</span>
 <span class="doccomment">//!     }</span>
-<span class="doccomment">//! });</span>
+<span class="doccomment">//! }</span>
 <span class="doccomment">//! ```</span>
+<span class="doccomment">//! #### Note</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Instead of `TryFrom`, we could use `TryInto` (via `use core::convert::TryInto;`) to</span>
+<span class="doccomment">//! decode the same voucher as</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! `let vch: Voucher = VCH_F2_00_02.try_into().unwrap();`</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! In this case, the type annotation `: Voucher` is needed.</span>
+<span class="doccomment">//!</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! [Constrained BRSKI]: https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html</span>
 <span class="attribute">#![<span class="ident">no_std</span>]</span>
@@ -682,27 +861,27 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Voucher</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_vch</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">VoucherType::Vch</span>)
-    }
-
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_vrq</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">VoucherType::Vrq</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_vch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="op">!</span><span class="self">self</span>.<span class="ident">is_vrq</span>()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_vch</span>() -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">VoucherType::Vch</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_vrq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">is_vrq</span>()
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_vch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+        <span class="op">!</span><span class="self">self</span>.<span class="ident">is_vrq</span>()
+    }
+
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ty</span>: <span class="ident">VoucherType</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">sd</span>: <span class="kw">match</span> <span class="ident">ty</span> {
-                <span class="ident">VoucherType::Vch</span> =&gt; <span class="ident">SidData::new_vch_cbor</span>(),
                 <span class="ident">VoucherType::Vrq</span> =&gt; <span class="ident">SidData::new_vrq_cbor</span>(),
+                <span class="ident">VoucherType::Vch</span> =&gt; <span class="ident">SidData::new_vch_cbor</span>(),
             },
             <span class="ident">cd</span>: <span class="ident">CoseData::new</span>(<span class="bool-val">true</span>),
         }
@@ -938,14 +1117,7 @@
 
     <span class="kw">fn</span> <span class="ident">update_cose_content</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
         <span class="kw">use</span> <span class="ident">sid::Cbor</span>;
-
-        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cbor</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">serialize</span>() { <span class="ident">cbor</span> } <span class="kw">else</span> {
-            <span class="macro">debug_println!</span>(<span class="string">&quot;update_cose_content(): Failed to generate `content`&quot;</span>);
-
-            <span class="macro">vec!</span>[]
-        };
-
-        <span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">set_content</span>(<span class="kw-2">&amp;</span><span class="ident">content</span>);
+        <span class="self">self</span>.<span class="ident">cd</span>.<span class="ident">set_content</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sd</span>.<span class="ident">serialize</span>().<span class="ident">unwrap</span>());
 
         <span class="self">self</span>
     }
@@ -1032,36 +1204,7 @@
 
 <span class="comment">//</span>
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_macros</span>)]</span>
-<span class="macro">macro_rules!</span> <span class="ident">build_voucher</span> {
-    ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">voucher</span>:<span class="ident">expr</span>, $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; {
-        {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">voucher</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">voucher</span>;
-            $(
-                <span class="ident">voucher</span>.<span class="ident">set</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>);
-            )<span class="op">*</span>
-            <span class="ident">voucher</span>
-        }
-    };
-}
-
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
-<span class="kw">use</span> <span class="ident">build_voucher</span>;
-
-<span class="doccomment">/// todo</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// # Examples</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// ;</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">vch</span> {
-    ( ) =&gt; (<span class="ident">Voucher::new_vch</span>());
-    ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; (<span class="macro">build_voucher!</span>( <span class="ident">Voucher::new_vch</span>(), $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span> ),<span class="op">*</span> ));
-}
-
-<span class="doccomment">/// todo</span>
+<span class="doccomment">/// Creates a voucher request with a known list of attributes.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
@@ -1071,7 +1214,36 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">vrq</span> {
     ( ) =&gt; (<span class="ident">Voucher::new_vrq</span>());
-    ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; (<span class="macro">build_voucher!</span>( <span class="ident">Voucher::new_vrq</span>(), $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span> ),<span class="op">*</span> ));
+    ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; {
+        {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">voucher</span> <span class="op">=</span> <span class="ident">Voucher::new_vrq</span>();
+            $(
+                <span class="ident">voucher</span>.<span class="ident">set</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>);
+            )<span class="op">*</span>
+            <span class="ident">voucher</span>
+        }
+    };
+}
+
+<span class="doccomment">/// Creates a voucher with a known list of attributes.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Examples</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// ;</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules!</span> <span class="ident">vch</span> {
+    ( ) =&gt; (<span class="ident">Voucher::new_vch</span>());
+    ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">expr</span> ),<span class="op">*</span> ) =&gt; {
+        {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">voucher</span> <span class="op">=</span> <span class="ident">Voucher::new_vch</span>();
+            $(
+                <span class="ident">voucher</span>.<span class="ident">set</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>);
+            )<span class="op">*</span>
+            <span class="ident">voucher</span>
+        }
+    };
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="minerva_voucher" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.60.0-nightly (1bd4fdc94 2022-01-12)" ></div>
