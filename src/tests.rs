@@ -29,14 +29,6 @@ pub fn content_vch_jada() -> Vec<u8> { content_from_voucher(VCH_JADA) }
 pub fn content_vch_f2_00_02() -> Vec<u8> { content_from_voucher(VCH_F2_00_02) }
 pub fn content_vrq_f2_00_02() -> Vec<u8> { content_from_voucher(VRQ_F2_00_02) }
 
-#[cfg(feature = "v3")]
-fn init_psa_crypto() {
-    use minerva_mbedtls::psa_crypto;
-
-    psa_crypto::init().unwrap();
-    psa_crypto::initialized().unwrap();
-}
-
 //
 
 use core::convert::{TryFrom, TryInto};

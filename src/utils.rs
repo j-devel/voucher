@@ -6,6 +6,14 @@ pub mod minerva_mbedtls_utils {
     use minerva_mbedtls::ifce::*;
     use core::ffi::c_void;
 
+    #[cfg(feature = "v3")]
+    pub fn init_psa_crypto() {
+        use minerva_mbedtls::psa_crypto;
+
+        psa_crypto::init().unwrap();
+        psa_crypto::initialized().unwrap();
+    }
+
     pub fn compute_digest(msg: &[u8], alg: &SignatureAlgorithm) -> (md_type, Vec<u8>) {
         let ty = match *alg {
             SignatureAlgorithm::ES256 => md_type::MBEDTLS_MD_SHA256,

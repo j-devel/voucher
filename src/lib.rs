@@ -1,14 +1,17 @@
 //! This crate implements a compact CBOR-encoded voucher defined by [Constrained BRSKI].
 //!
+//! *** Refer to the `Attr` enum and `ATTR_*` discriminants. ***
+//!
 //! # Examples
 //!
 //! ## 1. Using the `Voucher` struct
 //!
-//! *** Refer to the `Attr` enum and `ATTR_*` discriminants. ***
+//! To demonstrate how to use the [`Voucher`] struct, we are using a "voucher request" instance
+//! created by `Voucher::new_vrq()`.
 //!
-//! To demonstrate how to use the `Voucher` struct, in this example, we are using a
-//! "voucher request" instance created by `Voucher::new_vrq()`.
-//! Note, however, that the same API methods shown here can also be called by a "voucher" instance
+//! #### Notes
+//!
+//! The `Voucher` methods shown below can also be called by a "voucher" instance
 //! created by `Voucher::new_vch()`.
 //!
 //! ```rust
@@ -41,8 +44,8 @@
 //! }
 //! ```
 //!
-//! Using the [`vrq`]/[`vch`] macros, a [`Voucher`] with a known list of attributes can be
-//! created from an array:
+//! Using the [`vrq`]/[`vch`] declarative macros, a [`Voucher`] with a known list of attributes can be
+//! conveniently created as:
 //!
 //! ```rust
 //! use minerva_voucher::{Voucher, attr::*, vrq, vch};
@@ -75,7 +78,7 @@
 //!     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/key.pem"));
 //!
 //! #[cfg(feature = "v3")]
-//! init_psa_crypto(); // This is required when the `Sign` trait is backed by mbedtls v3.
+//! minerva_voucher::init_psa_crypto(); // This is required when the `Sign` trait is backed by mbedtls v3.
 //!
 //! // Create a voucher request with five attributes and COSE-sign it.
 //! let mut vrq = Voucher::new_vrq();
@@ -112,7 +115,7 @@
 //!     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/masa.crt"));
 //!
 //! #[cfg(feature = "v3")]
-//! init_psa_crypto(); // This is required when the `Validate` trait is backed by mbedtls v3.
+//! minerva_voucher::init_psa_crypto(); // This is required when the `Sign` trait is backed by mbedtls v3.
 //!
 //! // Decode the voucher.
 //! let vch = Voucher::try_from(VCH_F2_00_02).unwrap();
@@ -137,7 +140,7 @@
 //!     }
 //! }
 //! ```
-//! #### Note
+//! #### Notes
 //!
 //! Instead of `TryFrom`, we could use `TryInto` (via `use core::convert::TryInto;`) to
 //! decode the same voucher as
@@ -170,6 +173,9 @@ use core::convert::TryFrom;
 mod tests;
 
 mod utils;
+
+#[cfg(feature = "v3")]
+pub use utils::minerva_mbedtls_utils::init_psa_crypto;
 
 pub mod attr;
 use attr::*;
