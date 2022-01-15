@@ -6,12 +6,12 @@
 //!
 //! ## 1. Using the `Voucher` struct
 //!
-//! To demonstrate how to use the [`Voucher`] struct, we are using a "voucher request" instance
+//! We demonstrate how to use the [`Voucher`] struct with a "voucher request" instance
 //! created by `Voucher::new_vrq()`.
 //!
 //! #### Notes
 //!
-//! The `Voucher` methods shown below can also be called by a "voucher" instance
+//! All of the `Voucher` struct's methods shown below can also be called by a "voucher" instance
 //! created by `Voucher::new_vch()`.
 //!
 //! ```rust
@@ -53,12 +53,14 @@
 //! let vrq = vrq![
 //!     Attr::Assertion(Assertion::Proximity),
 //!     Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())];
+//!
 //! assert!(vrq.is_vrq());
 //! assert_eq!(vrq.len(), 2);
 //!
 //! let vch = vch![
 //!     Attr::Assertion(Assertion::Logged),
 //!     Attr::SerialNumber("00-11-22-33-44-55".as_bytes().to_vec())];
+//!
 //! assert!(vch.is_vch());
 //! assert_eq!(vch.len(), 2);
 //! ```
@@ -77,8 +79,9 @@
 //! static KEY_PEM_F2_00_02: &[u8] = core::include_bytes!(
 //!     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/key.pem"));
 //!
+//! // This is required when the `Sign` trait is backed by mbedtls v3.
 //! #[cfg(feature = "v3")]
-//! minerva_voucher::init_psa_crypto(); // This is required when the `Sign` trait is backed by mbedtls v3.
+//! minerva_voucher::init_psa_crypto();
 //!
 //! // Create a voucher request with five attributes and COSE-sign it.
 //! let mut vrq = Voucher::new_vrq();
@@ -114,8 +117,9 @@
 //! static MASA_CRT_F2_00_02: &[u8] = core::include_bytes!(
 //!     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/masa.crt"));
 //!
+//! // This is required when the `Validate` trait is backed by mbedtls v3.
 //! #[cfg(feature = "v3")]
-//! minerva_voucher::init_psa_crypto(); // This is required when the `Sign` trait is backed by mbedtls v3.
+//! minerva_voucher::init_psa_crypto();
 //!
 //! // Decode the voucher.
 //! let vch = Voucher::try_from(VCH_F2_00_02).unwrap();
