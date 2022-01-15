@@ -313,7 +313,9 @@ impl Voucher {
     /// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&Attr::CreatedOn(1599086034)));
     /// ```
     pub fn set(&mut self, attr: Attr) -> &mut Self {
-        let sdisc = self.to_sid_disc(attr.disc()).unwrap();
+        let sdisc = self.to_sid_disc(attr.disc())
+            .ok_or(VoucherError::InvalidArgument)
+            .unwrap();
         self.set_sid(Sid::try_from((attr.into_yang(), sdisc)).unwrap());
 
         self
