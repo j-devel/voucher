@@ -427,14 +427,7 @@ impl Voucher {
             .map(|(attr, _)| attr)
     }
 
-    /// todo
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// ;
-    /// ```
-    pub fn iter_with_sid(&self) -> impl Iterator<Item = (&Attr, sid::SidDisc)> + '_ {
+    fn iter_with_sid(&self) -> impl Iterator<Item = (&Attr, sid::SidDisc)> + '_ {
         self.sd.iter()
             .filter_map(|sid| Some((sid.as_attr()?, sid.disc())))
     }
