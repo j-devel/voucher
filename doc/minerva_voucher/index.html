@@ -3,12 +3,23 @@
         </a><h2 class="location">Crate minerva_voucher</h2><div class="block version"><div class="narrow-helper"></div><p>Version 0.5.15</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all minerva_voucher's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="minerva_voucher" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../minerva_voucher/index.html"><img class="rust-logo" src="../rust-logo.png" alt="logo"></a><nav class="sub"><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><div>
                                 <input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
     <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">minerva_voucher</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band">
-        <a class="srclink" href="../src/minerva_voucher/lib.rs.html#1-634" title="goto source code">source</a> ·
+        <a class="srclink" href="../src/minerva_voucher/lib.rs.html#1-645" title="goto source code">source</a> ·
         <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div>
 <details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This crate implements a compact CBOR-encoded voucher defined by <a href="https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html">Constrained BRSKI</a>.</p>
-<p>*** Refer to the <code>Attr</code> enum and <code>ATTR_*</code> discriminants. ***</p>
-<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2><h3 id="1-using-the-voucher-struct" class="section-header"><a href="#1-using-the-voucher-struct">1. Using the <code>Voucher</code> struct</a></h3>
-<p>We demonstrate how to use the <a href="struct.Voucher.html" title="Voucher"><code>Voucher</code></a> struct with a “voucher request” instance
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
+<p>In this section, we first introduce the <a href="struct.Voucher.html" title="Voucher"><code>Voucher</code></a> abstraction offered by this crate,
+along with its API methods used when dealing with the BRSKI voucher attributes.
+We then present some practical examples on how to perfrom CBOR encoding/decoding of BRSKI vouchers
+with the underlying COSE signing and validation operations also considered.</p>
+<h3 id="1-using-the-voucher-struct" class="section-header"><a href="#1-using-the-voucher-struct">1. Using the <code>Voucher</code> struct</a></h3>
+<p>The <a href="struct.Voucher.html" title="Voucher"><code>Voucher</code></a> struct abstracts both
+<a href="https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-request-artifact">“Voucher Request”</a>
+and <a href="https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-artifact">“Voucher”</a>
+artifacts of Constrained BRSKI. Once a <code>Voucher</code> is instatiated, we can manage its attributes
+using the dedicated API methods (<code>get()</code>, <code>set()</code>, <code>remove()</code>, etc.).
+These methods operate on the <a href="attr/enum.Attr.html" title="Attr"><code>Attr</code></a> enum (occasionally through
+its discriminant constants <a href="attr/index.html"><code>ATTR_*</code></a>) that represents the BRSKI voucher attributes.</p>
+<p>In this example, we demonstrate how to use the <code>Voucher</code> struct with a “voucher request” instance
 created by <code>Voucher::new_vrq()</code>.</p>
 <h5 id="notes" class="section-header"><a href="#notes">Notes</a></h5>
 <p>All of the <code>Voucher</code> struct’s methods shown below can also be called by a “voucher” instance

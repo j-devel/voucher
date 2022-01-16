@@ -1,12 +1,23 @@
 //! This crate implements a compact CBOR-encoded voucher defined by [Constrained BRSKI].
 //!
-//! *** Refer to the `Attr` enum and `ATTR_*` discriminants. ***
-//!
 //! # Examples
+//!
+//! In this section, we first introduce the [`Voucher`] abstraction offered by this crate,
+//! along with its API methods used when dealing with the BRSKI voucher attributes.
+//! We then present some practical examples on how to perfrom CBOR encoding/decoding of BRSKI vouchers
+//! with the underlying COSE signing and validation operations also considered.
 //!
 //! ## 1. Using the `Voucher` struct
 //!
-//! We demonstrate how to use the [`Voucher`] struct with a "voucher request" instance
+//! The [`Voucher`] struct abstracts both
+//! ["Voucher Request"](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-request-artifact)
+//! and ["Voucher"](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-artifact)
+//! artifacts of Constrained BRSKI. Once a `Voucher` is instatiated, we can manage its attributes
+//! using the dedicated API methods (`get()`, `set()`, `remove()`, etc.).
+//! These methods operate on the [`Attr`] enum (occasionally through
+//! its discriminant constants [`ATTR_*`](`attr`)) that represents the BRSKI voucher attributes.
+//!
+//! In this example, we demonstrate how to use the `Voucher` struct with a "voucher request" instance
 //! created by `Voucher::new_vrq()`.
 //!
 //! #### Notes
