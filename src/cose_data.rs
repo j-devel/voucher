@@ -83,7 +83,7 @@ impl CoseData {
 
     pub fn encode(&self) -> Result<Vec<u8>, CoseError> {
         if let CoseDataInner::CoseSignOne(sig) = &self.inner {
-            CoseSig::encode(sig, &self.protected_bucket, &self.unprotected_bucket)
+            sig.encode(&self.protected_bucket, &self.unprotected_bucket)
         } else {
             unimplemented!();
         }
@@ -91,22 +91,22 @@ impl CoseData {
 
     pub fn dump(&self) {
         match &self.inner {
-            CoseDataInner::CoseSignOne(sig) => CoseSig::dump(sig),
-            CoseDataInner::CoseSign(sigs) => sigs.iter().for_each(|sig| CoseSig::dump(sig)),
+            CoseDataInner::CoseSignOne(sig) => sig.dump(),
+            CoseDataInner::CoseSign(sigs) => sigs.iter().for_each(|sig| sig.dump()),
         }
     }
 
     pub fn get_content(&self) -> Result<Vec<u8>, CoseError> {
         match &self.inner {
-            CoseDataInner::CoseSignOne(sig) => CoseSig::extract_content(sig),
+            CoseDataInner::CoseSignOne(sig) => sig.extract_content(),
             CoseDataInner::CoseSign(_) => unimplemented!(),
         }
     }
 
     pub fn set_content(&mut self, content: &[u8]) {
         match &mut self.inner {
-            CoseDataInner::CoseSignOne(sig) => CoseSig::set_content(
-                sig, content, &self.protected_bucket),
+            CoseDataInner::CoseSignOne(sig) =>
+                sig.set_content(content, &self.protected_bucket),
             CoseDataInner::CoseSign(_) => unimplemented!(),
         }
     }
