@@ -49,7 +49,6 @@ fn test_voucher_conversion() {
     //vch.dump_and_panic();
 
     vch.iter().for_each(|attr| {
-        println!("attr: {:?}", attr);
         match attr {
             Attr::Assertion(x) => assert_eq!(x, &Assertion::Proximity),
             Attr::CreatedOn(x) => assert_eq!(x, &1475868702),
@@ -68,7 +67,6 @@ fn test_voucher_conversion() {
     //vch.dump_and_panic();
 
     vch.iter().for_each(|attr| {
-        println!("attr: {:?}", attr);
         match attr {
             Attr::Assertion(x) => assert_eq!(x, &Assertion::Logged),
             Attr::CreatedOn(x) => assert_eq!(x, &1599525239),
@@ -86,7 +84,6 @@ fn test_voucher_conversion() {
     //vch.dump_and_panic();
 
     vrq.iter().for_each(|attr| {
-        println!("attr: {:?}", attr);
         match attr {
             Attr::Assertion(x) => assert_eq!(x, &Assertion::Proximity),
             Attr::CreatedOn(x) => assert_eq!(x, &1599086034),
@@ -125,7 +122,8 @@ fn test_validate_vch_jada() {
 
     let vch = Voucher::try_from(VCH_JADA).unwrap();
 
-    assert!(vch.validate(None).is_ok()); // Use `signer_cert` embedded in COSE unprotected
+    assert!(vch.get_signer_cert().is_some());
+    assert!(vch.validate(None).is_ok());
 }
 
 #[test]

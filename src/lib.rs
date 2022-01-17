@@ -484,9 +484,9 @@ impl Voucher {
     }
 
     pub fn get_signer_cert(&self) -> Option<&[u8]> {
-        let signer_cert = &self.cd.sig().signer_cert;
+        let cert = &self.cd.sig().signer_cert;
 
-        if signer_cert.len() > 0 { Some(signer_cert) } else { None }
+        if cert.len() > 0 { Some(cert) } else { None }
     }
 
     // c.f. `Voucher::try_from(VCH_JADA).unwrap().dump_and_panic();`
@@ -498,12 +498,7 @@ impl Voucher {
 
     #[cfg(test)]
     fn get_cose_content(&self) -> Option<Vec<u8>> {
-        println!("get_cose_content(): self.sd: {:?}", self.sd);
-
-        let content = self.cd.get_content().ok();
-        println!("get_cose_content(): content: {:?}", content);
-
-        content
+        self.cd.get_content().ok()
     }
 
     fn update_cose_content(&mut self) -> &mut Self {
@@ -574,7 +569,7 @@ impl TryFrom<&[u8]> for Voucher {
             debug_println!("Failed to decode `content`");
             Err(VoucherError::CborFailure(ce))
         })?;
-        debug_println!("sidhash: {:?}", sidhash);
+        //debug_println!("sidhash: {:?}", sidhash);
 
         SidData::try_from(sidhash)
             .and_then(|sd| Ok(Self { sd, cd }))
