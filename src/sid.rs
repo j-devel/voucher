@@ -173,7 +173,9 @@ impl Cbor for Sid {
         use yang::*;
 
         let yang_to_cbor =
-            |yg: &Yang, ygd| if yg.disc() == ygd { yg.to_cbor() } else { None };
+            |yg: &Yang, yg_disc_expected| if yg.disc() == yg_disc_expected {
+                yg.to_cbor()
+            } else { None };
 
         match self {
             VchTopLevel(_) |

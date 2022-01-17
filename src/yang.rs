@@ -150,7 +150,7 @@ impl TryFrom<(&CborType, SidDisc)> for Yang {
             SID_VRQ_PROXIMITY_REGISTRAR_PUBK_SHA256 =>
                 Self::Binary(Attr::ProximityRegistrarPubkSha256(Self::raw_binary(cbor)?)),
             SID_VCH_SERIAL_NUMBER | SID_VRQ_SERIAL_NUMBER =>
-                Self::Binary(Attr::SerialNumber(Self::raw_string(cbor)?)),
+                Self::String(Attr::SerialNumber(Self::raw_string(cbor)?)),
             _ => unreachable!(),
         };
 
