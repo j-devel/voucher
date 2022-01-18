@@ -484,16 +484,13 @@ impl Voucher {
     }
 
     pub fn get_signer_cert(&self) -> Option<&[u8]> {
-        let cert = &self.cd.sig().signer_cert;
-
-        if cert.len() > 0 { Some(cert) } else { None }
+        self.cd.get_signer_cert()
     }
 
-    // c.f. `Voucher::try_from(VCH_JADA).unwrap().dump_and_panic();`
-    pub fn set_signer_cert(&mut self, _cert: &[u8]) -> &mut Self {
-        unimplemented!();
+    pub fn set_signer_cert(&mut self, cert: &[u8]) -> &mut Self {
+        self.cd.set_signer_cert(cert);
 
-        //self
+        self
     }
 
     #[cfg(test)]

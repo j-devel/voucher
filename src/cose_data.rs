@@ -82,11 +82,7 @@ impl CoseData {
     }
 
     pub fn encode(&self) -> Result<Vec<u8>, CoseError> {
-        if let CoseDataInner::CoseSignOne(sig) = &self.inner {
-            sig.encode(&self.protected_bucket, &self.unprotected_bucket)
-        } else {
-            unimplemented!();
-        }
+        self.sig().encode(&self.protected_bucket, &self.unprotected_bucket)
     }
 
     pub fn dump(&self) {
@@ -97,10 +93,7 @@ impl CoseData {
     }
 
     pub fn get_content(&self) -> Result<Vec<u8>, CoseError> {
-        match &self.inner {
-            CoseDataInner::CoseSignOne(sig) => sig.extract_content(),
-            CoseDataInner::CoseSign(_) => unimplemented!(),
-        }
+        self.sig().extract_content()
     }
 
     pub fn set_content(&mut self, content: &[u8]) {
@@ -109,6 +102,18 @@ impl CoseData {
                 sig.set_content(content, &self.protected_bucket),
             CoseDataInner::CoseSign(_) => unimplemented!(),
         }
+    }
+
+    pub fn get_signer_cert(&self) -> Option<&[u8]> {
+        let cert = &self.sig().signer_cert;
+
+        if cert.len() > 0 { Some(cert) } else { None }
+    }
+
+    pub fn set_signer_cert(&mut self, cert: &[u8]) {
+        self.sig_mut().signer_cert = cert.to_vec();
+        self.unprotected_bucket.insert(
+            CborType::Integer(COSE_HEADER_VOUCHER_PUBKEY), CborType::Bytes(cert.to_vec()));
     }
 
     fn dump_cose_sign_array(array: &[CborType]) {
