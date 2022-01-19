@@ -6,6 +6,13 @@ use super::utils::minerva_mbedtls_utils::*;
 use minerva_mbedtls::ifce::*;
 use core::ffi::c_void;
 
+/// ...
+///
+/// # Examples
+///
+/// ```
+/// ;
+/// ```
 impl crate::Sign for crate::Voucher {
     fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm) -> Result<&mut Self, VoucherError> {
         let f_rng = pk_context::test_f_rng_ptr(); // TODO refactor

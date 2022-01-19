@@ -5,6 +5,13 @@ use super::utils::minerva_mbedtls_utils::*;
 use minerva_mbedtls::ifce::*;
 use core::ffi::c_void;
 
+/// ...
+///
+/// # Examples
+///
+/// ```
+/// ;
+/// ```
 impl crate::Validate for crate::Voucher {
     fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, VoucherError> {
         let f_rng = pk_context::test_f_rng_ptr(); // TODO refactor

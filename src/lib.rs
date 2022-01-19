@@ -257,18 +257,22 @@ enum VoucherType {
 }
 
 impl Voucher {
+    // TODO doc
     pub fn new_vrq() -> Self {
         Self::new(VoucherType::Vrq)
     }
 
+    // TODO doc
     pub fn new_vch() -> Self {
         Self::new(VoucherType::Vch)
     }
 
+    // TODO doc
     pub fn is_vrq(&self) -> bool {
         self.sd.is_vrq()
     }
 
+    // TODO doc
     pub fn is_vch(&self) -> bool {
         !self.is_vrq()
     }
