@@ -38,7 +38,6 @@
 <span id="35">35</span>
 <span id="36">36</span>
 <span id="37">37</span>
-<span id="38">38</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">vec</span>, <span class="ident">Vec</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">VoucherError</span>, <span class="ident">SignatureAlgorithm</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug_println</span>;
@@ -51,7 +50,7 @@
     <span class="kw">fn</span> <span class="ident">sign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">privkey_pem</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">alg</span>: <span class="ident">SignatureAlgorithm</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="self">Self</span>, <span class="ident">VoucherError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">f_rng</span> <span class="op">=</span> <span class="ident">pk_context::test_f_rng_ptr</span>(); <span class="comment">// TODO refactor</span>
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">sign</span>(<span class="ident">privkey_pem</span>, <span class="ident">alg</span>, <span class="self">self</span>.<span class="ident">to_sign</span>(), <span class="ident">f_rng</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">sign_with_mbedtls</span>(<span class="ident">privkey_pem</span>, <span class="ident">alg</span>, <span class="self">self</span>.<span class="ident">to_sign</span>(<span class="ident">alg</span>), <span class="ident">f_rng</span>) {
             <span class="macro">debug_println!</span>(<span class="string">&quot;sign(): mbedtls_error: {}&quot;</span>, <span class="ident">err</span>);
             <span class="prelude-val">Err</span>(<span class="ident">VoucherError::SigningFailed</span>)
         } <span class="kw">else</span> {
@@ -60,10 +59,10 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">sign</span>(
+<span class="kw">fn</span> <span class="ident">sign_with_mbedtls</span>(
     <span class="ident">privkey_pem</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
     <span class="ident">alg</span>: <span class="ident">SignatureAlgorithm</span>,
-    (<span class="ident">sig_out</span>, <span class="ident">alg_out</span>, <span class="ident">sig_struct</span>): (<span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">SignatureAlgorithm</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]),
+    (<span class="ident">sig_out</span>, <span class="ident">sig_struct</span>): (<span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]),
     <span class="ident">f_rng</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">mbedtls_error</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sig</span> <span class="op">=</span> <span class="macro">vec!</span>[];
@@ -72,7 +71,6 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pk</span> <span class="op">=</span> <span class="ident">pk_from_privkey_pem</span>(<span class="ident">privkey_pem</span>, <span class="ident">f_rng</span>)<span class="question-mark">?</span>;
     <span class="ident">pk</span>.<span class="ident">sign</span>(<span class="ident">md_ty</span>, <span class="ident">hash</span>, <span class="kw-2">&amp;mut</span> <span class="ident">sig</span>, <span class="ident">f_rng</span>, <span class="ident">core::ptr::null</span>())<span class="question-mark">?</span>;
 
-    <span class="kw-2">*</span><span class="ident">alg_out</span> <span class="op">=</span> <span class="ident">alg</span>;
     <span class="kw-2">*</span><span class="ident">sig_out</span> <span class="op">=</span> <span class="ident">sig</span>;
 
     <span class="prelude-val">Ok</span>(())

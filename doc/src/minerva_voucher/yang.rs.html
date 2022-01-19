@@ -312,7 +312,7 @@
             <span class="ident">SID_VRQ_PROXIMITY_REGISTRAR_PUBK_SHA256</span> =&gt;
                 <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="ident">Attr::ProximityRegistrarPubkSha256</span>(<span class="ident"><span class="self">Self</span>::raw_binary</span>(<span class="ident">cbor</span>)<span class="question-mark">?</span>)),
             <span class="ident">SID_VCH_SERIAL_NUMBER</span> <span class="op">|</span> <span class="ident">SID_VRQ_SERIAL_NUMBER</span> =&gt;
-                <span class="ident"><span class="self">Self</span>::Binary</span>(<span class="ident">Attr::SerialNumber</span>(<span class="ident"><span class="self">Self</span>::raw_string</span>(<span class="ident">cbor</span>)<span class="question-mark">?</span>)),
+                <span class="ident"><span class="self">Self</span>::String</span>(<span class="ident">Attr::SerialNumber</span>(<span class="ident"><span class="self">Self</span>::raw_string</span>(<span class="ident">cbor</span>)<span class="question-mark">?</span>)),
             <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         };
 

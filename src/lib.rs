@@ -432,27 +432,20 @@ impl Voucher {
             .filter_map(|sid| Some((sid.as_attr()?, sid.disc())))
     }
 
-    /// todo
+    /// ...
     ///
     /// # Examples
     ///
     /// ```
     /// ;
     /// ```
-    pub fn dump(&self) {
-        println!("======== Voucher::dump()");
-        self.sd.dump();
-        self.cd.dump();
-        println!("========");
+    pub fn get_signature(&self) -> (&[u8], &SignatureAlgorithm) {
+        let sig = self.cd.sig();
+
+        (&sig.signature, &sig.signature_type)
     }
 
-    #[cfg(test)]
-    pub fn dump_and_panic(&self) {
-        self.dump();
-        panic!();
-    }
-
-    /// todo
+    /// ...
     ///
     /// # Examples
     ///
@@ -477,16 +470,24 @@ impl Voucher {
         })
     }
 
-    pub fn get_signature(&self) -> (&[u8], &SignatureAlgorithm) {
-        let sig = self.cd.sig();
-
-        (&sig.signature, &sig.signature_type)
-    }
-
+    /// ...
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// ;
+    /// ```
     pub fn get_signer_cert(&self) -> Option<&[u8]> {
         self.cd.get_signer_cert()
     }
 
+    /// ...
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// ;
+    /// ```
     pub fn set_signer_cert(&mut self, cert: &[u8]) -> &mut Self {
         self.cd.set_signer_cert(cert);
 
@@ -505,7 +506,7 @@ impl Voucher {
         self
     }
 
-    /// Interface with meta data to be used in ECDSA based signing
+    /// Interfaces with meta data to be used in ECDSA based signing.
     ///
     /// # Examples
     ///
@@ -522,7 +523,7 @@ impl Voucher {
         (&mut sig.signature, &sig.to_verify)
     }
 
-    /// Interface with meta data to be used in ECDSA based validation
+    /// Interfaces with meta data to be used in ECDSA based validation.
     ///
     /// # Examples
     ///
@@ -534,9 +535,29 @@ impl Voucher {
 
         (self.get_signer_cert(), signature, alg, &self.cd.sig().to_verify)
     }
+
+    /// ...
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// ;
+    /// ```
+    pub fn dump(&self) {
+        println!("======== Voucher::dump()");
+        self.sd.dump();
+        self.cd.dump();
+        println!("========");
+    }
+
+    #[cfg(test)]
+    pub fn dump_and_panic(&self) {
+        self.dump();
+        panic!();
+    }
 }
 
-/// todo
+/// ...
 ///
 /// # Examples
 ///

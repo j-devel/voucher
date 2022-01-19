@@ -190,6 +190,22 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">vec</span>, <span class="ident">Vec</span>, <span class="ident">BTreeMap</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug_println</span>;
 
@@ -274,33 +290,49 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">CoseError</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">CoseDataInner::CoseSignOne</span>(<span class="ident">sig</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="ident">CoseSig::encode</span>(<span class="ident">sig</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_bucket</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unprotected_bucket</span>)
-        } <span class="kw">else</span> {
-            <span class="macro">unimplemented!</span>();
-        }
+        <span class="self">self</span>.<span class="ident">sig</span>().<span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_bucket</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unprotected_bucket</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dump</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="ident">CoseDataInner::CoseSignOne</span>(<span class="ident">sig</span>) =&gt; <span class="ident">CoseSig::dump</span>(<span class="ident">sig</span>),
-            <span class="ident">CoseDataInner::CoseSign</span>(<span class="ident">sigs</span>) =&gt; <span class="ident">sigs</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">sig</span><span class="op">|</span> <span class="ident">CoseSig::dump</span>(<span class="ident">sig</span>)),
+            <span class="ident">CoseDataInner::CoseSignOne</span>(<span class="ident">sig</span>) =&gt; <span class="ident">sig</span>.<span class="ident">dump</span>(),
+            <span class="ident">CoseDataInner::CoseSign</span>(<span class="ident">sigs</span>) =&gt; <span class="ident">sigs</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">sig</span><span class="op">|</span> <span class="ident">sig</span>.<span class="ident">dump</span>()),
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_content</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">CoseError</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="ident">CoseDataInner::CoseSignOne</span>(<span class="ident">sig</span>) =&gt; <span class="ident">CoseSig::extract_content</span>(<span class="ident">sig</span>),
-            <span class="ident">CoseDataInner::CoseSign</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(),
-        }
+        <span class="self">self</span>.<span class="ident">sig</span>().<span class="ident">extract_content</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_content</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">content</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
         <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="ident">CoseDataInner::CoseSignOne</span>(<span class="ident">sig</span>) =&gt; <span class="ident">CoseSig::set_content</span>(
-                <span class="ident">sig</span>, <span class="ident">content</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_bucket</span>),
+            <span class="ident">CoseDataInner::CoseSignOne</span>(<span class="ident">sig</span>) =&gt;
+                <span class="ident">sig</span>.<span class="ident">set_content</span>(<span class="ident">content</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_bucket</span>),
             <span class="ident">CoseDataInner::CoseSign</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(),
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_signer_cert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">cert</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">sig</span>().<span class="ident">signer_cert</span>;
+
+        <span class="kw">if</span> <span class="ident">cert</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span> { <span class="prelude-val">Some</span>(<span class="ident">cert</span>) } <span class="kw">else</span> { <span class="prelude-val">None</span> }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_signer_cert</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">cert</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
+        <span class="self">self</span>.<span class="ident">sig_mut</span>().<span class="ident">signer_cert</span> <span class="op">=</span> <span class="ident">cert</span>.<span class="ident">to_vec</span>();
+        <span class="self">self</span>.<span class="ident">unprotected_bucket</span>.<span class="ident">insert</span>(
+            <span class="ident">CborType::Integer</span>(<span class="ident">COSE_HEADER_VOUCHER_PUBKEY</span>), <span class="ident">CborType::Bytes</span>(<span class="ident">cert</span>.<span class="ident">to_vec</span>()));
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_alg</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">alg</span>: <span class="ident">SignatureAlgorithm</span>) {
+        <span class="self">self</span>.<span class="ident">sig_mut</span>().<span class="ident">signature_type</span> <span class="op">=</span> <span class="ident">alg</span>;
+        <span class="self">self</span>.<span class="ident">protected_bucket</span>.<span class="ident">insert</span>(
+            <span class="ident">CborType::Integer</span>(<span class="ident">COSE_HEADER_ALG</span>), <span class="kw">match</span> <span class="ident">alg</span> {
+                <span class="ident">SignatureAlgorithm::ES256</span> =&gt; <span class="ident">CborType::SignedInteger</span>(<span class="ident">COSE_TYPE_ES256</span>),
+                <span class="ident">SignatureAlgorithm::ES384</span> =&gt; <span class="ident">CborType::SignedInteger</span>(<span class="ident">COSE_TYPE_ES384</span>),
+                <span class="ident">SignatureAlgorithm::ES512</span> =&gt; <span class="ident">CborType::SignedInteger</span>(<span class="ident">COSE_TYPE_ES512</span>),
+                <span class="ident">SignatureAlgorithm::PS256</span> =&gt; <span class="ident">CborType::SignedInteger</span>(<span class="ident">COSE_TYPE_PS256</span>),
+            });
     }
 
     <span class="kw">fn</span> <span class="ident">dump_cose_sign_array</span>(<span class="ident">array</span>: <span class="kw-2">&amp;</span>[<span class="ident">CborType</span>]) {
@@ -341,7 +373,7 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">alg</span>) <span class="op">=</span> <span class="ident">map_value_from</span>(<span class="ident">pb_cbor</span>, <span class="kw-2">&amp;</span><span class="ident">CborType::Integer</span>(<span class="ident">COSE_HEADER_ALG</span>)) {
                 <span class="ident">ty</span>.<span class="ident">replace</span>(<span class="ident">resolve_alg</span>(<span class="kw-2">&amp;</span><span class="ident">alg</span>)<span class="question-mark">?</span>);
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">is_permissive</span> {
-                <span class="macro">debug_println!</span>(<span class="string">&quot;⚠️ missing `signature_type`; ES256 is assumed&quot;</span>);
+                <span class="macro">debug_println!</span>(<span class="string">&quot;⚠️ missing `COSE_HEADER_ALG`; ES256 is assumed&quot;</span>);
                 <span class="ident">ty</span>.<span class="ident">replace</span>(<span class="ident">SignatureAlgorithm::ES256</span>);
             } <span class="kw">else</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">CoseError::MissingHeader</span>);
