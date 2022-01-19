@@ -479,7 +479,13 @@ impl Voucher {
     /// # Examples
     ///
     /// ```
-    /// ;
+    /// use minerva_voucher::Voucher;
+    ///
+    /// let mut vrq = Voucher::new_vrq();
+    ///
+    /// assert_eq!(vrq.get_signer_cert(), None);
+    /// vrq.set_signer_cert(&[4, 186, 197, 177, 28, 173, 143, 153, 249, 199, 43, 5, 207, 75, 158, 38, 210, 68, 220, 24, 159, 116, 82, 40, 37, 90, 33, 154, 134, 214, 160, 158, 255, 32, 19, 139, 248, 45, 193, 182, 213, 98, 190, 15, 165, 74, 183, 128, 74, 58, 100, 182, 215, 44, 207, 237, 107, 111, 182, 237, 40, 187, 252, 17, 126]);
+    /// assert_eq!(vrq.get_signer_cert().unwrap().len(), 65);
     /// ```
     pub fn get_signer_cert(&self) -> Option<&[u8]> {
         self.cd.get_signer_cert()
@@ -490,13 +496,13 @@ impl Voucher {
     /// # Examples
     ///
     /// ```
-    /// use minerva_voucher::{Voucher, attr::*};
+    /// use minerva_voucher::Voucher;
     ///
     /// let mut vrq = Voucher::new_vrq();
     ///
-    /// assert!(vrq.get_signer_cert().is_none());
-    /// vrq.set_signer_cert(b"foo");
-    /// assert!(vrq.get_signer_cert().is_some());
+    /// assert_eq!(vrq.get_signer_cert(), None);
+    /// vrq.set_signer_cert(&[4, 186, 197, 177, 28, 173, 143, 153, 249, 199, 43, 5, 207, 75, 158, 38, 210, 68, 220, 24, 159, 116, 82, 40, 37, 90, 33, 154, 134, 214, 160, 158, 255, 32, 19, 139, 248, 45, 193, 182, 213, 98, 190, 15, 165, 74, 183, 128, 74, 58, 100, 182, 215, 44, 207, 237, 107, 111, 182, 237, 40, 187, 252, 17, 126]);
+    /// assert_eq!(vrq.get_signer_cert().unwrap().len(), 65);
     /// ```
     pub fn set_signer_cert(&mut self, cert: &[u8]) -> &mut Self {
         self.cd.set_signer_cert(cert);
