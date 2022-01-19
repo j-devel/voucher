@@ -108,7 +108,7 @@
 //! // Encode the voucher request.
 //! let cbor = vrq.serialize().unwrap();
 //!
-//! assert_eq!(cbor.len(), 628);
+//! assert_eq!(cbor.len(), 630);
 //! ```
 //!
 //! ## 3. Decoding a CBOR-encoded voucher into a `Voucher`

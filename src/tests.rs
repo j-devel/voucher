@@ -136,6 +136,58 @@ fn test_serialize_vch_jada() {
         VCH_JADA);
 }
 
+#[test]
+fn test_synthesize_vch_jada() {
+    #[cfg(feature = "v3")]
+    init_psa_crypto();
+
+    let key_pem_dummy = KEY_PEM_F2_00_02;
+
+    //
+
+    assert_eq!(VCH_JADA.len(), 328); // sig bare; w/ signer_cert
+    assert_eq!(Voucher::try_from(VCH_JADA).unwrap()
+        .sign(key_pem_dummy, SignatureAlgorithm::ES256).unwrap()
+        .serialize().unwrap().len(), 334); // sig asn1; w/ singer_cert
+    assert_eq!(Voucher::try_from(VCH_JADA).unwrap()
+        .get_signer_cert().unwrap().len(), 65);
+
+    //
+
+    let mut vch_jada_synth = Voucher::new_vch();
+    vch_jada_synth.set(Attr::Assertion(Assertion::Proximity))
+        .set(Attr::CreatedOn(1475868702))
+        .set(Attr::ExpiresOn(1506816000))
+        .set(Attr::Nonce(vec![97, 98, 99, 100, 49, 50, 51, 52, 53]))
+        .set(Attr::PinnedDomainPubk(vec![77, 70, 107, 119, 69, 119, 89, 72, 75, 111, 90, 73, 122, 106, 48, 67, 65, 81, 89, 73, 75, 111, 90, 73, 122, 106, 48, 68, 65, 81, 99, 68, 81, 103, 65, 69, 108, 109, 86, 81, 99, 106, 83, 54, 110, 43, 88, 100, 53, 108, 47, 50, 56, 73, 70, 118, 54, 85, 105, 101, 103, 81, 119, 83, 66, 122, 116, 71, 106, 53, 100, 107, 75, 50, 77, 65, 106, 81, 73, 80, 86, 56, 108, 56, 108, 72, 43, 69, 106, 76, 73, 79, 89, 100, 98, 74, 105, 73, 48, 86, 116, 69, 73, 102, 49, 47, 74, 113, 116, 43, 84, 79, 66, 102, 105, 110, 84, 78, 79, 76, 79, 103, 61, 61]))
+        .set(Attr::SerialNumber("JADA123456789".as_bytes().to_vec()));
+
+    //
+
+    #[cfg(feature = "std")]
+    assert!(std::panic::catch_unwind(|| {
+        // Serializing an unsigned voucher is expected to fail.
+        let _ = vch_jada_synth.serialize().unwrap();
+    }).is_err());
+
+    //
+
+    let cbor = vch_jada_synth
+        .sign(key_pem_dummy, SignatureAlgorithm::ES256).unwrap()
+        .serialize().unwrap();
+    assert!(vch_jada_synth.get_signer_cert().is_none());
+    assert_eq!(cbor.len(), 264); // sig asn1; wo/ singer_cert
+
+    //
+
+    vch_jada_synth.set_signer_cert(&[4, 186, 197, 177, 28, 173, 143, 153, 249, 199, 43, 5, 207, 75, 158, 38, 210, 68, 220, 24, 159, 116, 82, 40, 37, 90, 33, 154, 134, 214, 160, 158, 255, 32, 19, 139, 248, 45, 193, 182, 213, 98, 190, 15, 165, 74, 183, 128, 74, 58, 100, 182, 215, 44, 207, 237, 107, 111, 182, 237, 40, 187, 252, 17, 126]);
+    let cbor = vch_jada_synth
+        .sign(key_pem_dummy, SignatureAlgorithm::ES256).unwrap()
+        .serialize().unwrap();
+    assert_eq!(vch_jada_synth.get_signer_cert().unwrap().len(), 65);
+    assert_eq!(cbor.len(), 334); // sig asn1; w/ singer_cert
+}
+
 //
 
 #[test]
@@ -294,8 +346,8 @@ fn test_highlevel_interface() {
     assert!(debug::content_comp_permissive(
         &vrq.get_cose_content().unwrap(), &content_vrq_f2_00_02()));
 
-    assert_eq!(vrq.get_signature().0, /* asn1 */ [48, 70, 2, 33, 0, 164, 97, 9, 44, 103, 141, 55, 95, 230, 60, 165, 83, 63, 61, 81, 133, 98, 207, 213, 159, 74, 67, 180, 113, 158, 8, 220, 210, 48, 177, 185, 211, 2, 33, 0, 161, 49, 250, 154, 96, 186, 186, 87, 188, 188, 67, 249, 31, 177, 104, 160, 65, 12, 62, 87, 233, 231, 105, 58, 29, 215, 16, 227, 162, 179, 209, 110]);
-    assert_eq!(vrq.serialize().unwrap().len(), 628);
+    assert_eq!(vrq.get_signature().0, /* asn1 */ [48, 70, 2, 33, 0, 247, 209, 200, 182, 213, 40, 156, 50, 216, 95, 103, 40, 182, 68, 209, 235, 43, 105, 94, 5, 152, 102, 79, 116, 62, 147, 224, 207, 28, 188, 196, 249, 2, 33, 0, 253, 107, 20, 175, 119, 249, 246, 133, 146, 27, 34, 236, 191, 164, 1, 108, 29, 215, 26, 230, 121, 33, 88, 221, 141, 205, 111, 254, 97, 29, 149, 32]);
+    assert_eq!(vrq.serialize().unwrap().len(), 630);
 
     assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&Attr::CreatedOn(1599086034)));
     assert_eq!(vrq.get(ATTR_EXPIRES_ON), None);
