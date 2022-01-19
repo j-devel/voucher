@@ -9,7 +9,7 @@ impl crate::Validate for crate::Voucher {
     fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, VoucherError> {
         let f_rng = pk_context::test_f_rng_ptr(); // TODO refactor
 
-        match validate(pem, self.to_validate(), f_rng) {
+        match validate_with_mbedtls(pem, self.to_validate(), f_rng) {
             Ok(true) => Ok(self),
             Ok(false) => Err(VoucherError::ValidationFailed),
             Err(err) => {
@@ -20,7 +20,7 @@ impl crate::Validate for crate::Voucher {
     }
 }
 
-fn validate(
+fn validate_with_mbedtls(
     pem: Option<&[u8]>,
     (signer_cert, signature, alg, msg): (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]),
     f_rng: *const c_void

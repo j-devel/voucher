@@ -10,7 +10,7 @@ impl crate::Sign for crate::Voucher {
     fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm) -> Result<&mut Self, VoucherError> {
         let f_rng = pk_context::test_f_rng_ptr(); // TODO refactor
 
-        if let Err(err) = sign(privkey_pem, alg, self.to_sign(), f_rng) {
+        if let Err(err) = sign_with_mbedtls(privkey_pem, alg, self.to_sign(alg), f_rng) {
             debug_println!("sign(): mbedtls_error: {}", err);
             Err(VoucherError::SigningFailed)
         } else {
@@ -19,10 +19,10 @@ impl crate::Sign for crate::Voucher {
     }
 }
 
-fn sign(
+fn sign_with_mbedtls(
     privkey_pem: &[u8],
     alg: SignatureAlgorithm,
-    (sig_out, alg_out, sig_struct): (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8]),
+    (sig_out, sig_struct): (&mut Vec<u8>, &[u8]),
     f_rng: *const c_void
 ) -> Result<(), mbedtls_error> {
     let mut sig = vec![];
@@ -31,7 +31,6 @@ fn sign(
     let mut pk = pk_from_privkey_pem(privkey_pem, f_rng)?;
     pk.sign(md_ty, hash, &mut sig, f_rng, core::ptr::null())?;
 
-    *alg_out = alg;
     *sig_out = sig;
 
     Ok(())

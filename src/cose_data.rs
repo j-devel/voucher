@@ -116,6 +116,17 @@ impl CoseData {
             CborType::Integer(COSE_HEADER_VOUCHER_PUBKEY), CborType::Bytes(cert.to_vec()));
     }
 
+    pub fn set_alg(&mut self, alg: SignatureAlgorithm) {
+        self.sig_mut().signature_type = alg;
+        self.protected_bucket.insert(
+            CborType::Integer(COSE_HEADER_ALG), match alg {
+                SignatureAlgorithm::ES256 => CborType::SignedInteger(COSE_TYPE_ES256),
+                SignatureAlgorithm::ES384 => CborType::SignedInteger(COSE_TYPE_ES384),
+                SignatureAlgorithm::ES512 => CborType::SignedInteger(COSE_TYPE_ES512),
+                SignatureAlgorithm::PS256 => CborType::SignedInteger(COSE_TYPE_PS256),
+            });
+    }
+
     fn dump_cose_sign_array(array: &[CborType]) {
         array.iter().enumerate().for_each(|(i, cbor)| {
             debug_println!("  array[{}]: {:?}", i, cbor);
@@ -154,7 +165,7 @@ impl CoseData {
             if let Ok(alg) = map_value_from(pb_cbor, &CborType::Integer(COSE_HEADER_ALG)) {
                 ty.replace(resolve_alg(&alg)?);
             } else if is_permissive {
-                debug_println!("⚠️ missing `signature_type`; ES256 is assumed");
+                debug_println!("⚠️ missing `COSE_HEADER_ALG`; ES256 is assumed");
                 ty.replace(SignatureAlgorithm::ES256);
             } else {
                 return Err(CoseError::MissingHeader);

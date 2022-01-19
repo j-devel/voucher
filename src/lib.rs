@@ -512,14 +512,14 @@ impl Voucher {
     /// ```
     /// ;
     /// ```
-    pub fn to_sign(&mut self) -> (&mut Vec<u8>, &mut SignatureAlgorithm, &[u8]) {
-        use core::ops::DerefMut;
+    pub fn to_sign(&mut self, alg: SignatureAlgorithm) -> (&mut Vec<u8>, &[u8]) {
+        self.cd.set_alg(alg);
 
-        let sig = self
-            .update_cose_content()
+        use core::ops::DerefMut;
+        let sig = self.update_cose_content()
             .cd.sig_mut().deref_mut();
 
-        (&mut sig.signature, &mut sig.signature_type, &sig.to_verify)
+        (&mut sig.signature, &sig.to_verify)
     }
 
     /// Interface with meta data to be used in ECDSA based validation
