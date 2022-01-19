@@ -162,13 +162,8 @@ fn test_synthesize_vch_jada() {
         .set(Attr::PinnedDomainPubk(vec![77, 70, 107, 119, 69, 119, 89, 72, 75, 111, 90, 73, 122, 106, 48, 67, 65, 81, 89, 73, 75, 111, 90, 73, 122, 106, 48, 68, 65, 81, 99, 68, 81, 103, 65, 69, 108, 109, 86, 81, 99, 106, 83, 54, 110, 43, 88, 100, 53, 108, 47, 50, 56, 73, 70, 118, 54, 85, 105, 101, 103, 81, 119, 83, 66, 122, 116, 71, 106, 53, 100, 107, 75, 50, 77, 65, 106, 81, 73, 80, 86, 56, 108, 56, 108, 72, 43, 69, 106, 76, 73, 79, 89, 100, 98, 74, 105, 73, 48, 86, 116, 69, 73, 102, 49, 47, 74, 113, 116, 43, 84, 79, 66, 102, 105, 110, 84, 78, 79, 76, 79, 103, 61, 61]))
         .set(Attr::SerialNumber("JADA123456789".as_bytes().to_vec()));
 
-    //
-
-    #[cfg(feature = "std")]
-    assert!(std::panic::catch_unwind(|| {
-        // Serializing an unsigned voucher is expected to fail.
-        let _ = vch_jada_synth.serialize().unwrap();
-    }).is_err());
+    // Serializing an unsigned voucher is expected to fail.
+    assert!(vch_jada_synth.serialize().is_err());
 
     //
 
