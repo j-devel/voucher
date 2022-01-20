@@ -69,6 +69,7 @@
 <span id="66">66</span>
 <span id="67">67</span>
 <span id="68">68</span>
+<span id="69">69</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">VoucherError</span>, <span class="ident">SignatureAlgorithm</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug_println</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::utils::minerva_mbedtls_utils</span>::<span class="kw-2">*</span>;
@@ -100,10 +101,11 @@
 
 <span class="kw">fn</span> <span class="ident">validate_with_mbedtls</span>(
     <span class="ident">pem</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>,
-    (<span class="ident">signer_cert</span>, <span class="ident">signature</span>, <span class="ident">alg</span>, <span class="ident">msg</span>): (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]),
+    (<span class="ident">signer_cert</span>, <span class="ident">sig_alg</span>, <span class="ident">msg</span>): (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="kw-2">&amp;</span><span class="ident">SignatureAlgorithm</span>)<span class="op">&gt;</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]),
     <span class="ident">f_rng</span>: <span class="kw-2">*const</span> <span class="ident">c_void</span>
 ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">mbedtls_error</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">signature</span>.<span class="ident">is_empty</span>() { <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>); }
+    <span class="kw">if</span> <span class="ident">sig_alg</span>.<span class="ident">is_none</span>() { <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="bool-val">false</span>); }
+    <span class="kw">let</span> (<span class="ident">signature</span>, <span class="ident">alg</span>) <span class="op">=</span> <span class="ident">sig_alg</span>.<span class="ident">unwrap</span>();
 
     <span class="comment">// @@ ==== debug</span>
     <span class="comment">// let _ = pk_context::new().verify_debug_esp32_a(42, &amp;[2; 16], &amp;[4; 16], &amp;[8; 16]);</span>
