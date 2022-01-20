@@ -212,17 +212,33 @@ impl Voucher {
             .filter_map(|sid| Some((sid.as_attr()?, sid.disc())))
     }
 
-    /// ...
+    /// Returns a tuple containing references to the signature and its corresponding algorithm in the voucher, if any.
     ///
     /// # Examples
     ///
     /// ```
-    /// ;
+    /// use minerva_voucher::{Voucher, SignatureAlgorithm};
+    /// use core::convert::TryFrom;
+    ///
+    /// static VCH_F2_00_02: &[u8] = core::include_bytes!(
+    ///     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/voucher_00-D0-E5-F2-00-02.vch"));
+    ///
+    /// let vch = Voucher::new_vch();
+    /// assert_eq!(vch.get_signature(), None);
+    ///
+    /// let vch = Voucher::try_from(VCH_F2_00_02).unwrap();
+    /// let (signature, alg) = vch.get_signature().unwrap();
+    /// assert_eq!(signature.len(), 64);
+    /// assert_eq!(*alg, SignatureAlgorithm::ES256);
     /// ```
-    pub fn get_signature(&self) -> (&[u8], &SignatureAlgorithm) {
+    pub fn get_signature(&self) -> Option<(&[u8], &SignatureAlgorithm)> {
         let sig = self.cd.sig();
 
-        (&sig.signature, &sig.signature_type)
+        if sig.signature.len() > 0 {
+            Some((&sig.signature, &sig.signature_type))
+        } else {
+            None
+        }
     }
 
     /// ...
@@ -322,10 +338,8 @@ impl Voucher {
     /// ```
     /// ;
     /// ```
-    pub fn to_validate(&self) -> (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]) {
-        let (signature, alg) = self.get_signature();
-
-        (self.get_signer_cert(), signature, alg, &self.cd.sig().to_verify)
+    pub fn to_validate(&self) -> (Option<&[u8]>, Option<(&[u8], &SignatureAlgorithm)>, &[u8]) {
+        (self.get_signer_cert(), self.get_signature(), &self.cd.sig().to_verify)
     }
 
     /// ...

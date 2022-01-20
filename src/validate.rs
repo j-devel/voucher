@@ -29,10 +29,11 @@ impl crate::Validate for crate::Voucher {
 
 fn validate_with_mbedtls(
     pem: Option<&[u8]>,
-    (signer_cert, signature, alg, msg): (Option<&[u8]>, &[u8], &SignatureAlgorithm, &[u8]),
+    (signer_cert, sig_alg, msg): (Option<&[u8]>, Option<(&[u8], &SignatureAlgorithm)>, &[u8]),
     f_rng: *const c_void
 ) -> Result<bool, mbedtls_error> {
-    if signature.is_empty() { return Ok(false); }
+    if sig_alg.is_none() { return Ok(false); }
+    let (signature, alg) = sig_alg.unwrap();
 
     // @@ ==== debug
     // let _ = pk_context::new().verify_debug_esp32_a(42, &[2; 16], &[4; 16], &[8; 16]);

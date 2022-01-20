@@ -106,7 +106,7 @@ fn test_decode_vch_jada() {
 
     let vch = Voucher::try_from(VCH_JADA).unwrap();
 
-    let (sig, alg) = vch.get_signature();
+    let (sig, alg) = vch.get_signature().unwrap();
     assert_eq!(sig.len(), 64);
     assert_eq!(*alg, SignatureAlgorithm::ES256);
 
@@ -191,7 +191,7 @@ fn test_decode_vch_f2_00_02() {
 
     let vch = Voucher::try_from(VCH_F2_00_02).unwrap();
 
-    let (sig, alg) = vch.get_signature();
+    let (sig, alg) = vch.get_signature().unwrap();
     assert_eq!(sig.len(), 64);
     assert_eq!(*alg, SignatureAlgorithm::ES256);
 
@@ -277,7 +277,7 @@ fn test_sign_vrq_f2_00_02() {
     assert!(debug::content_comp_permissive(
         &vrq.get_cose_content().unwrap(), &content_vrq_f2_00_02()));
 
-    let (sig, ty) = vrq.get_signature();
+    let (sig, ty) = vrq.get_signature().unwrap();
     assert!(sig.len() > 0);
     assert_eq!(ty, &SignatureAlgorithm::ES256);
 }
@@ -310,7 +310,7 @@ A1                                      # map(1)
          308201D83082015EA003020102020101300A06082A8648CE3D040302307331123010060A0992268993F22C6401191602636131193017060A0992268993F22C640119160973616E64656C6D616E3142304006035504030C39233C53797374656D5661726961626C653A3078303030303535623832353063306462383E20556E737472756E6720466F756E7461696E204341301E170D3230303832393034303031365A170D3232303832393034303031365A304631123010060A0992268993F22C6401191602636131193017060A0992268993F22C640119160973616E64656C6D616E3115301306035504030C0C556E737472756E67204A52433059301306072A8648CE3D020106082A8648CE3D030107034200049665507234BA9FE5DDE65FF6F0816FE9489E810C12073B468F97642B63008D020F57C97C947F848CB20E61D6C9888D15B4421FD7F26AB7E4CE05F8A74CD38B3AA310300E300C0603551D130101FF04023000300A06082A8648CE3D0403020368003065023100879ECDE38A05122EB6F72CB21BC3D25CBEE6573770569CEC230CA48C39F1404D72D4D755059B8082020ED41D4F119FE702303C14D88A0AFC4047CF1F87B873C16A28BFB83C0F88434D9DF3F7A86E2DC6BD8895442F2037EDCCE4855B11DA9A19E4E8 #
 # python3: `bytes([161, 25, ... 228, 232]).hex()` > https://cbor.me/
 "));
-    assert_eq!(vrq.get_signature().0, /* bare */ [242, 113, 238, 15, 125, 71, 169, 233, 252, 219, 95, 74, 88, 238, 47, 97, 183, 138, 84, 131, 159, 203, 164, 31, 34, 135, 174, 129, 228, 47, 180, 129, 171, 146, 165, 162, 167, 222, 82, 112, 125, 198, 7, 254, 142, 250, 108, 214, 194, 253, 235, 104, 154, 68, 171, 179, 127, 93, 192, 158, 174, 24, 23, 8]);
+    assert_eq!(vrq.get_signature().unwrap().0, /* bare */ [242, 113, 238, 15, 125, 71, 169, 233, 252, 219, 95, 74, 88, 238, 47, 97, 183, 138, 84, 131, 159, 203, 164, 31, 34, 135, 174, 129, 228, 47, 180, 129, 171, 146, 165, 162, 167, 222, 82, 112, 125, 198, 7, 254, 142, 250, 108, 214, 194, 253, 235, 104, 154, 68, 171, 179, 127, 93, 192, 158, 174, 24, 23, 8]);
     assert_eq!(vrq.serialize().unwrap(), VRQ_F2_00_02);
 }
 
@@ -338,7 +338,7 @@ fn test_highlevel_interface() {
     assert!(debug::content_comp_permissive(
         &vrq.get_cose_content().unwrap(), &content_vrq_f2_00_02()));
 
-    assert_eq!(vrq.get_signature().0, /* asn1 */ [48, 70, 2, 33, 0, 247, 209, 200, 182, 213, 40, 156, 50, 216, 95, 103, 40, 182, 68, 209, 235, 43, 105, 94, 5, 152, 102, 79, 116, 62, 147, 224, 207, 28, 188, 196, 249, 2, 33, 0, 253, 107, 20, 175, 119, 249, 246, 133, 146, 27, 34, 236, 191, 164, 1, 108, 29, 215, 26, 230, 121, 33, 88, 221, 141, 205, 111, 254, 97, 29, 149, 32]);
+    assert_eq!(vrq.get_signature().unwrap().0, /* asn1 */ [48, 70, 2, 33, 0, 247, 209, 200, 182, 213, 40, 156, 50, 216, 95, 103, 40, 182, 68, 209, 235, 43, 105, 94, 5, 152, 102, 79, 116, 62, 147, 224, 207, 28, 188, 196, 249, 2, 33, 0, 253, 107, 20, 175, 119, 249, 246, 133, 146, 27, 34, 236, 191, 164, 1, 108, 29, 215, 26, 230, 121, 33, 88, 221, 141, 205, 111, 254, 97, 29, 149, 32]);
     assert_eq!(vrq.serialize().unwrap().len(), 630);
 
     assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&Attr::CreatedOn(1599086034)));
