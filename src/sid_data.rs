@@ -66,7 +66,7 @@ impl SidData {
 
     pub fn dump(&self) {
         println!("==== SidData::dump()");
-        println!("  {:?}", self);
+        println!("{:?}", self);
         println!("====");
     }
 }

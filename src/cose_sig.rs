@@ -65,10 +65,10 @@ impl CoseSig {
 
     pub fn dump(&self) {
         println!("==== CoseSig::dump()");
-        println!("  signature_type: {:?}", self.signature_type);
-        println!("  signature: [len={}] {:?}", self.signature.len(), self.signature);
-        println!("  signer_cert: [len={}] {:?}", self.signer_cert.len(), self.signer_cert);
-        println!("  to_verify: [len={}] {:?}", self.to_verify.len(), self.to_verify);
+        println!("signature_type: {:?}", self.signature_type);
+        println!("signature: [len={}] {:?}", self.signature.len(), self.signature);
+        println!("signer_cert: [len={}] {:?}", self.signer_cert.len(), self.signer_cert);
+        println!("to_verify: [len={}] {:?}", self.to_verify.len(), self.to_verify);
         println!("====");
     }
 
