@@ -241,13 +241,14 @@ impl Voucher {
         }
     }
 
-    /// ...
+    /// Encodes the voucher into CBOR.  Returns a CBOR byte string.
+    ///
+    /// Before calling this function, the voucher must be already COSE-signed.
+    /// Otherwise, the function returns a `VoucherError::CoseFailure`.
     ///
     /// # Examples
     ///
-    /// ```
-    /// ;
-    /// ```
+    /// See [Encoding a `Voucher` into CBOR](index.html#2-encoding-a-voucher-into-cbor).
     pub fn serialize(&self) -> Result<Vec<u8>, VoucherError> {
         if self.get(ATTR_ASSERTION).is_none() {
             debug_println!("serialize(): `Attr::Assertion` is mandatory; but missing");
@@ -384,16 +385,14 @@ impl Voucher {
     }
 }
 
-/// ...
-///
-/// # Examples
-///
-/// ```
-/// ;
-/// ```
 impl TryFrom<&[u8]> for Voucher {
     type Error = VoucherError;
 
+    /// Decodes a COSE-signed CBOR-encoded voucher.  Returns a `Voucher`.
+    ///
+    /// # Examples
+    ///
+    /// See [Decoding a CBOR-encoded voucher into a `Voucher`](index.html#3-decoding-a-cbor-encoded-voucher-into-a-voucher).
     fn try_from(raw: &[u8]) -> Result<Self, Self::Error> {
         let (tag, cd) = CoseData::decode(raw).or_else(|ce| {
             debug_println!("Failed to decode raw voucher");
@@ -414,7 +413,6 @@ impl TryFrom<&[u8]> for Voucher {
             debug_println!("Failed to decode `content`");
             Err(VoucherError::CborFailure(ce))
         })?;
-        //debug_println!("sidhash: {:?}", sidhash);
 
         SidData::try_from(sidhash)
             .and_then(|sd| Ok(Self { sd, cd }))
