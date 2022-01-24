@@ -284,7 +284,7 @@ impl Voucher {
         self.cd.get_signer_cert()
     }
 
-    /// Adds a singer certificate to the voucher.
+    /// Adds a singer certificate to the voucher. Returns a `mut` reference to the voucher.
     ///
     /// # Examples
     ///

@@ -1,9 +1,7 @@
 use crate::{VoucherError, SignatureAlgorithm};
 use crate::debug_println;
 use super::utils::minerva_mbedtls_utils::*;
-
 use minerva_mbedtls::ifce::*;
-use core::ffi::c_void;
 
 impl crate::Validate for crate::Voucher {
     /// ...
@@ -11,12 +9,24 @@ impl crate::Validate for crate::Voucher {
     /// # Examples
     ///
     /// ```
-    /// ;
+    /// use minerva_voucher::{Voucher, attr::*, Validate};
+    /// use core::convert::TryFrom;
+    ///
+    /// static VCH_F2_00_02: &[u8] = core::include_bytes!(
+    ///     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/voucher_00-D0-E5-F2-00-02.vch"));
+    /// static MASA_CRT_F2_00_02: &[u8] = core::include_bytes!(
+    ///     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/masa.crt"));
+    ///
+    /// // This is required when the `Validate` trait is backed by mbedtls v3.
+    /// #[cfg(feature = "v3")]
+    /// minerva_voucher::init_psa_crypto();
+    ///
+    /// let vch = Voucher::try_from(VCH_F2_00_02).unwrap();
+    ///
+    /// assert!(vch.validate(Some(MASA_CRT_F2_00_02)).is_ok());
     /// ```
     fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, VoucherError> {
-        let f_rng = pk_context::test_f_rng_ptr(); // TODO refactor
-
-        match validate_with_mbedtls(pem, self.to_validate(), f_rng) {
+        match validate_with_mbedtls(pem, self.to_validate()) {
             Ok(true) => Ok(self),
             Ok(false) => Err(VoucherError::ValidationFailed),
             Err(err) => {
@@ -29,8 +39,7 @@ impl crate::Validate for crate::Voucher {
 
 fn validate_with_mbedtls(
     pem: Option<&[u8]>,
-    (signer_cert, sig_alg, msg): (Option<&[u8]>, Option<(&[u8], &SignatureAlgorithm)>, &[u8]),
-    f_rng: *const c_void
+    (signer_cert, sig_alg, msg): (Option<&[u8]>, Option<(&[u8], &SignatureAlgorithm)>, &[u8])
 ) -> Result<bool, mbedtls_error> {
     if sig_alg.is_none() { return Ok(false); }
     let (signature, alg) = sig_alg.unwrap();
@@ -44,6 +53,7 @@ fn validate_with_mbedtls(
     let (md_ty, ref hash) = compute_digest(msg, alg);
 
     if let Some(pem) = pem {
+        let f_rng = pk_context::test_f_rng_ptr(); // TODO refactor
         if let Ok(mut pk) = pk_from_privkey_pem(pem, f_rng) {
             return pk.verify(md_ty, hash, signature);
         }
