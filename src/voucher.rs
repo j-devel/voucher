@@ -33,22 +33,56 @@ enum VoucherType {
 
 
 impl Voucher {
-    // TODO doc
+    /// Creates a new, empty ["Voucher Request"](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-request-artifact) instance.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use minerva_voucher::Voucher;
+    ///
+    /// let mut vrq = Voucher::new_vrq();
+    /// ```
     pub fn new_vrq() -> Self {
         Self::new(VoucherType::Vrq)
     }
 
-    // TODO doc
+    /// Creates a new, empty ["Voucher"](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-artifact) instance.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use minerva_voucher::Voucher;
+    ///
+    /// let mut vch = Voucher::new_vch();
+    /// ```
     pub fn new_vch() -> Self {
         Self::new(VoucherType::Vch)
     }
 
-    // TODO doc
+    /// Returns `true` if the voucher is a ["Voucher Request"](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-request-artifact) instance.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use minerva_voucher::Voucher;
+    ///
+    /// let mut v = Voucher::new_vrq();
+    /// assert!(v.is_vrq());
+    /// ```
     pub fn is_vrq(&self) -> bool {
         self.sd.is_vrq()
     }
 
-    // TODO doc
+    /// Returns `true` if the voucher is a ["Voucher"](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-artifact) instance.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use minerva_voucher::Voucher;
+    ///
+    /// let mut v = Voucher::new_vch();
+    /// assert!(v.is_vch());
+    /// ```
     pub fn is_vch(&self) -> bool {
         !self.is_vrq()
     }

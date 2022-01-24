@@ -9,10 +9,8 @@
 //!
 //! ## 1. Using the `Voucher` struct
 //!
-//! The [`Voucher`] struct abstracts both
-//! ["Voucher Request"](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-request-artifact)
-//! and ["Voucher"](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-artifact)
-//! artifacts of Constrained BRSKI. Once a `Voucher` is instatiated, we can manage its attributes
+//! The [`Voucher`] struct abstracts both ["Voucher Request"] and ["Voucher"] artifacts of
+//! Constrained BRSKI. Once a `Voucher` is instatiated, we can manage its attributes
 //! using the dedicated API methods (`get()`, `set()`, `remove()`, etc.).
 //! These methods operate on the [`Attr`] enum (occasionally through
 //! its discriminant constants [`ATTR_*`](`attr`)) that represents the BRSKI voucher attributes.
@@ -167,6 +165,8 @@
 //!
 //!
 //! [Constrained BRSKI]: https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html
+//! ["Voucher Request"]: https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-request-artifact
+//! ["Voucher"]: https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-artifact
 #![no_std]
 
 #![feature(arbitrary_enum_discriminant)]
