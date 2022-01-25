@@ -1,5 +1,8 @@
 //! This crate implements a compact CBOR-encoded voucher defined by [Constrained BRSKI].
 //!
+//! <a href="https://github.com/AnimaGUS-minerva/voucher/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
+//! <a href="https://github.com/AnimaGUS-minerva/voucher"><img src="https://img.shields.io/github/languages/code-size/AnimaGUS-minerva/voucher" /></a>
+//!
 //! # Examples
 //!
 //! In this section, we first introduce the [`Voucher`] abstraction offered by this crate,
