@@ -62,19 +62,19 @@
 //! ```rust
 //! use minerva_voucher::{Voucher, attr::*, vrq, vch};
 //!
-//! let vrq = vrq![
+//! let v = vrq![
 //!     Attr::Assertion(Assertion::Proximity),
 //!     Attr::SerialNumber(b"00-11-22-33-44-55".to_vec())];
 //!
-//! assert!(vrq.is_vrq());
-//! assert_eq!(vrq.len(), 2);
+//! assert!(v.is_vrq());
+//! assert_eq!(v.len(), 2);
 //!
-//! let vch = vch![
+//! let v = vch![
 //!     Attr::Assertion(Assertion::Logged),
 //!     Attr::SerialNumber(b"00-11-22-33-44-55".to_vec())];
 //!
-//! assert!(vch.is_vch());
-//! assert_eq!(vch.len(), 2);
+//! assert!(v.is_vch());
+//! assert_eq!(v.len(), 2);
 //! ```
 //!
 //! ## 2. Encoding a `Voucher` into CBOR
@@ -249,12 +249,19 @@ use debug_println;
 
 //
 
-/// Creates a voucher request with a known list of attributes.
+/// Creates a ["Voucher Request"](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-request-artifact) instance with a known list of attributes.
 ///
 /// # Examples
 ///
 /// ```
-/// ;
+/// use minerva_voucher::{Voucher, attr::*, vrq};
+///
+/// let v = vrq![
+///     Attr::Assertion(Assertion::Proximity),
+///     Attr::SerialNumber(b"00-11-22-33-44-55".to_vec())];
+///
+/// assert!(v.is_vrq());
+/// assert_eq!(v.len(), 2);
 /// ```
 #[macro_export]
 macro_rules! vrq {
@@ -270,12 +277,19 @@ macro_rules! vrq {
     };
 }
 
-/// Creates a voucher with a known list of attributes.
+/// Creates a ["Voucher"](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-artifact) instance with a known list of attributes.
 ///
 /// # Examples
 ///
 /// ```
-/// ;
+/// use minerva_voucher::{Voucher, attr::*, vch};
+///
+/// let v = vch![
+///     Attr::Assertion(Assertion::Logged),
+///     Attr::SerialNumber(b"00-11-22-33-44-55".to_vec())];
+///
+/// assert!(v.is_vch());
+/// assert_eq!(v.len(), 2);
 /// ```
 #[macro_export]
 macro_rules! vch {

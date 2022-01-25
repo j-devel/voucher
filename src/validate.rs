@@ -9,7 +9,7 @@ impl crate::Validate for crate::Voucher {
     /// # Examples
     ///
     /// ```
-    /// use minerva_voucher::{Voucher, attr::*, Validate};
+    /// use minerva_voucher::{Voucher, Validate};
     /// use core::convert::TryFrom;
     ///
     /// static VCH_F2_00_02: &[u8] = core::include_bytes!(
