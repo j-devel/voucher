@@ -82,18 +82,32 @@
 <span id="77">77</span>
 <span id="78">78</span>
 <span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">VoucherError</span>, <span class="ident">SignatureAlgorithm</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug_println</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::utils::minerva_mbedtls_utils</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">minerva_mbedtls::ifce</span>::<span class="kw-2">*</span>;
 
 <span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::Validate</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::Voucher</span> {
-    <span class="doccomment">/// ...</span>
+    <span class="doccomment">/// Validates the voucher using a PEM-encoded certificate.</span>
+    <span class="doccomment">/// If the certificate `pem` is `None`, `signer_cert` attached to the voucher (see [`Voucher::set_signer_cert`](crate::Voucher::set_signer_cert)), if any, is used instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Returns a `&amp;Self` reference if the voucher is validated.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Errors</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the voucher is not validated, or the internal validation function fails, a `VoucherError::ValidationFailed` is returned.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use minerva_voucher::{Voucher, attr::*, Validate};</span>
+    <span class="doccomment">/// use minerva_voucher::{Voucher, Validate};</span>
     <span class="doccomment">/// use core::convert::TryFrom;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// static VCH_F2_00_02: &amp;[u8] = core::include_bytes!(</span>

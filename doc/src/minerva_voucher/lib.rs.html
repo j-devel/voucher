@@ -292,7 +292,27 @@
 <span id="287">287</span>
 <span id="288">288</span>
 <span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This crate implements a compact CBOR-encoded voucher defined by [Constrained BRSKI].</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &lt;a href=&quot;https://github.com/AnimaGUS-minerva/voucher/blob/master/LICENSE&quot;&gt;&lt;img src=&quot;https://img.shields.io/badge/license-MIT-blue.svg&quot; /&gt;&lt;/a&gt;</span>
+<span class="doccomment">//! &lt;a href=&quot;https://github.com/AnimaGUS-minerva/voucher&quot;&gt;&lt;img src=&quot;https://img.shields.io/github/languages/code-size/AnimaGUS-minerva/voucher&quot; /&gt;&lt;/a&gt;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! # Examples</span>
 <span class="doccomment">//!</span>
@@ -353,19 +373,19 @@
 <span class="doccomment">//! ```rust</span>
 <span class="doccomment">//! use minerva_voucher::{Voucher, attr::*, vrq, vch};</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! let vrq = vrq![</span>
+<span class="doccomment">//! let v = vrq![</span>
 <span class="doccomment">//!     Attr::Assertion(Assertion::Proximity),</span>
 <span class="doccomment">//!     Attr::SerialNumber(b&quot;00-11-22-33-44-55&quot;.to_vec())];</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! assert!(vrq.is_vrq());</span>
-<span class="doccomment">//! assert_eq!(vrq.len(), 2);</span>
+<span class="doccomment">//! assert!(v.is_vrq());</span>
+<span class="doccomment">//! assert_eq!(v.len(), 2);</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! let vch = vch![</span>
+<span class="doccomment">//! let v = vch![</span>
 <span class="doccomment">//!     Attr::Assertion(Assertion::Logged),</span>
 <span class="doccomment">//!     Attr::SerialNumber(b&quot;00-11-22-33-44-55&quot;.to_vec())];</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! assert!(vch.is_vch());</span>
-<span class="doccomment">//! assert_eq!(vch.len(), 2);</span>
+<span class="doccomment">//! assert!(v.is_vch());</span>
+<span class="doccomment">//! assert_eq!(v.len(), 2);</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## 2. Encoding a `Voucher` into CBOR</span>
@@ -540,12 +560,19 @@
 
 <span class="comment">//</span>
 
-<span class="doccomment">/// Creates a voucher request with a known list of attributes.</span>
+<span class="doccomment">/// Creates a [&quot;Voucher Request&quot;](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-request-artifact) instance with a known list of attributes.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// ;</span>
+<span class="doccomment">/// use minerva_voucher::{Voucher, attr::*, vrq};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let v = vrq![</span>
+<span class="doccomment">///     Attr::Assertion(Assertion::Proximity),</span>
+<span class="doccomment">///     Attr::SerialNumber(b&quot;00-11-22-33-44-55&quot;.to_vec())];</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// assert!(v.is_vrq());</span>
+<span class="doccomment">/// assert_eq!(v.len(), 2);</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">vrq</span> {
@@ -561,12 +588,19 @@
     };
 }
 
-<span class="doccomment">/// Creates a voucher with a known list of attributes.</span>
+<span class="doccomment">/// Creates a [&quot;Voucher&quot;](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-artifact) instance with a known list of attributes.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Examples</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
-<span class="doccomment">/// ;</span>
+<span class="doccomment">/// use minerva_voucher::{Voucher, attr::*, vch};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let v = vch![</span>
+<span class="doccomment">///     Attr::Assertion(Assertion::Logged),</span>
+<span class="doccomment">///     Attr::SerialNumber(b&quot;00-11-22-33-44-55&quot;.to_vec())];</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// assert!(v.is_vch());</span>
+<span class="doccomment">/// assert_eq!(v.len(), 2);</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">vch</span> {
