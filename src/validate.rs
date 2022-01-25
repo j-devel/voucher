@@ -4,7 +4,14 @@ use super::utils::minerva_mbedtls_utils::*;
 use minerva_mbedtls::ifce::*;
 
 impl crate::Validate for crate::Voucher {
-    /// ...
+    /// Validates the voucher using a PEM-encoded certificate.
+    /// If the certificate `pem` is `None`, `signer_cert` attached to the voucher (see [`Voucher::set_signer_cert`](crate::Voucher::set_signer_cert)), if any, is used instead.
+    ///
+    /// Returns a `&Self` reference if the voucher is validated.
+    ///
+    /// # Errors
+    ///
+    /// If the voucher is not validated, or the internal validation function fails, a `VoucherError::ValidationFailed` is returned.
     ///
     /// # Examples
     ///

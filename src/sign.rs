@@ -5,7 +5,14 @@ use super::utils::minerva_mbedtls_utils::*;
 use minerva_mbedtls::ifce::*;
 
 impl crate::Sign for crate::Voucher {
-    /// ...
+    /// Signs the voucher using a PEM-encoded private key
+    /// based on the signature algorithm `alg`.
+    ///
+    /// Returns a `&mut Self` reference if the voucher is signed.
+    ///
+    /// # Errors
+    ///
+    /// If the voucher is not signed, or the internal signing function fails, a `VoucherError::SigningFailed` is returned.
     ///
     /// # Examples
     ///
