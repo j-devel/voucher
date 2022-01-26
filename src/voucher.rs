@@ -352,13 +352,11 @@ impl Voucher {
         self
     }
 
-    /// Interfaces with meta data to be used in ECDSA based signing.
+    /// Interfaces with meta data used on signing the voucher.
     ///
     /// # Examples
     ///
-    /// ```
-    /// ;
-    /// ```
+    /// See [the default implementation of the `Sign` trait](../src/minerva_voucher/sign.rs.html).
     pub fn to_sign(&mut self, alg: SignatureAlgorithm) -> (&mut Vec<u8>, &[u8]) {
         self.cd.set_alg(alg);
 
@@ -369,13 +367,11 @@ impl Voucher {
         (&mut sig.signature, &sig.to_verify)
     }
 
-    /// Interfaces with meta data to be used in ECDSA based validation.
+    /// Interfaces with meta data used on validating the voucher.
     ///
     /// # Examples
     ///
-    /// ```
-    /// ;
-    /// ```
+    /// See [the default implementation of the `Validate` trait](../src/minerva_voucher/validate.rs.html).
     pub fn to_validate(&self) -> (Option<&[u8]>, Option<(&[u8], &SignatureAlgorithm)>, &[u8]) {
         (self.get_signer_cert(), self.get_signature(), &self.cd.sig().to_verify)
     }

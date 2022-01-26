@@ -1,10 +1,10 @@
 use crate::{vec, Vec};
-use crate::{VoucherError, SignatureAlgorithm};
+use crate::{Voucher, Sign, VoucherError, SignatureAlgorithm};
 use crate::debug_println;
 use super::utils::minerva_mbedtls_utils::*;
 use minerva_mbedtls::ifce::*;
 
-impl crate::Sign for crate::Voucher {
+impl Sign for Voucher {
     /// Signs the voucher using a PEM-encoded private key
     /// based on the signature algorithm `alg`.
     ///
