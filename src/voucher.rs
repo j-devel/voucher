@@ -246,7 +246,7 @@ impl Voucher {
             .filter_map(|sid| Some((sid.as_attr()?, sid.disc())))
     }
 
-    /// Returns a tuple containing references to the signature and its corresponding algorithm in the voucher, if any.
+    /// Returns a tuple of references to the signature and its corresponding algorithm in the voucher, if any.
     ///
     /// # Examples
     ///
@@ -352,7 +352,12 @@ impl Voucher {
         self
     }
 
-    /// Interfaces with meta data used on signing the voucher.
+    /// Interfaces with meta data required for signing the voucher.
+    /// This method needs to be used when implementing the [`Sign`](crate::Sign) trait.
+    ///
+    /// Returns a tuple of
+    /// - a `mut` reference to the `Vec<u8>` data where a new signature is being written, and
+    /// - a reference to [the CBOR-encoded `COSE_Sign1` structure](https://datatracker.ietf.org/doc/html/rfc8152#section-4.2) for which signing is performed.
     ///
     /// # Examples
     ///
@@ -367,7 +372,13 @@ impl Voucher {
         (&mut sig.signature, &sig.to_verify)
     }
 
-    /// Interfaces with meta data used on validating the voucher.
+    /// Interfaces with meta data required for validating the voucher.
+    /// This method needs to be used when implementing the [`Validate`](crate::Validate) trait.
+    ///
+    /// Returns a tuple of
+    /// - a reference to the signer certificate in the voucher, if any,
+    /// - a tuple of references to the signature and its corresponding algorithm in the voucher, if any, and
+    /// - a reference to [the CBOR-encoded `COSE_Sign1` structure](https://datatracker.ietf.org/doc/html/rfc8152#section-4.2) for which validation is performed.
     ///
     /// # Examples
     ///
