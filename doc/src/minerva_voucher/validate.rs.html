@@ -89,12 +89,12 @@
 <span id="84">84</span>
 <span id="85">85</span>
 <span id="86">86</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">VoucherError</span>, <span class="ident">SignatureAlgorithm</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Voucher</span>, <span class="ident">Validate</span>, <span class="ident">VoucherError</span>, <span class="ident">SignatureAlgorithm</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug_println</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::utils::minerva_mbedtls_utils</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">minerva_mbedtls::ifce</span>::<span class="kw-2">*</span>;
 
-<span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::Validate</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::Voucher</span> {
+<span class="kw">impl</span> <span class="ident">Validate</span> <span class="kw">for</span> <span class="ident">Voucher</span> {
     <span class="doccomment">/// Validates the voucher using a PEM-encoded certificate.</span>
     <span class="doccomment">/// If the certificate `pem` is `None`, `signer_cert` attached to the voucher (see [`Voucher::set_signer_cert`](crate::Voucher::set_signer_cert)), if any, is used instead.</span>
     <span class="doccomment">///</span>

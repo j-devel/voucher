@@ -67,12 +67,12 @@
 <span id="62">62</span>
 <span id="63">63</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">vec</span>, <span class="ident">Vec</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">VoucherError</span>, <span class="ident">SignatureAlgorithm</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Voucher</span>, <span class="ident">Sign</span>, <span class="ident">VoucherError</span>, <span class="ident">SignatureAlgorithm</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug_println</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::utils::minerva_mbedtls_utils</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">minerva_mbedtls::ifce</span>::<span class="kw-2">*</span>;
 
-<span class="kw">impl</span> <span class="ident"><span class="kw">crate</span>::Sign</span> <span class="kw">for</span> <span class="ident"><span class="kw">crate</span>::Voucher</span> {
+<span class="kw">impl</span> <span class="ident">Sign</span> <span class="kw">for</span> <span class="ident">Voucher</span> {
     <span class="doccomment">/// Signs the voucher using a PEM-encoded private key</span>
     <span class="doccomment">/// based on the signature algorithm `alg`.</span>
     <span class="doccomment">///</span>

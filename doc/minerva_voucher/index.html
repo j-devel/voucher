@@ -15,7 +15,7 @@ with the underlying COSE signing and validation operations also considered.</p>
 <h3 id="1-using-the-voucher-struct" class="section-header"><a href="#1-using-the-voucher-struct">1. Using the <code>Voucher</code> struct</a></h3>
 <p>The <a href="struct.Voucher.html" title="Voucher"><code>Voucher</code></a> struct abstracts both <a href="https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-request-artifact">“Voucher Request”</a> and <a href="https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-artifact">“Voucher”</a> artifacts of
 Constrained BRSKI. Once a <code>Voucher</code> is instatiated, we can manage its attributes
-using the dedicated API methods (<code>get()</code>, <code>set()</code>, <code>remove()</code>, etc.).
+using the dedicated API methods (<a href="struct.Voucher.html#method.get"><code>get</code></a>, <a href="struct.Voucher.html#method.set"><code>set</code></a>, <a href="struct.Voucher.html#method.remove"><code>remove</code></a>, etc.).
 These methods operate on the <a href="attr/enum.Attr.html" title="Attr"><code>Attr</code></a> enum (occasionally through
 its discriminant constants <a href="attr/index.html"><code>ATTR_*</code></a>) that represents the BRSKI voucher attributes.</p>
 <p>In this example, we demonstrate how to use the <code>Voucher</code> struct with a “voucher request” instance
