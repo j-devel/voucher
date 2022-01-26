@@ -79,9 +79,9 @@
 //!
 //! ## 2. Encoding a `Voucher` into CBOR
 //!
-//! To encode a [`Voucher`] into a compact CBOR-encoded voucher, use the `serialize()` method.
-//! Before calling `serialize()`, however, the `Voucher` must be already COSE-signed
-//! (e.g. using the `sign()` method provided by this crate).
+//! To encode a [`Voucher`] into a compact CBOR-encoded voucher, use [`Voucher::serialize`].
+//! Before serializing the voucher, however, it must be already COSE-signed
+//! (e.g. using the [`Voucher::sign`] method).
 //!
 //! In this example, we instantiate a new voucher request, populate it with some attributes,
 //! COSE-sign it, and finally encode it into a CBOR byte string.
@@ -115,10 +115,13 @@
 //!
 //! ## 3. Decoding a CBOR-encoded voucher into a `Voucher`
 //!
-//! To decode a COSE-signed CBOR-encoded voucher, use the `TryFrom` trait that is implemented
-//! for the [`Voucher`] struct.
+//! To decode a COSE-signed CBOR-encoded voucher, use the
+//! [`TryFrom<&u8>`](struct.Voucher.html#impl-TryFrom<%26%27_%20%5Bu8%5D>)
+//! trait implemented for the [`Voucher`] struct.
 //!
-//! In this example, we decode the `VCH_F2_00_02` constrained voucher sample into a `Voucher` instance,
+//! In this example, we decode a "voucher" sample in the
+//! [00-D0-E5-F2-00-02 constrained voucher directory](https://github.com/AnimaGUS-minerva/voucher/tree/master/data/00-D0-E5-F2-00-02)
+//! into a `Voucher` instance,
 //! COSE-validate it, and iterate through each attribute in the voucher.
 //!
 //! ```rust
