@@ -4,7 +4,7 @@
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../minerva_voucher/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></div>
         </a><h2 class="location"><a href="#">Crate minerva_voucher</a></h2><div class="sidebar-elems"><div class="block"><ul><li class="version">Version 0.5.23</li><li><a id="all-types" href="all.html">All Items</a></li></div></ul><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><div id="sidebar-vars" data-name="minerva_voucher" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../minerva_voucher/index.html"><img class="rust-logo" src="../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="main-heading">
-    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">minerva_voucher</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/minerva_voucher/lib.rs.html#1-306" title="goto source code">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This crate implements a compact CBOR-encoded voucher defined by <a href="https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html">Constrained BRSKI</a>.</p>
+    <h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">minerva_voucher</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span></h1><span class="out-of-band"><a class="srclink" href="../src/minerva_voucher/lib.rs.html#1-309" title="goto source code">source</a> · <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>This crate implements a compact CBOR-encoded voucher defined by <a href="https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html">Constrained BRSKI</a>.</p>
 <p><a href="https://github.com/AnimaGUS-minerva/voucher/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
 <a href="https://github.com/AnimaGUS-minerva/voucher"><img src="https://img.shields.io/github/languages/code-size/AnimaGUS-minerva/voucher" /></a></p>
 <h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2>
@@ -70,9 +70,9 @@ conveniently created as:</p>
 <span class="macro">assert!</span>(<span class="ident">v</span>.<span class="ident">is_vch</span>());
 <span class="macro">assert_eq!</span>(<span class="ident">v</span>.<span class="ident">len</span>(), <span class="number">2</span>);</code></pre></div>
 <h3 id="2-encoding-a-voucher-into-cbor" class="section-header"><a href="#2-encoding-a-voucher-into-cbor">2. Encoding a <code>Voucher</code> into CBOR</a></h3>
-<p>To encode a <a href="struct.Voucher.html" title="Voucher"><code>Voucher</code></a> into a compact CBOR-encoded voucher, use the <code>serialize()</code> method.
-Before calling <code>serialize()</code>, however, the <code>Voucher</code> must be already COSE-signed
-(e.g. using the <code>sign()</code> method provided by this crate).</p>
+<p>To encode a <a href="struct.Voucher.html" title="Voucher"><code>Voucher</code></a> into a compact CBOR-encoded voucher, use <a href="struct.Voucher.html#method.serialize" title="Voucher::serialize"><code>Voucher::serialize</code></a>.
+Before serializing the voucher, however, it must be already COSE-signed
+(e.g. using the <a href="struct.Voucher.html#method.sign" title="Voucher::sign"><code>Voucher::sign</code></a> method).</p>
 <p>In this example, we instantiate a new voucher request, populate it with some attributes,
 COSE-sign it, and finally encode it into a CBOR byte string.</p>
 
@@ -101,9 +101,12 @@ COSE-sign it, and finally encode it into a CBOR byte string.</p>
 
 <span class="macro">assert_eq!</span>(<span class="ident">cbor</span>.<span class="ident">len</span>(), <span class="number">630</span>);</code></pre></div>
 <h3 id="3-decoding-a-cbor-encoded-voucher-into-a-voucher" class="section-header"><a href="#3-decoding-a-cbor-encoded-voucher-into-a-voucher">3. Decoding a CBOR-encoded voucher into a <code>Voucher</code></a></h3>
-<p>To decode a COSE-signed CBOR-encoded voucher, use the <code>TryFrom</code> trait that is implemented
-for the <a href="struct.Voucher.html" title="Voucher"><code>Voucher</code></a> struct.</p>
-<p>In this example, we decode the <code>VCH_F2_00_02</code> constrained voucher sample into a <code>Voucher</code> instance,
+<p>To decode a COSE-signed CBOR-encoded voucher, use the
+<a href="struct.Voucher.html#impl-TryFrom%3C%26%27_%20%5Bu8%5D%3E"><code>TryFrom&lt;&amp;u8&gt;</code></a>
+trait implemented for the <a href="struct.Voucher.html" title="Voucher"><code>Voucher</code></a> struct.</p>
+<p>In this example, we decode a “voucher” sample in the
+<a href="https://github.com/AnimaGUS-minerva/voucher/tree/master/data/00-D0-E5-F2-00-02">00-D0-E5-F2-00-02 constrained voucher directory</a>
+into a <code>Voucher</code> instance,
 COSE-validate it, and iterate through each attribute in the voucher.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">minerva_voucher</span>::{<span class="ident">Voucher</span>, <span class="ident">attr</span>::<span class="kw-2">*</span>, <span class="ident">Validate</span>};
