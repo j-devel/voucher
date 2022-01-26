@@ -14,7 +14,7 @@
 //!
 //! The [`Voucher`] struct abstracts both ["Voucher Request"] and ["Voucher"] artifacts of
 //! Constrained BRSKI. Once a `Voucher` is instatiated, we can manage its attributes
-//! using the dedicated API methods (`get()`, `set()`, `remove()`, etc.).
+//! using the dedicated API methods ([`get`](Voucher::get), [`set`](Voucher::set), [`remove`](Voucher::remove), etc.).
 //! These methods operate on the [`Attr`] enum (occasionally through
 //! its discriminant constants [`ATTR_*`](`attr`)) that represents the BRSKI voucher attributes.
 //!
