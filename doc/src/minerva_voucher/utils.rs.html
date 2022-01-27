@@ -46,6 +46,8 @@
 <span id="41">41</span>
 <span id="42">42</span>
 <span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Vec</span>, <span class="ident">SignatureAlgorithm</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sign&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sign-lts&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;validate-lts&quot;</span>))]</span>
@@ -54,6 +56,8 @@
     <span class="kw">use</span> <span class="ident">minerva_mbedtls::ifce</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="ident">core::ffi::c_void</span>;
 
+    <span class="doccomment">/// Initializes the [PSA cryptography API](https://armmbed.github.io/mbed-crypto/html/)</span>
+    <span class="doccomment">/// context.  Call this function when using the `Sign`/`Validate` trait backed by mbedtls v3.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;v3&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">init_psa_crypto</span>() {
         <span class="kw">use</span> <span class="ident">minerva_mbedtls::psa_crypto</span>;

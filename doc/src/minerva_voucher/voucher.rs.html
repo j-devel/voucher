@@ -471,6 +471,13 @@
 <span id="466">466</span>
 <span id="467">467</span>
 <span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">println</span>, <span class="ident">Vec</span>, <span class="ident">debug_println</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::attr</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::sid</span>::{<span class="self">self</span>, <span class="ident">Sid</span>, <span class="ident">SidDisc</span>};
@@ -480,6 +487,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::cose_data::SignatureAlgorithm</span>;
 <span class="kw">use</span> <span class="ident">core::convert::TryFrom</span>;
 
+<span class="doccomment">/// Errors that can be returned from `Voucher` functions.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">VoucherError</span> {
     <span class="ident">CborFailure</span>(<span class="ident">CborError</span>),
@@ -492,6 +500,12 @@
     <span class="ident">ValidationFailed</span>,
 }
 
+<span class="doccomment">/// A structure implementing both</span>
+<span class="doccomment">/// [&quot;Voucher Request&quot;](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-request-artifact)</span>
+<span class="doccomment">/// and</span>
+<span class="doccomment">/// [&quot;Voucher&quot;](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-artifact)</span>
+<span class="doccomment">/// artifacts of</span>
+<span class="doccomment">/// [Constrained BRSKI](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html).</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Voucher</span> {
     <span class="ident">sd</span>: <span class="ident">SidData</span>,
