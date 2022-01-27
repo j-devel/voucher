@@ -1,9 +1,11 @@
+//! Enums and constants for voucher attributes.
 use crate::Vec;
 use super::sid::{self, SidDisc};
 use super::yang::Yang;
 
-
+/// The voucher attribute enum discriminant type.
 pub type AttrDisc = u8;
+
 pub const ATTR_ASSERTION: AttrDisc =                         0x00;
 pub const ATTR_CREATED_ON: AttrDisc =                        0x01;
 pub const ATTR_DOMAIN_CERT_REVOCATION_CHECKS: AttrDisc =     0x02;
@@ -20,6 +22,7 @@ pub const ATTR_PROXIMITY_REGISTRAR_PUBK: AttrDisc =          0x42; // vrq only
 pub const ATTR_PROXIMITY_REGISTRAR_PUBK_SHA256: AttrDisc =   0x43; // vrq only
 pub const ATTR_SERIAL_NUMBER: AttrDisc =                     0x08;
 
+/// An enum identifying values of the "assertion" field defined in [RFC8995](https://datatracker.ietf.org/doc/html/rfc8995).
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum Assertion {
     Verified,
@@ -37,6 +40,7 @@ impl Assertion {
     }
 }
 
+/// An enum identifying voucher attributes.
 #[repr(u8)]
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Attr {

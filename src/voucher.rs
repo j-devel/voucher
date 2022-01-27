@@ -7,6 +7,7 @@ use super::cose_data::{CoseError, CborError, CoseData, COSE_SIGN_ONE_TAG};
 pub use super::cose_data::SignatureAlgorithm;
 use core::convert::TryFrom;
 
+/// Errors that can be returned from `Voucher` functions.
 #[derive(PartialEq, Debug)]
 pub enum VoucherError {
     CborFailure(CborError),
@@ -19,6 +20,12 @@ pub enum VoucherError {
     ValidationFailed,
 }
 
+/// A structure implementing both
+/// ["Voucher Request"](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-request-artifact)
+/// and
+/// ["Voucher"](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html#name-voucher-artifact)
+/// artifacts of
+/// [Constrained BRSKI](https://www.ietf.org/archive/id/draft-ietf-anima-constrained-voucher-15.html).
 #[derive(PartialEq, Debug)]
 pub struct Voucher {
     sd: SidData,

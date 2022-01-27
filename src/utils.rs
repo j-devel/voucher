@@ -6,6 +6,8 @@ pub mod minerva_mbedtls_utils {
     use minerva_mbedtls::ifce::*;
     use core::ffi::c_void;
 
+    /// Initializes the [PSA cryptography API](https://armmbed.github.io/mbed-crypto/html/)
+    /// context.  Call this function when using the `Sign`/`Validate` trait backed by mbedtls v3.
     #[cfg(feature = "v3")]
     pub fn init_psa_crypto() {
         use minerva_mbedtls::psa_crypto;

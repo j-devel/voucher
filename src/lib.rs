@@ -224,10 +224,12 @@ pub use voucher::{Voucher, VoucherError, SignatureAlgorithm};
 
 //
 
+/// Used to COSE-sign a `Voucher`.
 pub trait Sign {
     fn sign(&mut self, privkey_pem: &[u8], alg: SignatureAlgorithm) -> Result<&mut Self, VoucherError>;
 }
 
+/// Used to COSE-validate a `Voucher`.
 pub trait Validate {
     fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, VoucherError>;
 }
