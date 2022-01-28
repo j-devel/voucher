@@ -478,6 +478,13 @@
 <span id="473">473</span>
 <span id="474">474</span>
 <span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">println</span>, <span class="ident">Vec</span>, <span class="ident">debug_println</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::attr</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::sid</span>::{<span class="self">self</span>, <span class="ident">Sid</span>, <span class="ident">SidDisc</span>};
@@ -610,6 +617,10 @@
 
     <span class="doccomment">/// Adds an attribute to the voucher, replacing the existing attribute, if any, that corresponds to the given one. Returns a `mut` reference to the voucher.</span>
     <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Panics if an invalid voucher attribute is being set.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Examples</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
@@ -623,6 +634,9 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// vrq.set(Attr::CreatedOn(1599086034));</span>
     <span class="doccomment">/// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&amp;Attr::CreatedOn(1599086034)));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// // Panics because `Attr::PinnedDomainPubk` is invalid for a &quot;voucher request&quot;.</span>
+    <span class="doccomment">/// // vrq.set(Attr::PinnedDomainPubk(vec![]));</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">attr</span>: <span class="ident">Attr</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">sdisc</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_sid_disc</span>(<span class="ident">attr</span>.<span class="ident">disc</span>())
