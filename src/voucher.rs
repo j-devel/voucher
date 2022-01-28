@@ -130,6 +130,10 @@ impl Voucher {
 
     /// Adds an attribute to the voucher, replacing the existing attribute, if any, that corresponds to the given one. Returns a `mut` reference to the voucher.
     ///
+    /// # Panics
+    ///
+    /// Panics if an invalid voucher attribute is being set.
+    ///
     /// # Examples
     ///
     /// ```
@@ -143,6 +147,9 @@ impl Voucher {
     ///
     /// vrq.set(Attr::CreatedOn(1599086034));
     /// assert_eq!(vrq.get(ATTR_CREATED_ON), Some(&Attr::CreatedOn(1599086034)));
+    ///
+    /// // Panics because `Attr::PinnedDomainPubk` is invalid for a "voucher request".
+    /// // vrq.set(Attr::PinnedDomainPubk(vec![]));
     /// ```
     pub fn set(&mut self, attr: Attr) -> &mut Self {
         let sdisc = self.to_sid_disc(attr.disc())

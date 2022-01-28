@@ -384,7 +384,7 @@ fn test_highlevel_interface() {
 
 #[test]
 #[cfg(feature = "std")]
-fn test_highlevel_attr_integrity() {
+fn test_invalid_attribute_cases() {
     assert!(std::panic::catch_unwind(|| {
         Voucher::new_vrq().set(Attr::PinnedDomainPubk(vec![]));
     }).is_err());
