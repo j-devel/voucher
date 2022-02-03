@@ -208,6 +208,9 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">vec</span>, <span class="ident">Vec</span>, <span class="ident">BTreeMap</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug_println</span>;
 
@@ -254,13 +257,7 @@
         <span class="self">Self</span> {
             <span class="ident">protected_bucket</span>: <span class="ident">BTreeMap::new</span>(),
             <span class="ident">unprotected_bucket</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">inner</span>: <span class="ident">CoseDataInner::CoseSignOne</span>(<span class="ident">CoseSig::new</span>(<span class="ident">CoseSignature</span> {
-                <span class="ident">signature_type</span>: <span class="ident">SignatureAlgorithm::ES256</span>, <span class="comment">// default</span>
-                <span class="ident">signature</span>: <span class="macro">vec!</span>[],
-                <span class="ident">signer_cert</span>: <span class="macro">vec!</span>[],
-                <span class="ident">certs</span>: <span class="macro">vec!</span>[],
-                <span class="ident">to_verify</span>: <span class="macro">vec!</span>[],
-            })),
+            <span class="ident">inner</span>: <span class="ident">CoseDataInner::CoseSignOne</span>(<span class="ident">CoseSig::new_default</span>()),
         }
     }
 
@@ -291,8 +288,10 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">CoseError</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">sig</span>().<span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_bucket</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unprotected_bucket</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">content</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">CoseError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">content</span> { <span class="ident">x</span> } <span class="kw">else</span> { <span class="self">self</span>.<span class="ident">get_content</span>()<span class="question-mark">?</span> };
+
+        <span class="self">self</span>.<span class="ident">sig</span>().<span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_bucket</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unprotected_bucket</span>, <span class="ident">content</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dump</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
@@ -308,10 +307,17 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_content</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">content</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) {
         <span class="kw">match</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="ident">CoseDataInner::CoseSignOne</span>(<span class="ident">sig</span>) =&gt;
-                <span class="ident">sig</span>.<span class="ident">set_content</span>(<span class="ident">content</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_bucket</span>),
+            <span class="ident">CoseDataInner::CoseSignOne</span>(<span class="ident">sig</span>) =&gt; {
+                <span class="ident">sig</span>.<span class="ident">set_content</span>(<span class="ident">content</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_bucket</span>);
+            },
             <span class="ident">CoseDataInner::CoseSign</span>(<span class="kw">_</span>) =&gt; <span class="macro">unimplemented!</span>(),
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_content</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sid_data_serialized</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>, <span class="ident">CoseError</span><span class="op">&gt;</span> {
+        <span class="ident">CoseSig::new_default</span>()
+            .<span class="ident">set_content</span>(<span class="ident">sid_data_serialized</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_bucket</span>)
+            .<span class="ident">extract_content</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_signer_cert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> {

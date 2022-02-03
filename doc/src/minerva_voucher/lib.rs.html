@@ -312,8 +312,6 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
 </pre><pre class="rust"><code><span class="doccomment">//! This crate implements a compact CBOR-encoded voucher defined by [Constrained BRSKI].</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! &lt;a href=&quot;https://github.com/AnimaGUS-minerva/voucher/blob/master/LICENSE&quot;&gt;&lt;img src=&quot;https://img.shields.io/badge/license-MIT-blue.svg&quot; /&gt;&lt;/a&gt;</span>
@@ -396,8 +394,6 @@
 <span class="doccomment">//! ## 2. Encoding a `Voucher` into CBOR</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! To encode a [`Voucher`] into a compact CBOR-encoded voucher, use [`Voucher::serialize`].</span>
-<span class="doccomment">//! Before serializing the voucher, however, it must be already COSE-signed</span>
-<span class="doccomment">//! (e.g. using the [`Voucher::sign`] method).</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! In this example, we instantiate a new voucher request, populate it with some attributes,</span>
 <span class="doccomment">//! COSE-sign it, and finally encode it into a CBOR byte string.</span>
