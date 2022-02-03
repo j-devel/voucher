@@ -50,14 +50,25 @@ impl CoseSig {
         CoseSig(inner)
     }
 
+    pub fn new_default() -> Self {
+        CoseSig(CoseSignature {
+            signature_type: SignatureAlgorithm::ES256,
+            signature: vec![],
+            signer_cert: vec![],
+            certs: vec![],
+            to_verify: vec![],
+        })
+    }
+
     pub fn encode(&self,
         protected_bucket: &BTreeMap<CborType, CborType>,
-        unprotected_bucket: &BTreeMap<CborType, CborType>
+        unprotected_bucket: &BTreeMap<CborType, CborType>,
+        content: Vec<u8>
     ) -> Result<Vec<u8>, CoseError> {
         let array = vec![
             CborType::Bytes(CborType::Map(protected_bucket.clone()).serialize()),
             CborType::Map(unprotected_bucket.clone()),
-            CborType::Bytes(self.extract_content()?),
+            CborType::Bytes(content),
             CborType::Bytes(self.signature.clone())];
 
         Ok(CborType::Tag(COSE_SIGN_ONE_TAG, Box::new(CborType::Array(array))).serialize())
@@ -88,7 +99,9 @@ impl CoseSig {
         }
     }
 
-    pub fn set_content(&mut self, content: &[u8], protected_bucket: &BTreeMap<CborType, CborType>) {
+    pub fn set_content(&mut self, content: &[u8], protected_bucket: &BTreeMap<CborType, CborType>) -> &mut Self {
         self.to_verify = sig_one_struct_bytes_from(protected_bucket, content);
+
+        self
     }
 }

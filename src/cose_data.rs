@@ -44,13 +44,7 @@ impl CoseData {
         Self {
             protected_bucket: BTreeMap::new(),
             unprotected_bucket: BTreeMap::new(),
-            inner: CoseDataInner::CoseSignOne(CoseSig::new(CoseSignature {
-                signature_type: SignatureAlgorithm::ES256, // default
-                signature: vec![],
-                signer_cert: vec![],
-                certs: vec![],
-                to_verify: vec![],
-            })),
+            inner: CoseDataInner::CoseSignOne(CoseSig::new_default()),
         }
     }
 
@@ -81,8 +75,10 @@ impl CoseData {
         }
     }
 
-    pub fn encode(&self) -> Result<Vec<u8>, CoseError> {
-        self.sig().encode(&self.protected_bucket, &self.unprotected_bucket)
+    pub fn encode(&self, content: Option<Vec<u8>>) -> Result<Vec<u8>, CoseError> {
+        let content = if let Some(x) = content { x } else { self.get_content()? };
+
+        self.sig().encode(&self.protected_bucket, &self.unprotected_bucket, content)
     }
 
     pub fn dump(&self) {
@@ -98,10 +94,17 @@ impl CoseData {
 
     pub fn set_content(&mut self, content: &[u8]) {
         match &mut self.inner {
-            CoseDataInner::CoseSignOne(sig) =>
-                sig.set_content(content, &self.protected_bucket),
+            CoseDataInner::CoseSignOne(sig) => {
+                sig.set_content(content, &self.protected_bucket);
+            },
             CoseDataInner::CoseSign(_) => unimplemented!(),
         }
+    }
+
+    pub fn generate_content(&self, sid_data_serialized: &[u8]) -> Result<Vec<u8>, CoseError> {
+        CoseSig::new_default()
+            .set_content(sid_data_serialized, &self.protected_bucket)
+            .extract_content()
     }
 
     pub fn get_signer_cert(&self) -> Option<&[u8]> {
