@@ -311,11 +311,13 @@ impl Voucher {
             return Err(VoucherError::MissingAttributes);
         }
 
-        CoseData::encode(&self.cd).or_else(|ce| {
-            debug_println!("serialize(): `CoseData::encode()` failed.  (Maybe, voucher not signed yet?)");
+        let content = self.cd.get_content().ok().or_else(|| {
+            use sid::Cbor;
+            self.cd.generate_content(&self.sd.serialize().unwrap()).ok()
+        });
 
-            Err(VoucherError::CoseFailure(ce))
-        })
+        self.cd.encode(content)
+            .or_else(|ce| Err(VoucherError::CoseFailure(ce)))
     }
 
     /// Returns a reference to the signer certificate in the voucher, if any.

@@ -161,16 +161,16 @@ fn test_synthesize_vch_jada() {
         .set(Attr::PinnedDomainPubk(vec![77, 70, 107, 119, 69, 119, 89, 72, 75, 111, 90, 73, 122, 106, 48, 67, 65, 81, 89, 73, 75, 111, 90, 73, 122, 106, 48, 68, 65, 81, 99, 68, 81, 103, 65, 69, 108, 109, 86, 81, 99, 106, 83, 54, 110, 43, 88, 100, 53, 108, 47, 50, 56, 73, 70, 118, 54, 85, 105, 101, 103, 81, 119, 83, 66, 122, 116, 71, 106, 53, 100, 107, 75, 50, 77, 65, 106, 81, 73, 80, 86, 56, 108, 56, 108, 72, 43, 69, 106, 76, 73, 79, 89, 100, 98, 74, 105, 73, 48, 86, 116, 69, 73, 102, 49, 47, 74, 113, 116, 43, 84, 79, 66, 102, 105, 110, 84, 78, 79, 76, 79, 103, 61, 61]))
         .set(Attr::SerialNumber(b"JADA123456789".to_vec()));
 
-    // Serializing an unsigned voucher is expected to fail.
-    assert!(vch_jada_synth.serialize().is_err());
+    assert_eq!(vch_jada_synth.serialize().unwrap().len(), 191);
 
     //
 
     let cbor = vch_jada_synth
         .sign(key_pem_dummy, SignatureAlgorithm::ES256).unwrap()
         .serialize().unwrap();
-    assert!(vch_jada_synth.get_signer_cert().is_none());
     assert_eq!(cbor.len(), 264); // sig asn1; wo/ singer_cert
+    assert_eq!(vch_jada_synth.get_signature().unwrap().0.len(), 70);
+    assert!(vch_jada_synth.get_signer_cert().is_none());
 
     //
 
@@ -374,12 +374,12 @@ fn test_highlevel_interface() {
     let mut vrq = vrq![
         Attr::Assertion(Assertion::Proximity),
         Attr::SerialNumber(b"00-11-22-33-44-55".to_vec())];
-    assert_eq!(vrq.serialize(), // serializing unsigned vouchers should fail
-               Err(VoucherError::CoseFailure(debug::CoseError::DecodingFailure)));
+    assert_eq!(vrq.serialize().unwrap().len(), 43);
 
     let vrq = &mut vrq;
-    assert!(vrq.sign(KEY_PEM_F2_00_02, SignatureAlgorithm::ES256).unwrap()
-        .serialize().is_ok());
+    assert_eq!(vrq.sign(KEY_PEM_F2_00_02, SignatureAlgorithm::ES256).unwrap()
+        .serialize().unwrap().len(), 117);
+    assert_eq!(vrq.get_signature().unwrap().0.len(), 71);
 }
 
 #[test]
