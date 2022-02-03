@@ -1,6 +1,6 @@
 [package]
 name = "minerva-voucher"
-version = "0.6.0"
+version = "0.6.1"
 description = "Library to use BRSKI (https://datatracker.ietf.org/doc/html/rfc8995) Voucher in Rust"
 edition = "2018"
 authors = ["ANIMA Minerva toolkit"]

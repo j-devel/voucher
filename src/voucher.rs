@@ -289,13 +289,11 @@ impl Voucher {
         }
     }
 
-    /// Encodes the voucher into CBOR.
-    /// Before calling this function, the voucher must be already COSE-signed.
-    /// Returns a CBOR byte string.
+    /// Encodes the voucher into CBOR. Returns a CBOR byte string.
     ///
     /// # Errors
     ///
-    /// If the voucher is missing any mandatory attributes, or not COSE-signed, then an error is returned.
+    /// If the voucher is missing any mandatory attributes, then an error is returned.
     ///
     /// # Examples
     ///
@@ -448,7 +446,7 @@ impl Voucher {
 impl TryFrom<&[u8]> for Voucher {
     type Error = VoucherError;
 
-    /// Decodes a COSE-signed CBOR-encoded voucher.  Returns a `Voucher`.
+    /// Decodes a CBOR-encoded voucher.  Returns a `Voucher`.
     ///
     /// # Errors
     ///

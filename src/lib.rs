@@ -80,8 +80,6 @@
 //! ## 2. Encoding a `Voucher` into CBOR
 //!
 //! To encode a [`Voucher`] into a compact CBOR-encoded voucher, use [`Voucher::serialize`].
-//! Before serializing the voucher, however, it must be already COSE-signed
-//! (e.g. using the [`Voucher::sign`] method).
 //!
 //! In this example, we instantiate a new voucher request, populate it with some attributes,
 //! COSE-sign it, and finally encode it into a CBOR byte string.
