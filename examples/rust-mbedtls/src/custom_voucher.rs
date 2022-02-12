@@ -30,6 +30,9 @@ impl TryFrom<&[u8]> for CustomVoucher {
 //
 
 type CustomError = mbedtls::Error;
+const ERROR_SIGNING_FAILED: i32 = -1;
+const ERROR_ASN1_FAILED: i32 = -2;
+
 use mbedtls::pk::{EcGroup, EcGroupId, Pk, ECDSA_MAX_LEN};
 use mbedtls::ecp::EcPoint;
 use mbedtls::x509::certificate::Certificate;
@@ -56,7 +59,7 @@ fn sign_with_rust_mbedtls(
 ) -> Result<(), CustomError> {
 
     //====
-    Err(CustomError::Other(1))
+    Err(CustomError::Other(ERROR_SIGNING_FAILED))
     //==== WIP
     // ...
     //Ok(())
@@ -84,7 +87,7 @@ fn validate_with_rust_mbedtls(
     let ref signature = if utils::is_asn1_signature(signature) {
         signature.to_vec()
     } else {
-        utils::asn1_signature_from(signature).or(Err(CustomError::Other(2)))?
+        utils::asn1_signature_from(signature).or(Err(CustomError::Other(ERROR_ASN1_FAILED)))?
     };
 
     let (ref hash, md_ty) = compute_digest(msg, alg)?;
