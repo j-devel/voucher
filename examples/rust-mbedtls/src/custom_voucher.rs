@@ -1,5 +1,3 @@
-#![allow(unused_imports, unused_variables)] // WIP: `impl Sign for CustomVoucher`
-
 use minerva_voucher::Voucher;
 pub use minerva_voucher::{VoucherError, Sign, Validate, SignatureAlgorithm, attr::*};
 use super::utils;
@@ -36,15 +34,13 @@ impl CustomVoucher {
 //
 
 type CustomError = mbedtls::Error;
-const ERROR_SIGNING_FAILED: i32 = -1;
-const ERROR_ASN1_FAILED: i32 = -2;
+const ERROR_ASN1_FAILED: i32 = -1;
 
 use mbedtls::pk::{EcGroup, EcGroupId, Pk, ECDSA_MAX_LEN};
 use mbedtls::ecp::EcPoint;
 use mbedtls::x509::certificate::Certificate;
 use mbedtls::hash as mbedtls_hash;
-
-use mcu_if::null_terminate_bytes; // !!!! to clean up
+use super::support_rand::test_rng;
 
 //
 
@@ -63,11 +59,15 @@ fn sign_with_rust_mbedtls(
     alg: SignatureAlgorithm,
     (sig_out, sig_struct): (&mut Vec<u8>, &[u8])
 ) -> Result<(), CustomError> {
+    let (ref hash, md_ty) = compute_digest(sig_struct, &alg)?;
+    let mut sig = vec![0u8; ECDSA_MAX_LEN];
+    let sig_len = Pk::from_private_key(&utils::null_terminate_bytes!(privkey_pem), None)?
+        .sign_deterministic(md_ty, &hash, &mut sig, &mut test_rng())?;
+    sig.truncate(sig_len);
 
-    //====
-    //Err(CustomError::Other(ERROR_SIGNING_FAILED))
-    //==== WIP
-    // ...
+    println!("sign_with_rust_mbedtls(): sig: {:?}", sig);
+    *sig_out = sig;
+
     Ok(())
 }
 
@@ -99,7 +99,7 @@ fn validate_with_rust_mbedtls(
     let (ref hash, md_ty) = compute_digest(msg, alg)?;
 
     if let Some(pem) = pem {
-        let pem = &null_terminate_bytes!(pem);
+        let pem = &utils::null_terminate_bytes!(pem);
 
         if let Ok(mut pk) = Pk::from_private_key(pem, None) {
             return pk.verify(md_ty, hash, signature).and(Ok(true));
