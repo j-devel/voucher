@@ -38,9 +38,13 @@ test-std-lts:
 test-i686:
 	cargo +nightly-i686-unknown-linux-gnu test --target i686-unknown-linux-gnu \
 		--no-default-features --features "sign-lts validate-lts"
+test-example-rust-mbedtls:
+	make -C examples/rust-mbedtls test
+
 test:
 	make test-nostd
 	make test-nostd-lts
 	make test-std
 	make test-std-lts
 	if [ "$$TARGET" = "ci" ]; then make test-i686; fi
+	make test-example-rust-mbedtls
