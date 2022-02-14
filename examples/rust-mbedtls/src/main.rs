@@ -1,4 +1,5 @@
 mod custom_voucher;
+mod support_rand;
 mod utils;
 
 use custom_voucher::{CustomVoucher as Voucher, *};

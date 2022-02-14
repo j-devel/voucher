@@ -6,5 +6,5 @@ authors = ["ANIMA Minerva toolkit"]
 
 [dependencies]
 minerva-voucher = { path = "../..", default-features = false, features = ["std"] }
-mcu-if = { git = "https://github.com/AnimaGUS-minerva/mcu-if", rev = "6543b39" }
 mbedtls = "0.8.1"
+rand = "0.4"

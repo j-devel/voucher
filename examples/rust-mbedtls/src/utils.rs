@@ -1,3 +1,14 @@
+#[macro_export]
+macro_rules! null_terminate_bytes {
+    ($bytes:expr) => ({
+        let mut v = ($bytes).to_vec();
+        v.push(0x00);
+        v
+    });
+}
+
+pub use null_terminate_bytes;
+
 use std::io::{self, Cursor, Write};
 
 pub fn asn1_signature_from(sig: &[u8]) -> io::Result<Vec<u8>> {
