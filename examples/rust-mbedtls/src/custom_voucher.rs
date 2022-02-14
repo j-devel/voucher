@@ -1,7 +1,7 @@
 #![allow(unused_imports, unused_variables)] // WIP: `impl Sign for CustomVoucher`
 
 use minerva_voucher::Voucher;
-pub use minerva_voucher::{VoucherError, Sign, Validate, SignatureAlgorithm};
+pub use minerva_voucher::{VoucherError, Sign, Validate, SignatureAlgorithm, attr::*};
 use super::utils;
 use std::convert::TryFrom;
 
@@ -11,7 +11,6 @@ pub struct CustomVoucher(Voucher);
 
 impl core::ops::Deref for CustomVoucher {
     type Target = Voucher;
-
     fn deref(&self) -> &Self::Target { &self.0 }
 }
 
@@ -21,9 +20,16 @@ impl core::ops::DerefMut for CustomVoucher {
 
 impl TryFrom<&[u8]> for CustomVoucher {
     type Error = VoucherError;
-
     fn try_from(raw: &[u8]) -> Result<Self, Self::Error> {
         Ok(Self(Voucher::try_from(raw)?))
+    }
+}
+
+impl CustomVoucher {
+    pub fn new_vrq() -> Self { Self(Voucher::new_vrq()) }
+    pub fn set(&mut self, attr: Attr) -> &mut Self {
+        self.0.set(attr);
+        self
     }
 }
 
@@ -38,7 +44,7 @@ use mbedtls::ecp::EcPoint;
 use mbedtls::x509::certificate::Certificate;
 use mbedtls::hash as mbedtls_hash;
 
-use mcu_if::null_terminate_bytes;
+use mcu_if::null_terminate_bytes; // !!!! to clean up
 
 //
 
@@ -59,10 +65,10 @@ fn sign_with_rust_mbedtls(
 ) -> Result<(), CustomError> {
 
     //====
-    Err(CustomError::Other(ERROR_SIGNING_FAILED))
+    //Err(CustomError::Other(ERROR_SIGNING_FAILED))
     //==== WIP
     // ...
-    //Ok(())
+    Ok(())
 }
 
 //
