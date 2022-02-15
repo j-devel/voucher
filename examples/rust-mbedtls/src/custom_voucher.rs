@@ -65,7 +65,6 @@ fn sign_with_rust_mbedtls(
         .sign_deterministic(md_ty, &hash, &mut sig, &mut test_rng())?;
     sig.truncate(sig_len);
 
-    println!("sign_with_rust_mbedtls(): sig: {:?}", sig);
     *sig_out = sig;
 
     Ok(())
@@ -139,7 +138,7 @@ fn compute_digest(msg: &[u8], alg: &SignatureAlgorithm) -> Result<(Vec<u8>, mbed
         SignatureAlgorithm::PS256 => unimplemented!("handle PS256"),
     };
 
-    let mut digest = vec![0; digest_len];
+    let mut digest = vec![0u8; digest_len];
     mbedtls_hash::Md::hash(md_type, msg, &mut digest)?;
 
     Ok((digest, md_type))

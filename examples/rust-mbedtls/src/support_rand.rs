@@ -8,22 +8,16 @@
  * option. This file may not be copied, modified, or distributed except
  * according to those terms. */
 
-//====
-// use mbedtls_sys::types::raw_types::{c_int, c_uchar, c_void};
-// use mbedtls_sys::types::size_t;
-//==== @@ c.f. `head minerva-mbedtls/src/sys.rs`
 use std::os::raw::*;
 
 #[allow(non_camel_case_types)]
 type size_t = usize;
-//====
 
 use rand::{Rng, XorShiftRng};
 
 /// Not cryptographically secure!!! Use for testing only!!!
 pub struct TestRandom(XorShiftRng);
 
-//impl crate::mbedtls::rng::RngCallbackMut for TestRandom {
 impl mbedtls::rng::RngCallbackMut for TestRandom {
     unsafe extern "C" fn call_mut(p_rng: *mut c_void, data: *mut c_uchar, len: size_t) -> c_int {
         (*(p_rng as *mut TestRandom))
@@ -37,7 +31,6 @@ impl mbedtls::rng::RngCallbackMut for TestRandom {
     }
 }
 
-//impl crate::mbedtls::rng::RngCallback for TestRandom {
 impl mbedtls::rng::RngCallback for TestRandom {
     unsafe extern "C" fn call(p_rng: *mut c_void, data: *mut c_uchar, len: size_t) -> c_int {
         (*(p_rng as *mut TestRandom))
