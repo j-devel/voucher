@@ -44,7 +44,7 @@ impl Validate for Voucher {
     }
 }
 
-fn validate_with_mbedtls(
+pub fn validate_with_mbedtls(
     pem: Option<&[u8]>,
     (signer_cert, sig_alg, msg): (Option<&[u8]>, Option<(&[u8], &SignatureAlgorithm)>, &[u8])
 ) -> Result<bool, mbedtls_error> {

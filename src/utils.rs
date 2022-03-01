@@ -1,6 +1,6 @@
 use crate::{Vec, SignatureAlgorithm};
 
-#[cfg(any(feature = "sign", feature = "sign-lts", feature = "validate", feature = "validate-lts"))]
+#[cfg(any(feature = "mbedtls-backend", feature = "sign", feature = "sign-lts", feature = "validate", feature = "validate-lts"))]
 pub mod minerva_mbedtls_utils {
     use super::*;
     use minerva_mbedtls::ifce::*;

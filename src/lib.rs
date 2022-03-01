@@ -234,9 +234,13 @@ pub trait Validate {
 
 #[cfg(any(feature = "sign", feature = "sign-lts"))]
 mod sign;
+#[cfg(feature = "mbedtls-backend")]
+pub mod sign;
 
 #[cfg(any(feature = "validate", feature = "validate-lts"))]
 mod validate;
+#[cfg(feature = "mbedtls-backend")]
+pub mod validate;
 
 //
 

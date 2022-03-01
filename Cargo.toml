@@ -1,6 +1,6 @@
 [package]
 name = "minerva-voucher"
-version = "0.6.1"
+version = "0.6.2"
 description = "Library to use BRSKI (https://datatracker.ietf.org/doc/html/rfc8995) Voucher in Rust"
 edition = "2018"
 authors = ["ANIMA Minerva toolkit"]
@@ -16,6 +16,7 @@ sign = ["v3"]
 sign-lts = ["lts"]
 validate = ["v3"]
 validate-lts = ["lts"]
+mbedtls-backend = ["v3"]
 
 v3 = ["minerva-mbedtls/v3"]
 lts = ["minerva-mbedtls"]

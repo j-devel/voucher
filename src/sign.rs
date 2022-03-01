@@ -45,7 +45,7 @@ impl Sign for Voucher {
     }
 }
 
-fn sign_with_mbedtls(
+pub fn sign_with_mbedtls(
     privkey_pem: &[u8],
     alg: SignatureAlgorithm,
     (sig_out, sig_struct): (&mut Vec<u8>, &[u8])
