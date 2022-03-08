@@ -50,13 +50,6 @@ pub fn validate_with_mbedtls(
 ) -> Result<bool, mbedtls_error> {
     if sig_alg.is_none() { return Ok(false); }
     let (signature, alg) = sig_alg.unwrap();
-
-    // @@ ==== debug
-    // let _ = pk_context::new().verify_debug_esp32_a(42, &[2; 16], &[4; 16], &[8; 16]);
-    // let _ = pk_context::new().verify_debug_esp32_b(    &[2; 16], &[4; 16], &[8; 16]);
-    // if 1 == 1 { panic!("@@ broken sig len -- on xtensa; need adjusting the stack size? or..."); }
-    // @@ ====
-
     let (md_ty, ref hash) = compute_digest(msg, alg);
 
     if let Some(pem) = pem {
