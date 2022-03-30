@@ -8,7 +8,7 @@ pub use super::cose_data::SignatureAlgorithm;
 use core::convert::TryFrom;
 
 /// Errors that can be returned from `Voucher` functions.
-#[derive(PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum VoucherError {
     CborFailure(CborError),
     CoseFailure(CoseError),

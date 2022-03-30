@@ -33,14 +33,12 @@ impl Validate for Voucher {
     /// assert!(vch.validate(Some(MASA_CRT_F2_00_02)).is_ok());
     /// ```
     fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, VoucherError> {
-        match validate_with_mbedtls(pem, self.to_validate()) {
-            Ok(true) => Ok(self),
-            Ok(false) => Err(VoucherError::ValidationFailed),
-            Err(err) => {
-                debug_println!("validate(): mbedtls_error: {}", err);
-                Err(VoucherError::ValidationFailed)
-            },
-        }
+        let err = Err(VoucherError::ValidationFailed);
+        validate_with_mbedtls(pem, self.to_validate())
+            .map_or_else(|e| {
+                debug_println!("validate(): mbedtls_error: {}", e);
+                err
+            }, |x| if x { Ok(self) } else { err })
     }
 }
 
