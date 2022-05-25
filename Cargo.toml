@@ -1,6 +1,6 @@
 [package]
 name = "minerva-voucher"
-version = "0.6.4"
+version = "0.7.0"
 description = "Library to use BRSKI (https://datatracker.ietf.org/doc/html/rfc8995) Voucher in Rust"
 edition = "2018"
 authors = ["ANIMA Minerva toolkit"]
@@ -12,19 +12,14 @@ name = "minerva_voucher"
 default = ["sign", "validate"]
 std = []
 
-sign = ["v3"]
-sign-lts = ["lts"]
-validate = ["v3"]
-validate-lts = ["lts"]
-mbedtls-backend = ["v3"]
-
-v3 = ["minerva-mbedtls/v3"]
-lts = ["minerva-mbedtls"]
+sign = ["minerva-mbedtls"]
+validate = ["minerva-mbedtls"]
+mbedtls-backend = ["minerva-mbedtls"]
 
 [dependencies]
 mcu-if = { git = "https://github.com/AnimaGUS-minerva/mcu-if", rev = "984b8dd" }
 cose = { git = "https://github.com/j-devel/cose-rust", rev = "b07436f", default-features = false }
-minerva-mbedtls = { git = "https://github.com/AnimaGUS-minerva/minerva-mbedtls", rev = "228ee15", default-features = false, optional = true }
+minerva-mbedtls = { git = "https://github.com/AnimaGUS-minerva/minerva-mbedtls", rev = "b9210c0", optional = true }
 
 [dev-dependencies]
 hex-literal = { git = "https://github.com/AnimaGUS-minerva/utils.git", branch = "allow-hash-comments-in-hex" }

@@ -22,8 +22,7 @@ impl Sign for Voucher {
     /// static KEY_PEM_F2_00_02: &[u8] = core::include_bytes!(
     ///     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/key.pem"));
     ///
-    /// // This is required when the `Sign` trait is backed by mbedtls v3.
-    /// #[cfg(feature = "v3")]
+    /// // This is required when the `Sign` trait is backed by mbedtls.
     /// minerva_voucher::init_psa_crypto();
     ///
     /// let mut vrq = Voucher::new_vrq();

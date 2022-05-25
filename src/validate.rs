@@ -24,8 +24,7 @@ impl Validate for Voucher {
     /// static MASA_CRT_F2_00_02: &[u8] = core::include_bytes!(
     ///     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/masa.crt"));
     ///
-    /// // This is required when the `Validate` trait is backed by mbedtls v3.
-    /// #[cfg(feature = "v3")]
+    /// // This is required when the `Validate` trait is backed by mbedtls.
     /// minerva_voucher::init_psa_crypto();
     ///
     /// let vch = Voucher::try_from(VCH_F2_00_02).unwrap();

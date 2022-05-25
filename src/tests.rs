@@ -101,7 +101,6 @@ fn test_voucher_conversion() {
 
 #[test]
 fn test_decode_vch_jada() {
-    #[cfg(feature = "v3")]
     init_psa_crypto();
 
     let vch = Voucher::try_from(VCH_JADA).unwrap();
@@ -116,7 +115,6 @@ fn test_decode_vch_jada() {
 
 #[test]
 fn test_validate_vch_jada() {
-    #[cfg(feature = "v3")]
     init_psa_crypto();
 
     let vch = Voucher::try_from(VCH_JADA).unwrap();
@@ -127,7 +125,6 @@ fn test_validate_vch_jada() {
 
 #[test]
 fn test_serialize_vch_jada() {
-    #[cfg(feature = "v3")]
     init_psa_crypto();
 
     assert_eq!(
@@ -137,7 +134,6 @@ fn test_serialize_vch_jada() {
 
 #[test]
 fn test_synthesize_vch_jada() {
-    #[cfg(feature = "v3")]
     init_psa_crypto();
 
     let key_pem_dummy = KEY_PEM_F2_00_02;
@@ -186,7 +182,6 @@ fn test_synthesize_vch_jada() {
 
 #[test]
 fn test_decode_vch_f2_00_02() {
-    #[cfg(feature = "v3")]
     init_psa_crypto();
 
     let vch = Voucher::try_from(VCH_F2_00_02).unwrap();
@@ -201,7 +196,6 @@ fn test_decode_vch_f2_00_02() {
 
 #[test]
 fn test_validate_vch_f2_00_02() {
-    #[cfg(feature = "v3")]
     init_psa_crypto();
 
     let vch = Voucher::try_from(VCH_F2_00_02).unwrap();
@@ -214,7 +208,6 @@ fn test_validate_vch_f2_00_02() {
 
 #[test]
 fn test_serialize_vch_f2_00_02() {
-    #[cfg(feature = "v3")]
     init_psa_crypto();
 
     assert_eq!(
@@ -235,7 +228,6 @@ fn build_vrq_f2_00_02() -> Voucher {
 
 #[test]
 fn test_unsigned_vrq_f2_00_02() {
-    #[cfg(feature = "v3")]
     init_psa_crypto();
 
     let mut vrq = build_vrq_f2_00_02();
@@ -250,7 +242,6 @@ fn test_unsigned_vrq_f2_00_02() {
 
 #[test]
 fn test_validate_vrq_f2_00_02() {
-    #[cfg(feature = "v3")]
     init_psa_crypto();
 
     assert!(Voucher::try_from(VRQ_F2_00_02)
@@ -261,7 +252,6 @@ fn test_validate_vrq_f2_00_02() {
 
 #[test]
 fn test_sign_vrq_f2_00_02() {
-    #[cfg(feature = "v3")]
     init_psa_crypto();
 
     let mut vrq = build_vrq_f2_00_02();
@@ -284,7 +274,6 @@ fn test_sign_vrq_f2_00_02() {
 
 #[test]
 fn test_serialize_vrq_f2_00_02() {
-    #[cfg(feature = "v3")]
     init_psa_crypto();
 
     let vrq = Voucher::try_from(VRQ_F2_00_02).unwrap();
@@ -318,10 +307,7 @@ A1                                      # map(1)
 
 #[test]
 fn test_highlevel_interface() {
-    #[cfg(feature = "v3")]
     init_psa_crypto();
-
-    //
 
     let mut vrq = Voucher::new_vrq();
     assert!(vrq

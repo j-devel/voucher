@@ -1,14 +1,13 @@
 use crate::{Vec, SignatureAlgorithm};
 
-#[cfg(any(feature = "mbedtls-backend", feature = "sign", feature = "sign-lts", feature = "validate", feature = "validate-lts"))]
+#[cfg(any(feature = "mbedtls-backend", feature = "sign", feature = "validate"))]
 pub mod minerva_mbedtls_utils {
     use super::*;
     use minerva_mbedtls::ifce::*;
     use core::ffi::c_void;
 
     /// Initializes the [PSA cryptography API](https://armmbed.github.io/mbed-crypto/html/)
-    /// context.  Call this function when using the `Sign`/`Validate` trait backed by mbedtls v3.
-    #[cfg(feature = "v3")]
+    /// context.  Call this function when using the `Sign`/`Validate` trait backed by mbedtls.
     pub fn init_psa_crypto() {
         use minerva_mbedtls::psa_crypto;
 
@@ -30,15 +29,7 @@ pub mod minerva_mbedtls_utils {
     pub fn pk_from_privkey_pem(privkey_pem: &[u8], f_rng: *const c_void) -> Result<pk_context, mbedtls_error> {
         let mut pk = pk_context::new();
 
-        #[cfg(any(feature = "validate-lts", feature = "sign-lts"))]
-        {
-            let _ = f_rng;
-            pk.parse_key_lts(privkey_pem, None)?;
-        }
-        #[cfg(not(any(feature = "validate-lts", feature = "sign-lts")))]
-        {
-            pk.parse_key(privkey_pem, None, f_rng, core::ptr::null())?;
-        }
+        pk.parse_key(privkey_pem, None, f_rng, core::ptr::null())?;
 
         Ok(pk)
     }

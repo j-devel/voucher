@@ -90,8 +90,7 @@
 //! static KEY_PEM_F2_00_02: &[u8] = core::include_bytes!(
 //!     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/key.pem"));
 //!
-//! // This is required when the `Sign` trait is backed by mbedtls v3.
-//! #[cfg(feature = "v3")]
+//! // This is required when the `Sign` trait is backed by mbedtls.
 //! minerva_voucher::init_psa_crypto();
 //!
 //! // Create a voucher request with five attributes and COSE-sign it.
@@ -131,8 +130,7 @@
 //! static MASA_CRT_F2_00_02: &[u8] = core::include_bytes!(
 //!     concat!(env!("CARGO_MANIFEST_DIR"), "/data/00-D0-E5-F2-00-02/masa.crt"));
 //!
-//! // This is required when the `Validate` trait is backed by mbedtls v3.
-//! #[cfg(feature = "v3")]
+//! // This is required when the `Validate` trait is backed by mbedtls.
 //! minerva_voucher::init_psa_crypto();
 //!
 //! // Decode the voucher.
@@ -196,7 +194,7 @@ mod tests;
 
 mod utils;
 
-#[cfg(feature = "v3")]
+#[cfg(any(feature = "mbedtls-backend", feature = "sign", feature = "validate"))]
 pub use utils::minerva_mbedtls_utils::init_psa_crypto;
 
 //
@@ -232,12 +230,12 @@ pub trait Validate {
     fn validate(&self, pem: Option<&[u8]>) -> Result<&Self, VoucherError>;
 }
 
-#[cfg(any(feature = "sign", feature = "sign-lts"))]
+#[cfg(feature = "sign")]
 mod sign;
 #[cfg(feature = "mbedtls-backend")]
 pub mod sign;
 
-#[cfg(any(feature = "validate", feature = "validate-lts"))]
+#[cfg(feature = "validate")]
 mod validate;
 #[cfg(feature = "mbedtls-backend")]
 pub mod validate;
