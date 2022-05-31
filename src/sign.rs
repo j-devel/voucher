@@ -2,7 +2,7 @@ use crate::{vec, Vec};
 use crate::{Voucher, Sign, VoucherError, SignatureAlgorithm};
 use crate::debug_println;
 use super::utils::minerva_mbedtls_utils::*;
-use minerva_mbedtls::ifce::*; // WIP: migrate to `psa_ifce::*`
+use minerva_mbedtls::psa_ifce::*;
 
 impl Sign for Voucher {
     /// Signs the voucher using a PEM-encoded private key
@@ -52,9 +52,9 @@ pub fn sign_with_mbedtls(
     let mut sig = vec![];
     let (md_ty, ref hash) = compute_digest(sig_struct, &alg);
 
-    let f_rng = pk_context::test_f_rng_ptr(); // TODO refactor
+    let f_rng = Some(pk_context::test_f_rng_ptr());
     let mut pk = pk_from_privkey_pem(privkey_pem, f_rng)?;
-    pk.sign(md_ty, hash, &mut sig, f_rng, core::ptr::null())?;
+    pk.sign(md_ty, hash, &mut sig, f_rng, core::ptr::null_mut())?;
 
     *sig_out = sig;
 
