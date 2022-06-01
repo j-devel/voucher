@@ -35,4 +35,5 @@ jobs:
       run: |
           sudo apt update
           sudo apt install gcc-multilib
+          rustup show
           make ci
