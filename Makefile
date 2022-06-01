@@ -24,21 +24,20 @@ doc-sync: doc
 	rm doc/.lock
 build:
 	cargo build --lib --release
-#build-i686:
-#	cargo +nightly-i686-unknown-linux-gnu build --lib --release --target i686-unknown-linux-gnu --no-default-features
+build-i686:
+	cargo build --lib --release --target i686-unknown-linux-gnu --no-default-features
 
 test-nostd:
 	cargo test --no-default-features --features "sign validate"
 test-std:
-	cargo test --no-default-features --features "std sign validate"
-#test-i686:
-#	cargo +nightly-i686-unknown-linux-gnu test --target i686-unknown-linux-gnu \
-#		--no-default-features --features "sign-lts validate-lts"
+	cargo test --no-default-features --features "sign validate std"
+test-i686:
+	cargo test --target i686-unknown-linux-gnu --no-default-features --features "sign validate"
 test-example-rust-mbedtls:
 	make -C examples/rust-mbedtls test
 
 test:
 	make test-nostd
 	make test-std
-	#if [ "$$TARGET" = "ci" ]; then make test-i686; fi
+	if [ "$$TARGET" = "ci" ]; then make test-i686; fi
 	make test-example-rust-mbedtls
