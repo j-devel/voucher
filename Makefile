@@ -33,7 +33,7 @@ test-nostd:
 test-std:
 	cargo test --no-default-features --features "sign validate std"
 test-i686:
-	cargo test --target i686-unknown-linux-gnu --no-default-features --features "sign validate"
+	cargo +nightly test --target i686-unknown-linux-gnu --no-default-features --features "sign validate"
 test-example-rust-mbedtls:
 	make -C examples/rust-mbedtls test
 
