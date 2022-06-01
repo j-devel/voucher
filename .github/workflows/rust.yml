@@ -28,13 +28,10 @@ jobs:
         curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
         rustup toolchain install ${{ matrix.rust }}
         rustup default ${{ matrix.rust }}
-    - name: make init-rust-i686-nightly
-      run: make init-rust-i686-nightly
-    - name: make init-rust-x86_64-nightly
-      run: make init-rust-x86_64-nightly
+    - name: make init-rust-toolchains
+      run: make init-rust-toolchains
     - name: Run test
       run: |
           sudo apt update
           sudo apt install gcc-multilib
-          rustup show
           make ci
