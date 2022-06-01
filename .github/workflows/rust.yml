@@ -31,7 +31,7 @@ jobs:
     - name: make init-rust-i686-nightly
       run: make init-rust-i686-nightly
     - name: make init-rust-x86_64-nightly
-      run: make init-rust-x86_64-nightly && rustup default nightly
+      run: make init-rust-x86_64-nightly## && rustup default nightly
     - name: Run test
       run: |
           sudo apt update
